@@ -7,8 +7,8 @@ export const semesters: SemesterData[] = [
     color: '#2d8a4e',
     description: '4个单词 · 2个单元',
     units: [
-      { id: '1a/u1', title: 'Unit 1', wordKeys: ['apple', 'hello'] },
-      { id: '1a/u2', title: 'Unit 2', wordKeys: ['kite', 'have'] },
+      { id: 'u1', title: 'Unit 1', wordKeys: ['apple', 'hello'] },
+      { id: 'u2', title: 'Unit 2', wordKeys: ['kite', 'have'] },
     ],
   },
   {
@@ -17,7 +17,7 @@ export const semesters: SemesterData[] = [
     color: '#7b3fa0',
     description: '2个单词 · 1个单元',
     units: [
-      { id: '1b/u1', title: 'Unit 1', wordKeys: ['who', 'stand'] },
+      { id: 'u1', title: 'Unit 1', wordKeys: ['who', 'stand'] },
     ],
   },
   {
@@ -27,23 +27,23 @@ export const semesters: SemesterData[] = [
     description: '58个单词 · 5个单元',
     units: [
       {
-        id: '2a/u1', title: 'Unit 1',
+        id: 'u1', title: 'Unit 1',
         wordKeys: ['eye', 'face', 'mouth', 'nose', 'snowman', 'same', 'twin', 'big', 'small', 'people', 'often', 'us', 'wrong', 'can', 'idea', 'long', 'hair', 'short', 'different', 'now'],
       },
       {
-        id: '2a/u2', title: 'Unit 2',
+        id: 'u2', title: 'Unit 2',
         wordKeys: ['put', 'head', 'neck', 'arm', 'body', 'leg'],
       },
       {
-        id: '2a/u3', title: 'Unit 3',
+        id: 'u3', title: 'Unit 3',
         wordKeys: ['go', 'zoo', 'tiger', 'fox', 'monkey', 'eat', 'king', 'of', 'animal', 'show', 'come', 'with', 'run', 'deer', 'fly'],
       },
       {
-        id: '2a/u4', title: 'Unit 4',
+        id: 'u4', title: 'Unit 4',
         wordKeys: ['apple', 'banana', 'milk', 'about', 'picnic', 'day', 'bread', 'meat', 'food', 'shopping', 'list'],
       },
       {
-        id: '2a/u5', title: 'Unit 5',
+        id: 'u5', title: 'Unit 5',
         wordKeys: ['festival', 'best', 'wish', 'celebrate', 'wear', 'clothes', 'mean', 'luck', 'these', 'lantern', 'they', 'beautiful', 'also', 'wow', 'some', 'candy', 'lucky', 'new', 'year', 'interesting'],
       },
     ],
