@@ -1,44 +1,95 @@
 import { useState } from 'react'
 import {
   Anchor, Box, Button, Group, PasswordInput,
-  Radio, Stack, Tabs, Text, Title,
+  Stack, Tabs, Text, Title, UnstyledButton,
 } from '@mantine/core'
-import { IconPhoto, IconVolume } from '@tabler/icons-react'
+import { IconCheck, IconPhoto, IconVolume } from '@tabler/icons-react'
+import womanSvg from '../assets/woman.svg'
+import manSvg from '../assets/man.svg'
+import girlSvg from '../assets/girl.svg'
+import boySvg from '../assets/boy.svg'
 
-// ── 共享常量（与 SettingsModal 保持一致）────────────────────────────────
-const VOICE_PRESETS = [
+// ── 语音预设 ──────────────────────────────────────────────────────────────
+export const VOICE_PRESETS = [
   {
-    name: 'Ava（女）- 美式英语',
+    key: 'ava',
+    name: 'Ava',
+    label: '美式英语・女',
     voiceName: 'Microsoft Ava Online (Natural) - English (United States)',
+    avatar: womanSvg,
+    color: '#7b3fa0',
   },
   {
-    name: 'Eric（男）- 美式英语',
+    key: 'eric',
+    name: 'Eric',
+    label: '美式英语・男',
     voiceName: 'Microsoft Eric Online (Natural) - English (United States)',
+    avatar: manSvg,
+    color: '#1b6ca8',
   },
   {
-    name: '系统默认英语语音',
+    key: 'girl',
+    name: 'Girl',
+    label: '系统语音・女孩',
     voiceName: '',
+    avatar: girlSvg,
+    color: '#d64045',
+  },
+  {
+    key: 'boy',
+    name: 'Boy',
+    label: '系统语音・男孩',
+    voiceName: '',
+    avatar: boySvg,
+    color: '#2d8a4e',
   },
 ]
 
-const VOICE_KEY = 'phonics_voice_name'
+export const VOICE_KEY = 'phonics_voice_name'
+export const ACTIVE_VOICE_KEY = 'phonics_active_voice'   // 激活的语音 key（用于例句阅读）
 const PIXABAY_KEY_LS = 'phonics_pixabay_key'
 
-function loadVoiceName() {
+export function loadVoiceName() {
   try { return localStorage.getItem(VOICE_KEY) ?? VOICE_PRESETS[0].voiceName } catch { return VOICE_PRESETS[0].voiceName }
+}
+export function loadActiveVoiceKey() {
+  try { return localStorage.getItem(ACTIVE_VOICE_KEY) ?? VOICE_PRESETS[0].key } catch { return VOICE_PRESETS[0].key }
 }
 function loadPixabayKey() {
   try { return localStorage.getItem(PIXABAY_KEY_LS) ?? '' } catch { return '' }
 }
 
+// ── 朗读函数（供外部复用）────────────────────────────────────────────────
+export function speakWithVoiceName(text: string, vName: string) {
+  if (!('speechSynthesis' in window)) return
+  const say = (voices: SpeechSynthesisVoice[]) => {
+    const utter = new SpeechSynthesisUtterance(text)
+    utter.lang = 'en-US'
+    const voice = vName
+      ? voices.find(v => v.name === vName)
+      : voices.find(v => v.lang.startsWith('en') && !v.localService) ?? voices.find(v => v.lang.startsWith('en'))
+    if (voice) utter.voice = voice
+    window.speechSynthesis.cancel()
+    window.speechSynthesis.speak(utter)
+  }
+  const voices = window.speechSynthesis.getVoices()
+  if (voices.length > 0) { say(voices) }
+  else { window.speechSynthesis.onvoiceschanged = () => { say(window.speechSynthesis.getVoices()); window.speechSynthesis.onvoiceschanged = null } }
+}
+
+// ── SettingsPage ──────────────────────────────────────────────────────────
 export default function SettingsPage() {
-  const [voiceName, setVoiceName] = useState(loadVoiceName)
+  const [selectedVoice, setSelectedVoice] = useState(loadVoiceName)
+  const [activeVoiceKey, setActiveVoiceKey] = useState(loadActiveVoiceKey)
   const [pixabayKey, setPixabayKey] = useState(loadPixabayKey)
   const [voiceSaved, setVoiceSaved] = useState(false)
   const [pixabaySaved, setPixabaySaved] = useState(false)
 
   const handleSaveVoice = () => {
-    try { localStorage.setItem(VOICE_KEY, voiceName) } catch {}
+    try {
+      localStorage.setItem(VOICE_KEY, selectedVoice)
+      localStorage.setItem(ACTIVE_VOICE_KEY, activeVoiceKey)
+    } catch {}
     setVoiceSaved(true)
     setTimeout(() => setVoiceSaved(false), 2000)
   }
@@ -49,98 +100,117 @@ export default function SettingsPage() {
     setTimeout(() => setPixabaySaved(false), 2000)
   }
 
-  const handlePreview = () => {
-    if (!('speechSynthesis' in window)) return
-    const utter = new SpeechSynthesisUtterance('Hello! This is a test sentence for the phonics app.')
-    utter.lang = 'en-US'
-    const voices = window.speechSynthesis.getVoices()
-    const voice = voiceName
-      ? voices.find(v => v.name === voiceName)
-      : voices.find(v => v.lang.startsWith('en') && !v.localService) ?? voices.find(v => v.lang.startsWith('en'))
-    if (voice) utter.voice = voice
-    window.speechSynthesis.cancel()
-    window.speechSynthesis.speak(utter)
+  const handlePreview = (vName: string) => {
+    speakWithVoiceName('Hello! Nice to meet you. Let\'s learn English together!', vName)
   }
 
   return (
-    <Box p="xl" style={{ maxWidth: 600, margin: '0 auto' }}>
+    <Box p="xl" style={{ maxWidth: 640, margin: '0 auto' }}>
       <Title order={2} mb="xl" style={{ fontFamily: "'Nunito', sans-serif", color: '#1a1a2e' }}>
         设置
       </Title>
 
       <Tabs defaultValue="voice" radius="md">
         <Tabs.List mb="xl">
-          <Tabs.Tab value="voice" leftSection={<IconVolume size={15} stroke={1.8} />}>
-            语音
-          </Tabs.Tab>
-          <Tabs.Tab value="image" leftSection={<IconPhoto size={15} stroke={1.8} />}>
-            图片
-          </Tabs.Tab>
+          <Tabs.Tab value="voice" leftSection={<IconVolume size={15} stroke={1.8} />}>语音</Tabs.Tab>
+          <Tabs.Tab value="image" leftSection={<IconPhoto size={15} stroke={1.8} />}>图片</Tabs.Tab>
         </Tabs.List>
 
         {/* ── 语音 tab ── */}
         <Tabs.Panel value="voice">
-          <Stack gap="lg">
-            <Stack gap={4}>
-              <Text fw={600} size="sm">例句朗读语音</Text>
-              <Text size="xs" c="dimmed">
-                在 Microsoft Edge 浏览器中可使用高质量 Neural 语音。
-              </Text>
+          <Stack gap="xl">
+            <Stack gap="xs">
+              <Text fw={600} size="sm">选择语音</Text>
+              <Text size="xs" c="dimmed">在 Microsoft Edge 中可使用高质量 Neural 语音。</Text>
             </Stack>
 
-            <Stack gap="sm">
-              {VOICE_PRESETS.map(preset => (
-                <Box
-                  key={preset.voiceName}
-                  onClick={() => setVoiceName(preset.voiceName)}
-                  style={{
-                    padding: '12px 16px',
-                    borderRadius: 12,
-                    border: `2px solid ${voiceName === preset.voiceName ? '#1b6ca8' : '#e9ecef'}`,
-                    background: voiceName === preset.voiceName ? '#f0f4ff' : '#fff',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s',
-                  }}
-                >
-                  <Group justify="space-between">
-                    <Stack gap={2}>
-                      <Text size="sm" fw={voiceName === preset.voiceName ? 600 : 400}>
-                        {preset.name}
-                      </Text>
-                      {preset.voiceName && (
-                        <Text size="xs" c="dimmed" style={{ fontFamily: 'monospace' }}>
-                          {preset.voiceName}
+            {/* 语音卡片网格 */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              {VOICE_PRESETS.map(preset => {
+                const isSelected = selectedVoice === preset.voiceName
+                const isActive = activeVoiceKey === preset.key
+                return (
+                  <UnstyledButton
+                    key={preset.key}
+                    onClick={() => setSelectedVoice(preset.voiceName)}
+                    style={{
+                      borderRadius: 16,
+                      border: `2px solid ${isSelected ? preset.color : '#e9ecef'}`,
+                      background: isSelected ? `${preset.color}10` : '#fff',
+                      padding: '16px 14px',
+                      transition: 'all 0.15s',
+                      position: 'relative',
+                    }}
+                  >
+                    {/* 激活标记 */}
+                    {isActive && (
+                      <Box style={{
+                        position: 'absolute', top: 8, right: 8,
+                        width: 18, height: 18, borderRadius: '50%',
+                        background: preset.color,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        <IconCheck size={11} color="white" stroke={2.5} />
+                      </Box>
+                    )}
+
+                    <Stack gap={8} align="center">
+                      {/* 头像 */}
+                      <img
+                        src={preset.avatar}
+                        alt={preset.name}
+                        style={{ width: 56, height: 56, objectFit: 'contain' }}
+                      />
+
+                      {/* 名字 */}
+                      <Stack gap={2} align="center">
+                        <Text fw={700} size="sm" style={{ color: isSelected ? preset.color : '#1a1a2e' }}>
+                          {preset.name}
                         </Text>
-                      )}
-                    </Stack>
-                    <Radio
-                      checked={voiceName === preset.voiceName}
-                      onChange={() => setVoiceName(preset.voiceName)}
-                      size="sm"
-                    />
-                  </Group>
-                </Box>
-              ))}
-            </Stack>
+                        <Text size="xs" c="dimmed">{preset.label}</Text>
+                      </Stack>
 
-            <Group gap="sm">
-              <Button
-                variant="default"
-                radius="xl"
-                leftSection={<IconVolume size={14} />}
-                onClick={handlePreview}
-              >
-                试听
-              </Button>
-              <Button
-                onClick={handleSaveVoice}
-                radius="xl"
-                style={{ background: voiceSaved ? '#2d8a4e' : '#1a1a2e' }}
-                flex={1}
-              >
-                {voiceSaved ? '已保存 ✓' : '保存'}
-              </Button>
-            </Group>
+                      {/* 操作按钮 */}
+                      <Group gap={6} onClick={e => e.stopPropagation()}>
+                        {/* 试听 */}
+                        <Button
+                          size="xs"
+                          variant="light"
+                          radius="xl"
+                          leftSection={<IconVolume size={12} />}
+                          color={preset.color}
+                          onClick={() => handlePreview(preset.voiceName)}
+                          style={{ fontSize: 11 }}
+                        >
+                          试听
+                        </Button>
+                        {/* 激活 */}
+                        <Button
+                          size="xs"
+                          radius="xl"
+                          variant={isActive ? 'filled' : 'outline'}
+                          color={preset.color}
+                          leftSection={isActive ? <IconCheck size={11} stroke={2.5} /> : undefined}
+                          onClick={() => setActiveVoiceKey(preset.key)}
+                          style={{ fontSize: 11 }}
+                        >
+                          {isActive ? '已激活' : '激活'}
+                        </Button>
+                      </Group>
+                    </Stack>
+                  </UnstyledButton>
+                )
+              })}
+            </div>
+
+            <Button
+              onClick={handleSaveVoice}
+              radius="xl"
+              style={{ background: voiceSaved ? '#2d8a4e' : '#1a1a2e' }}
+              fullWidth
+            >
+              {voiceSaved ? '已保存 ✓' : '保存设置'}
+            </Button>
           </Stack>
         </Tabs.Panel>
 
@@ -149,25 +219,17 @@ export default function SettingsPage() {
           <Stack gap="lg">
             <Stack gap={4}>
               <Text fw={600} size="sm">Pixabay API Key</Text>
-              <Text size="xs" c="dimmed">
-                用于自动获取单词配图，存储在本地浏览器中，不会上传。
-              </Text>
+              <Text size="xs" c="dimmed">用于自动获取单词配图，存储在本地浏览器中，不会上传。</Text>
             </Stack>
-
             <PasswordInput
               placeholder="请输入你的 Pixabay API Key"
               value={pixabayKey}
-              onChange={(e) => setPixabayKey(e.currentTarget.value)}
+              onChange={e => setPixabayKey(e.currentTarget.value)}
               radius="md"
             />
-
             <Text size="xs" c="dimmed">
-              没有 Key？
-              <Anchor href="https://pixabay.com/api/docs/" target="_blank" size="xs" ml={4}>
-                免费注册获取 →
-              </Anchor>
+              没有 Key？<Anchor href="https://pixabay.com/api/docs/" target="_blank" size="xs" ml={4}>免费注册获取 →</Anchor>
             </Text>
-
             <Button
               onClick={handleSavePixabay}
               radius="xl"
