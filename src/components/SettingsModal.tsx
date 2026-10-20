@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ActionIcon, Anchor, Button, Modal, PasswordInput, Stack, Text } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
+import { IconSettings } from '@tabler/icons-react'
 
 interface SettingsModalProps {
   pixabayKey: string
@@ -31,7 +32,7 @@ export function SettingsButton({ pixabayKey, onSave }: SettingsModalProps) {
         onClick={handleOpen}
         style={{ color: '#6b7280' }}
       >
-        ⚙️
+        <IconSettings size={20} stroke={1.5} />
       </ActionIcon>
 
       <Modal

@@ -1,5 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ActionIcon, Box, Card, Group, Stack, Tabs, Text, Tooltip, Image } from '@mantine/core'
+import {
+  IconVolume,
+  IconRefresh,
+  IconX,
+  IconAbc,
+  IconMessageCircle,
+  IconLink,
+  IconVolumeOff,
+  IconWaveSine,
+} from '@tabler/icons-react'
 import type { LetterMark, Syllable, WordEntry } from '../types'
 import { playWord } from '../utils/audio'
 import { fetchPixabayImage, getCachedImage, isImageSkipped, setCachedImage, skipImage } from '../utils/pixabay'
@@ -258,7 +268,7 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
               aria-label="换一张图片"
               style={{ boxShadow: '0 1px 6px rgba(0,0,0,0.12)' }}
             >
-              🔄
+              <IconRefresh size={16} stroke={1.8} />
             </ActionIcon>
           </Tooltip>
           <Tooltip label="跳过此图" withArrow events={{ hover: true, focus: true, touch: true }}>
@@ -269,7 +279,7 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
               aria-label="跳过此图片"
               style={{ boxShadow: '0 1px 6px rgba(0,0,0,0.12)' }}
             >
-              🚫
+              <IconX size={16} stroke={1.8} />
             </ActionIcon>
           </Tooltip>
         </Group>
@@ -343,7 +353,7 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
                 flexShrink: 0,
               }}
             >
-              🔊
+              <IconVolume size="60%" stroke={1.8} />
             </ActionIcon>
           </Group>
           <Text style={{
@@ -360,9 +370,9 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
       {/* Tabs：标注 / 句子 */}
       <Tabs defaultValue="marks" radius="md" style={{ width: '100%' }}>
         <Tabs.List>
-          <Tabs.Tab value="marks" style={{ fontSize: 'clamp(11px, 1.4vw, 2vh)' }}>📖 拼读</Tabs.Tab>
+          <Tabs.Tab value="marks" leftSection={<IconAbc size={14} stroke={1.8} />} style={{ fontSize: 'clamp(11px, 1.4vw, 2vh)' }}>拼读</Tabs.Tab>
           {renderedSentences.length > 0 && (
-            <Tabs.Tab value="sentences" style={{ fontSize: 'clamp(11px, 1.4vw, 2vh)' }}>💬 例句</Tabs.Tab>
+            <Tabs.Tab value="sentences" leftSection={<IconMessageCircle size={14} stroke={1.8} />} style={{ fontSize: 'clamp(11px, 1.4vw, 2vh)' }}>例句</Tabs.Tab>
           )}
         </Tabs.List>
 
@@ -373,7 +383,12 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
               <Stack gap={4}>
                 {allMarks.map((m, i) => (
                   <Text key={i} style={{ fontSize: 'clamp(11px, 1.5vw, 2vh)' }} c="dark.4">
-                    {m.type === 'cluster' ? '🔗 ' : m.type === 'changed' ? '〰️ ' : '🔇 '}
+                  {m.type === 'cluster'
+                    ? <IconLink size={12} stroke={1.8} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3 }} />
+                    : m.type === 'changed'
+                    ? <IconWaveSine size={12} stroke={1.8} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3 }} />
+                    : <IconVolumeOff size={12} stroke={1.8} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3 }} />
+                  }
                     <Text component="span" fw={700}>{m.letters}</Text>：{m.note}
                   </Text>
                 ))}

@@ -9,6 +9,7 @@ import {
   UnstyledButton,
   rem,
 } from '@mantine/core'
+import { IconBooks } from '@tabler/icons-react'
 import { useDisclosure } from '@mantine/hooks'
 import { Carousel } from '@mantine/carousel'
 import '@mantine/carousel/styles.css'
@@ -51,8 +52,9 @@ export default function HomePage() {
         <Group h="100%" px="md" justify="space-between">
           <Group gap="sm">
             <Burger opened={navOpened} onClick={toggleNav} hiddenFrom="sm" size="sm" />
+            <IconBooks size={22} color="#1a1a2e" stroke={1.8} />
             <Text fw={800} style={{ fontFamily: "'Nunito', sans-serif", color: '#1a1a2e', fontSize: 18 }}>
-              📖 拼读乐园
+              拼读乐园
             </Text>
           </Group>
 
