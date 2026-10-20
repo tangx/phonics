@@ -9,7 +9,7 @@ description: 为中国小学英语教学网站录入新单词时，分析英文�
 
 面向中国小学生的英语拼读教学网站。核心理念：**自然拼读规则 + 国际音标双轨并行**，帮助孩子建立"字母组合 → 音标 → 发音"的完整映射。
 
-数据文件：`src/data/units.ts`，类型定义：`src/types.ts`。
+数据文件：`src/data/dictionary.ts`（词典，key=单词字符串），`src/data/units.ts`（单元索引，只存 wordKeys），类型定义：`src/types.ts`。
 完整参考文档（需要时读取）：
 - `references/phonemes.md` — 44个英语音素、拼写对应、例词
 - `references/nessy-phonics-rules.md` — Nessy 76集自然拼读规则，含教学顺序、快速索引
@@ -165,14 +165,24 @@ const C = ['#d64045', '#1b6ca8', '#2d8a4e', '#7b3fa0'] // 音节颜色，多音�
 | kite | kite | /kaɪt/ | 风筝 | ✨ e（i→/aɪ/） |
 | wrong | wrong | /rɒŋ/ | 错误 | 🔇 w |
 
-**Step 3**：输出 TypeScript 代码
+**Step 3**：写入 `src/data/dictionary.ts`
+
+读取 `src/data/dictionary.ts` 当前内容，在文件末尾合适的注释分组下追加新单词条目：
 
 ```ts
-{ word: 'wish', phonetic: '/wɪʃ/', syllables: [{ text: 'wish', phonetic: '/wɪʃ/', color: C[0], marks: [{ letters: 'sh', type: 'cluster', phonetic: 'ʃ', note: 'sh 组合→/ʃ/' }] }], chinese: '愿望；祝愿' },
-{ word: 'apple', phonetic: '/ˈæp.əl/', syllables: [{ text: 'ap', phonetic: '/æp/', color: C[0] }, { text: 'ple', phonetic: '/əl/', color: C[1] }], chinese: '苹果' },
+// ── 二年级下册 ─────────────────────────────────────────────────────────
+  spring: { word: 'spring', phonetic: '/sprɪŋ/', syllables: [{ text: 'spring', phonetic: '/sprɪŋ/', color: C[0], marks: [{ letters: 'ng', type: 'cluster', phonetic: 'ŋ', note: 'ng 组合→/ŋ/' }] }], chinese: '春天' },
 ```
 
-**Step 4**：标记疑问点，不确定的发音或音节划分单独说明。
+**Step 4**：更新 `src/data/units.ts`
+
+在对应学期/单元的 `wordKeys` 数组中追加新单词的 key：
+
+```ts
+{ id: 'grade2-s2-u1', title: 'Unit 1', wordKeys: ['spring', 'summer', ...] },
+```
+
+**Step 5**：标记疑问点，不确定的发音或音节划分单独说明。
 
 ---
 
