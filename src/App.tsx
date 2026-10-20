@@ -12,7 +12,10 @@ export default function App() {
         <Route element={<AppShellLayout />}>
           <Route index element={<Navigate to="/books" replace />} />
           <Route path="books" element={<BooksHomePage />} />
+          {/* /books/:semesterId/:unitId?/:word? */}
           <Route path="books/:semesterId" element={<BookPage />} />
+          <Route path="books/:semesterId/:unitId" element={<BookPage />} />
+          <Route path="books/:semesterId/:unitId/:word" element={<BookPage />} />
           <Route path="sight-words" element={<SightWordsPage />} />
         </Route>
       </Routes>

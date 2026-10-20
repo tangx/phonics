@@ -67,13 +67,13 @@ export default function AppShellLayout() {
             }}
           >
             {semesters.map((semester) => {
-              const isActive = location.pathname === `/books/${semester.id}`
+              const isActive = location.pathname.startsWith(`/books/${semester.id}`)
               return (
                 <NavLink
                   key={semester.id}
                   label={semester.title}
                   active={isActive}
-                  onClick={() => handleNav(`/books/${semester.id}`)}
+                  onClick={() => handleNav(`/books/${semester.id}/${semester.units[0].id}`)}
                   styles={{ root: { borderRadius: 8, fontSize: 'var(--mantine-font-size-sm)' } }}
                   leftSection={
                     <span style={{

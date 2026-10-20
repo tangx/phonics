@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useRef } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Carousel } from '@mantine/carousel'
 import type { EmblaCarouselType } from 'embla-carousel'
 import {
@@ -20,46 +20,40 @@ const SYLLABLE_LEGEND = [
 ]
 
 export default function BookPage() {
-  const { semesterId } = useParams<{ semesterId: string }>()
-  const [searchParams] = useSearchParams()
+  const { semesterId, unitId, word } = useParams<{
+    semesterId: string
+    unitId: string
+    word: string
+  }>()
   const navigate = useNavigate()
   const { pixabayKey } = useSettings()
-
-  const semester = semesters.find(s => s.id === semesterId)
-
-  const [activeUnitId, setActiveUnitId] = useState(() => semester?.units[0]?.id ?? '')
-  const activeUnit = semester?.units.find(u => u.id === activeUnitId) ?? semester?.units[0]
-
   const emblaRef = useRef<EmblaCarouselType | null>(null)
 
-  // 所有单词（去重）用于 ?word= 定位
-  const allWordKeys = useMemo(
-    () => activeUnit?.wordKeys ?? [],
-    [activeUnit]
-  )
-
-  // ?word= 定位：找到 slide index
-  const startIndex = useMemo(() => {
-    const word = searchParams.get('word')
-    if (!word) return 0
-    const idx = allWordKeys.indexOf(word)
-    return idx >= 0 ? idx : 0
-  }, [allWordKeys, searchParams])
-
-  // 当 unit 切换时，若有 ?word= 则滚动到对应位置
-  useEffect(() => {
-    const word = searchParams.get('word')
-    if (!word || !emblaRef.current) return
-    const idx = allWordKeys.indexOf(word)
-    if (idx >= 0) emblaRef.current.scrollTo(idx)
-  }, [activeUnitId, allWordKeys, searchParams])
-
+  const semester = semesters.find(s => s.id === semesterId)
   if (!semester) {
-    return (
-      <Box p="xl">
-        <Text c="dimmed">找不到该课本：{semesterId}</Text>
-      </Box>
-    )
+    return <Box p="xl"><Text c="dimmed">找不到课本：{semesterId}</Text></Box>
+  }
+
+  // 当前单元：URL 有 unitId 就用，否则第一个
+  const activeUnit = (unitId ? semester.units.find(u => u.id === unitId) : null)
+    ?? semester.units[0]
+
+  const wordKeys = activeUnit?.wordKeys ?? []
+
+  // 当前单词的 slide index
+  const startIndex = word ? Math.max(0, wordKeys.indexOf(word)) : 0
+
+  // 切换单元 → navigate 到新 URL，word 重置
+  const handleUnitChange = (newUnitId: string) => {
+    navigate(`/books/${semesterId}/${newUnitId}`)
+  }
+
+  // Carousel 滑动时更新 URL 中的 word
+  const handleSlideChange = (index: number) => {
+    const newWord = wordKeys[index]
+    if (!newWord) return
+    const newUnitId = activeUnit?.id ?? semester.units[0].id
+    navigate(`/books/${semesterId}/${newUnitId}/${newWord}`, { replace: true })
   }
 
   return (
@@ -71,8 +65,13 @@ export default function BookPage() {
             <IconArrowLeft size={16} stroke={1.8} />
           </ActionIcon>
           <Breadcrumbs separatorMargin={4} styles={{ separator: { color: '#d1d5db' } }}>
-            <Anchor size="xs" c="dimmed" onClick={() => navigate('/books')} style={{ cursor: 'pointer' }}>Books</Anchor>
-            <Text size="xs" c="dark">{semester.title}</Text>
+            <Anchor size="xs" c="dimmed" onClick={() => navigate('/books')} style={{ cursor: 'pointer' }}>
+              Books
+            </Anchor>
+            <Anchor size="xs" c="dimmed" onClick={() => navigate(`/books/${semesterId}`)} style={{ cursor: 'pointer' }}>
+              {semester.title}
+            </Anchor>
+            <Text size="xs" c="dark">{activeUnit?.title}</Text>
           </Breadcrumbs>
         </Group>
       </Box>
@@ -81,13 +80,13 @@ export default function BookPage() {
       <Box px="md" py="xs" style={{ flexShrink: 0 }}>
         <Group justify="space-between" wrap="wrap" gap={8}>
           <SegmentedControl
-            value={activeUnitId}
-            onChange={setActiveUnitId}
+            value={activeUnit?.id ?? ''}
+            onChange={handleUnitChange}
             data={semester.units.map(u => ({ value: u.id, label: u.title }))}
             radius="xl"
             size="xs"
           />
-          <Group gap={12}>
+          <Group gap={12} visibleFrom="sm">
             {SYLLABLE_LEGEND.map(item => (
               <Group key={item.label} gap={5}>
                 <Box style={{ width: 10, height: 10, borderRadius: '50%', background: item.color, flexShrink: 0 }} />
@@ -101,7 +100,7 @@ export default function BookPage() {
       {/* Carousel */}
       <Box style={{ flex: 1, minHeight: 0, padding: '0 12px 12px' }}>
         <Carousel
-          key={`${activeUnitId}-${startIndex}`}
+          key={`${activeUnit?.id}-${startIndex}`}
           withIndicators
           withKeyboardEvents
           slideSize="100%"
@@ -109,6 +108,7 @@ export default function BookPage() {
           height="100%"
           emblaOptions={{ loop: false, align: 'center', startIndex }}
           getEmblaApi={(api) => { emblaRef.current = api }}
+          onSlideChange={handleSlideChange}
           controlSize={36}
           styles={{
             root: { height: '100%' },
@@ -123,7 +123,7 @@ export default function BookPage() {
             },
           }}
         >
-          {allWordKeys.map((key) => {
+          {wordKeys.map((key) => {
             const entry = dictionary[key]
             if (!entry) return null
             return (
