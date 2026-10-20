@@ -1,0 +1,36 @@
+import type { WordEntry } from '../../types'
+
+const C = ['#d64045', '#1b6ca8', '#2d8a4e', '#7b3fa0']
+
+export const dictB: Record<string, WordEntry> = {
+  big: { word: 'big', phonetic: '/bɪɡ/', syllables: [{ text: 'big', phonetic: '/bɪɡ/', color: C[0] }], chinese: '大的'  },
+  body: { word: 'body', phonetic: '/ˈbɒdi/', syllables: [{ text: 'bod', phonetic: '/bɒ/', color: C[0] }, { text: 'y', phonetic: '/di/', color: C[1] }], chinese: '身体' },
+  banana: { word: 'banana', phonetic: '/bəˈnɑːnə/', syllables: [{ text: 'ba', phonetic: '/bə/', color: C[0] }, { text: 'na', phonetic: '/nɑː/', color: C[1] }, { text: 'na', phonetic: '/nə/', color: C[2] }], chinese: '香蕉'  },
+  bread: { word: 'bread', phonetic: '/bred/', syllables: [{ text: 'bread', phonetic: '/bred/', color: C[0], marks: [{ letters: 'ea', type: 'cluster', phonetic: 'e', note: '不规则：ea→/e/（通常 ea→/iː/）' }] }], chinese: '面包'  },
+  best: { word: 'best', phonetic: '/best/', syllables: [{ text: 'best', phonetic: '/best/', color: C[0] }], chinese: '最好的' },
+  beautiful: { word: 'beautiful', phonetic: '/ˈbjuːtɪfəl/', syllables: [{ text: 'beau', phonetic: '/bjuː/', color: C[0], marks: [{ letters: 'eau', type: 'changed', note: '不规则：eau→/juː/' }] }, { text: 'ti', phonetic: '/tɪ/', color: C[1] }, { text: 'ful', phonetic: '/fəl/', color: C[2] }], chinese: '美丽的'  },
+  by: { word: 'by', phonetic: '/baɪ/', syllables: [{ text: 'by', phonetic: '/baɪ/', color: C[0] }], chinese: '由；在...旁边' },
+  because: { word: 'because', phonetic: '/bɪˈkɒz/', syllables: [{ text: 'be', phonetic: '/bɪ/', color: C[0] }, { text: 'cause', phonetic: '/kɒz/', color: C[1], marks: [{ letters: 'au', type: 'cluster', phonetic: 'ɒ', note: 'au 组合→/ɒ/（不规则，通常→/ɔː/）' }] }], chinese: '因为'  },
+  been: { word: 'been', phonetic: '/biːn/', syllables: [{ text: 'been', phonetic: '/biːn/', color: C[0], marks: [{ letters: 'ee', type: 'cluster', phonetic: 'iː', note: 'ee 组合→/iː/' }] }], chinese: '是（过去分词）' },
+  before: { word: 'before', phonetic: '/bɪˈfɔːr/', syllables: [{ text: 'be', phonetic: '/bɪ/', color: C[0] }, { text: 'fore', phonetic: '/fɔːr/', color: C[1], marks: [{ letters: 'or', type: 'cluster', phonetic: 'ɔːr', note: 'or r控制元音→/ɔːr/' }] }], chinese: '在...之前'  },
+  both: { word: 'both', phonetic: '/boʊθ/', syllables: [{ text: 'both', phonetic: '/boʊθ/', color: C[0], marks: [{ letters: 'th', type: 'cluster', phonetic: 'θ', note: 'th 组合→/θ/（清音）' }] }], chinese: '两者都'  },
+  buy: { word: 'buy', phonetic: '/baɪ/', syllables: [{ text: 'buy', phonetic: '/baɪ/', color: C[0] }], chinese: '买' },
+  blue: { word: 'blue', phonetic: '/bluː/', syllables: [{ text: 'blue', phonetic: '/bluː/', color: C[0], marks: [{ letters: 'ue', type: 'cluster', phonetic: 'uː', note: 'ue 组合→/uː/' }] }], chinese: '蓝色'  },
+  be: { word: 'be', phonetic: '/biː/', syllables: [{ text: 'be', phonetic: '/biː/', color: C[0] }], chinese: '是；成为'  },
+  black: { word: 'black', phonetic: '/blæk/', syllables: [{ text: 'black', phonetic: '/blæk/', color: C[0], marks: [{ letters: 'ck', type: 'cluster', phonetic: 'k', note: 'ck 组合→/k/' }] }], chinese: '黑色'  },
+  brown: { word: 'brown', phonetic: '/braʊn/', syllables: [{ text: 'brown', phonetic: '/braʊn/', color: C[0], marks: [{ letters: 'ow', type: 'cluster', phonetic: 'aʊ', note: 'ow 组合→/aʊ/' }] }], chinese: '棕色'  },
+  but: { word: 'but', phonetic: '/bʌt/', syllables: [{ text: 'but', phonetic: '/bʌt/', color: C[0] }], chinese: '但是' },
+  better: { word: 'better', phonetic: '/ˈbetər/', syllables: [{ text: 'bet', phonetic: '/be/', color: C[0] }, { text: 'ter', phonetic: '/tər/', color: C[1], marks: [{ letters: 'er', type: 'cluster', phonetic: 'ər', note: 'er r控制元音→/ər/' }] }], chinese: '更好的'  },
+  bring: { word: 'bring', phonetic: '/brɪŋ/', syllables: [{ text: 'bring', phonetic: '/brɪŋ/', color: C[0], marks: [{ letters: 'ng', type: 'cluster', phonetic: 'ŋ', note: 'ng 组合→/ŋ/' }] }], chinese: '带来' },
+  book: { word: 'book', phonetic: '/bʊk/', syllables: [{ text: 'book', phonetic: '/bʊk/', color: C[0], marks: [{ letters: 'oo', type: 'cluster', phonetic: 'ʊ', note: 'oo 短音→/ʊ/（book类）' }] }], chinese: '书；预订'  },
+  bird: { word: 'bird', phonetic: '/bɜːrd/', syllables: [{ text: 'bird', phonetic: '/bɜːrd/', color: C[0], marks: [{ letters: 'ir', type: 'cluster', phonetic: 'ɜːr', note: 'ir r控制元音→/ɜːr/' }] }], chinese: '鸟' },
+  blackboard: { word: 'blackboard', phonetic: '/ˈblækbɔːrd/', syllables: [{ text: 'black', phonetic: '/blæk/', color: C[0], marks: [{ letters: 'ck', type: 'cluster', phonetic: 'k', note: 'ck 组合→/k/' }] }, { text: 'board', phonetic: '/bɔːrd/', color: C[1], marks: [{ letters: 'oar', type: 'cluster', phonetic: 'ɔːr', note: 'oar r控制元音→/ɔːr/' }] }], chinese: '黑板' },
+  brother: { word: 'brother', phonetic: '/ˈbrʌðər/', syllables: [{ text: 'broth', phonetic: '/brʌð/', color: C[0], marks: [{ letters: 'th', type: 'cluster', phonetic: 'ð', note: 'th 组合→/ð/（浊音）' }] }, { text: 'er', phonetic: '/ər/', color: C[1], marks: [{ letters: 'er', type: 'cluster', phonetic: 'ər', note: 'er r控制→/ər/' }] }], chinese: '兄弟' },
+  birthday: { word: 'birthday', phonetic: '/ˈbɜːrθdeɪ/', syllables: [{ text: 'birth', phonetic: '/bɜːrθ/', color: C[0], marks: [{ letters: 'ir', type: 'cluster', phonetic: 'ɜːr', note: 'ir r控制→/ɜːr/' }, { letters: 'th', type: 'cluster', phonetic: 'θ', note: 'th 组合→/θ/（清音）' }] }, { text: 'day', phonetic: '/deɪ/', color: C[1], marks: [{ letters: 'ay', type: 'cluster', phonetic: 'eɪ', note: 'ay 组合→/eɪ/' }] }], chinese: '生日' },
+  baby: { word: 'baby', phonetic: '/ˈbeɪbi/', syllables: [{ text: 'ba', phonetic: '/beɪ/', color: C[0] }, { text: 'by', phonetic: '/bi/', color: C[1] }], chinese: '婴儿' },
+  breakfast: { word: 'breakfast', phonetic: '/ˈbrekfəst/', syllables: [{ text: 'break', phonetic: '/brek/', color: C[0], marks: [{ letters: 'ea', type: 'cluster', phonetic: 'e', note: '不规则：ea→/e/（通常 ea→/iː/）' }] }, { text: 'fast', phonetic: '/fəst/', color: C[1] }], chinese: '早餐' },
+  bear: { word: 'bear', phonetic: '/beər/', syllables: [{ text: 'bear', phonetic: '/beər/', color: C[0], marks: [{ letters: 'ear', type: 'cluster', phonetic: 'eər', note: 'ear 组合→/eər/' }] }], chinese: '熊' },
+  bottle: { word: 'bottle', phonetic: '/ˈbɒtəl/', syllables: [{ text: 'bot', phonetic: '/bɒ/', color: C[0] }, { text: 'tle', phonetic: '/təl/', color: C[1] }], chinese: '瓶子' },
+  behind: { word: 'behind', phonetic: '/bɪˈhaɪnd/', syllables: [{ text: 'be', phonetic: '/bɪ/', color: C[0] }, { text: 'hind', phonetic: '/haɪnd/', color: C[1] }], chinese: '在...后面' },
+  bed: { word: 'bed', phonetic: '/bed/', syllables: [{ text: 'bed', phonetic: '/bed/', color: C[0] }], chinese: '床' },
+}
