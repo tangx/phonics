@@ -4,15 +4,12 @@ import {
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { IconBooks, IconLetterCase, IconChevronDown, IconChevronRight } from '@tabler/icons-react'
+import { IconBooks, IconLetterCase, IconChevronDown, IconChevronRight, IconSettings } from '@tabler/icons-react'
 import { semesters } from '../data/units'
-import { SettingsButton } from '../components/SettingsModal'
-import { useSettings } from '../hooks/useSettings'
 
 export default function AppShellLayout() {
   const [navOpened, { toggle: toggleNav, close: closeNav }] = useDisclosure()
   const [booksExpanded, setBooksExpanded] = useState(true)
-  const { pixabayKey, setPixabayKey } = useSettings()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -110,9 +107,15 @@ export default function AppShellLayout() {
 
         </AppShell.Section>
 
-        {/* 底部：Settings */}
+        {/* 底部：Settings 导航 */}
         <AppShell.Section p="xs" style={{ borderTop: '1px solid #eef0f8' }}>
-          <SettingsButton pixabayKey={pixabayKey} onSave={setPixabayKey} />
+          <NavLink
+            label={<Text size="sm" fw={500}>设置</Text>}
+            leftSection={<IconSettings size={16} stroke={1.8} />}
+            active={location.pathname === '/settings'}
+            onClick={() => handleNav('/settings')}
+            styles={{ root: { borderRadius: 8 } }}
+          />
         </AppShell.Section>
       </AppShell.Navbar>
 
