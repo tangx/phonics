@@ -16,6 +16,7 @@ import { playWord } from '../utils/audio'
 import { fetchPixabayImage, getCachedImage, isImageSkipped, setCachedImage, skipImage } from '../utils/pixabay'
 import { getSentencesForWord, nextSentence, pickSentence } from '../utils/sentences'
 import { loadVoiceConfigs, speakWithConfig, SLOT_META } from '../pages/settings/voice'
+import { speakWithIosConfig } from '../pages/settings/IosVoiceTab'
 
 const SPRING = 'cubic-bezier(0.34, 1.56, 0.64, 1)'
 
@@ -469,13 +470,7 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
                     })
                   }
                   <UnstyledButton
-                    onClick={() => {
-                      if (!('speechSynthesis' in window)) return
-                      window.speechSynthesis.cancel()
-                      const utter = new SpeechSynthesisUtterance(currentSentence.en)
-                      utter.lang = 'en-US'
-                      window.speechSynthesis.speak(utter)
-                    }}
+                    onClick={() => speakWithIosConfig(currentSentence.en)}
                     style={{
                       display: 'flex', alignItems: 'center', gap: 5,
                       padding: '5px 12px', borderRadius: 20,
