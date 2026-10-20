@@ -26,25 +26,26 @@ export default function AppShellLayout() {
 
   return (
     <AppShell
-      header={{ height: 48 }}
       navbar={{ width: 240, breakpoint: 'sm', collapsed: { mobile: !navOpened } }}
       padding={0}
     >
-      {/* ── Header ─────────────────────────────────────────────── */}
-      <AppShell.Header>
-        <Group h="100%" px="md" justify="space-between">
-          <Group gap="sm">
-            <Burger opened={navOpened} onClick={toggleNav} hiddenFrom="sm" size="sm" />
-            <IconBooks size={22} color="#1a1a2e" stroke={1.8} />
-            <Text fw={800} style={{ fontFamily: "'Nunito', sans-serif", color: '#1a1a2e', fontSize: 18 }}>
-              拼读乐园
-            </Text>
-          </Group>
-        </Group>
-      </AppShell.Header>
-
       {/* ── Navbar ─────────────────────────────────────────────── */}
-      <AppShell.Navbar>
+      <AppShell.Navbar style={{ display: 'flex', flexDirection: 'column' }}>
+
+        {/* 顶部：品牌 + 手机端 Burger */}
+        <AppShell.Section p="md" pb="xs" style={{ borderBottom: '1px solid #eef0f8' }}>
+          <Group justify="space-between">
+            <Group gap="sm" style={{ cursor: 'pointer' }} onClick={() => handleNav('/books')}>
+              <IconBooks size={20} color="#1a1a2e" stroke={1.8} />
+              <Text fw={800} style={{ fontFamily: "'Nunito', sans-serif", color: '#1a1a2e', fontSize: 17 }}>
+                拼读乐园
+              </Text>
+            </Group>
+            <Burger opened={navOpened} onClick={toggleNav} hiddenFrom="sm" size="sm" />
+          </Group>
+        </AppShell.Section>
+
+        {/* 中间：导航菜单 */}
         <AppShell.Section grow component={ScrollArea} p="xs">
 
           {/* Sight Words */}
@@ -68,16 +69,10 @@ export default function AppShellLayout() {
               color: isBooks ? 'var(--mantine-color-blue-7)' : 'var(--mantine-color-gray-7)',
             }}
           >
-            {/* 左侧：icon + 文字，点击导航 /books */}
-            <Group
-              gap={8}
-              style={{ flex: 1 }}
-              onClick={() => handleNav('/books')}
-            >
+            <Group gap={8} style={{ flex: 1 }} onClick={() => handleNav('/books')}>
               <IconBooks size={16} stroke={1.8} />
               <Text fw={600} size="sm">Books</Text>
             </Group>
-            {/* 右侧：展开箭头，独立控制 */}
             <span
               onClick={(e) => { e.stopPropagation(); setBooksExpanded(v => !v) }}
               style={{ padding: '2px 4px', borderRadius: 4, display: 'flex', alignItems: 'center', cursor: 'pointer' }}
@@ -115,7 +110,7 @@ export default function AppShellLayout() {
 
         </AppShell.Section>
 
-        {/* Settings 固定在底部 */}
+        {/* 底部：Settings */}
         <AppShell.Section p="xs" style={{ borderTop: '1px solid #eef0f8' }}>
           <SettingsButton pixabayKey={pixabayKey} onSave={setPixabayKey} />
         </AppShell.Section>
@@ -123,6 +118,16 @@ export default function AppShellLayout() {
 
       {/* ── Main ───────────────────────────────────────────────── */}
       <AppShell.Main style={{ height: '100svh', display: 'flex', flexDirection: 'column', background: 'var(--paper)', overflow: 'hidden' }}>
+        {/* 手机端：顶部 Burger（无 header 时补充） */}
+        <Group hiddenFrom="sm" px="md" h={48} style={{ flexShrink: 0, borderBottom: '1px solid #eef0f8', background: '#fff' }}>
+          <Burger opened={navOpened} onClick={toggleNav} size="sm" />
+          <Group gap="sm">
+            <IconBooks size={18} color="#1a1a2e" stroke={1.8} />
+            <Text fw={800} style={{ fontFamily: "'Nunito', sans-serif", color: '#1a1a2e', fontSize: 16 }}>
+              拼读乐园
+            </Text>
+          </Group>
+        </Group>
         <Outlet />
       </AppShell.Main>
     </AppShell>
