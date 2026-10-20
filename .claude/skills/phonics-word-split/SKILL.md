@@ -145,6 +145,18 @@ const C = ['#d64045', '#1b6ca8', '#2d8a4e', '#7b3fa0'] // 音节颜色，多音�
 8. **y 的发音**：词首发 /j/（yes）；短词末尾发 /aɪ/（fly、by）；长词末尾发 /iː/（happy、baby）（Nessy 33集）
 9. **-ould 结尾**：could、would、should 中 oul→/ʊ/，标 cluster（Nessy 75集）
 
+### ⚠️ 音标格式规则
+
+**使用简洁音标，不加音节分隔点：**
+
+```
+❌ /ˈhæp.i/   /ˈæp.əl/   /bəˈnɑːnə/
+✅ /ˈhæpi/    /ˈæpəl/    /bəˈnɑːnə/
+```
+
+- 完整词条的 `phonetic` 字段：无音节分隔点，保留重音符号 ˈ ˌ
+- 各音节的 `phonetic` 字段：只写该音节自己的音（见下方 onset 原则），加斜杠
+
 ### ⚠️ 音节音标归属规则（onset 原则）
 
 两个音节之间的辅音，**归属于后面那个音节**（最大音节开头 Maximum Onset Principle）。
