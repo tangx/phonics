@@ -131,7 +131,9 @@ export default function AppShellLayout() {
             </Text>
           </Group>
         </Group>
-        <Outlet />
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+          <Outlet />
+        </div>
       </AppShell.Main>
     </AppShell>
   )
