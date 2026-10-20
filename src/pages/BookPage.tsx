@@ -4,7 +4,7 @@ import { Carousel } from '@mantine/carousel'
 import '@mantine/carousel/styles.css'
 import type { EmblaCarouselType } from 'embla-carousel'
 import {
-  Box, Group, ScrollArea, SegmentedControl, Text, ActionIcon, Breadcrumbs, Anchor, UnstyledButton,
+  Box, Group, SegmentedControl, Text, ActionIcon, Breadcrumbs, Anchor, UnstyledButton,
 } from '@mantine/core'
 import { IconArrowLeft } from '@tabler/icons-react'
 import { semesters } from '../data/units'
@@ -94,44 +94,40 @@ export default function BookPage() {
         />
       </Box>
 
-      {/* 单词快速选择 — Units 正下方 */}
+      {/* 单词快速选择 — 自动换行 */}
       <Box
         style={{
           flexShrink: 0,
           borderBottom: '1px solid #eef0f8',
-          padding: '4px 0 6px',
+          padding: '4px 16px 8px',
         }}
       >
-        <ScrollArea scrollbarSize={0} type="scroll">
-          <Group gap={6} px="md" wrap="nowrap" style={{ paddingBottom: 2 }}>
-            {wordKeys.map((key, idx) => {
-              const isActive = key === currentWord
-              const entry = dictionary[key]
-              return (
-                <UnstyledButton
-                  key={key}
-                  ref={(el) => { chipRefs.current[idx] = el }}
-                  onClick={() => handleWordChip(key, idx)}
-                  style={{
-                    flexShrink: 0,
-                    padding: '3px 10px',
-                    borderRadius: 20,
-                    fontSize: 13,
-                    fontFamily: 'Nunito, sans-serif',
-                    fontWeight: isActive ? 700 : 400,
-                    color: isActive ? semesterColor : '#6b7280',
-                    background: isActive ? `${semesterColor}12` : 'transparent',
-                    borderBottom: isActive ? `2px solid ${semesterColor}` : '2px solid transparent',
-                    transition: 'all 0.15s',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {entry?.word ?? key}
-                </UnstyledButton>
-              )
-            })}
-          </Group>
-        </ScrollArea>
+        <Group gap={4} wrap="wrap">
+          {wordKeys.map((key, idx) => {
+            const isActive = key === currentWord
+            const entry = dictionary[key]
+            return (
+              <UnstyledButton
+                key={key}
+                ref={(el) => { chipRefs.current[idx] = el }}
+                onClick={() => handleWordChip(key, idx)}
+                style={{
+                  padding: '3px 10px',
+                  borderRadius: 20,
+                  fontSize: 13,
+                  fontFamily: 'Nunito, sans-serif',
+                  fontWeight: isActive ? 700 : 400,
+                  color: isActive ? semesterColor : '#6b7280',
+                  background: isActive ? `${semesterColor}12` : 'transparent',
+                  borderBottom: isActive ? `2px solid ${semesterColor}` : '2px solid transparent',
+                  transition: 'all 0.15s',
+                }}
+              >
+                {entry?.word ?? key}
+              </UnstyledButton>
+            )
+          })}
+        </Group>
       </Box>
 
       {/* Carousel — 充满剩余空间 */}
