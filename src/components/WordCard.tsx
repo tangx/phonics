@@ -443,18 +443,16 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
                       <IconVolume size={14} stroke={1.8} />
                     </ActionIcon>
                   </Tooltip>
-                  {wordSentences.length > 1 && (
-                    <Tooltip label="换一句" withArrow events={{ hover: true, focus: true, touch: true }}>
-                      <ActionIcon
-                        size={22} variant="subtle" radius="xl"
-                        onClick={handleNextSentence}
-                        style={{ color: '#9ca3af' }}
-                        aria-label="换一句"
-                      >
-                        <IconRefresh size={14} stroke={1.8} />
-                      </ActionIcon>
-                    </Tooltip>
-                  )}
+                  <Tooltip label="换一句" withArrow events={{ hover: true, focus: true, touch: true }}>
+                    <ActionIcon
+                      size={22} variant="subtle" radius="xl"
+                      onClick={handleNextSentence}
+                      style={{ color: '#9ca3af' }}
+                      aria-label="换一句"
+                    >
+                      <IconRefresh size={14} stroke={1.8} />
+                    </ActionIcon>
+                  </Tooltip>
                 </Group>
               </Group>
               <Text style={{ fontSize: 'clamp(11px, 1.5vw, 1.8vh)', color: '#6b7280' }}>
