@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+:root {
+  --ink: #1a1a2e;
+  --paper: #fafbff;
+  --card: #ffffff;
+  --accent: #f5a623;
+  --muted: #6b7280;
+  --surface: #f0f4ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Noto Sans SC', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100svh;
+}
+
+/* 竖屏：上图下字 */
+@media (orientation: portrait) {
+  .card-layout {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto 1fr !important;
+    grid-template-areas: "image" "word" !important;
+  }
+}
