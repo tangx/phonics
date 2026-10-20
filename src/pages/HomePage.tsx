@@ -1,15 +1,17 @@
+import { useState } from 'react'
 import {
-  AppShell, Burger, Group, NavLink, ScrollArea, Text, rem,
+  AppShell, Burger, Collapse, Group, NavLink, ScrollArea, Text, UnstyledButton, rem,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { IconBooks, IconLetterCase } from '@tabler/icons-react'
+import { IconBooks, IconLetterCase, IconChevronDown, IconChevronRight } from '@tabler/icons-react'
 import { semesters } from '../data/units'
 import { SettingsButton } from '../components/SettingsModal'
 import { useSettings } from '../hooks/useSettings'
 
 export default function AppShellLayout() {
   const [navOpened, { toggle: toggleNav, close: closeNav }] = useDisclosure()
+  const [booksExpanded, setBooksExpanded] = useState(true)
   const { pixabayKey, setPixabayKey } = useSettings()
   const navigate = useNavigate()
   const location = useLocation()
@@ -55,37 +57,62 @@ export default function AppShellLayout() {
             styles={{ root: { borderRadius: 8 } }}
           />
 
-          {/* Books */}
-          <NavLink
-            label={<Text fw={600} size="sm">Books</Text>}
-            leftSection={<IconBooks size={16} stroke={1.8} />}
-            active={isBooks}
-            defaultOpened
-            styles={{
-              root: { borderRadius: 8 },
-              children: { paddingLeft: rem(8) },
+          {/* Books — 标题点击导航首页，箭头独立控制展开 */}
+          <UnstyledButton
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              width: '100%',
+              padding: `${rem(7)} ${rem(8)}`,
+              borderRadius: 8,
+              background: isBooks ? 'var(--mantine-color-blue-0)' : 'transparent',
+              color: isBooks ? 'var(--mantine-color-blue-7)' : 'var(--mantine-color-gray-7)',
             }}
           >
-            {semesters.map((semester) => {
-              const isActive = location.pathname.startsWith(`/books/${semester.id}`)
-              return (
-                <NavLink
-                  key={semester.id}
-                  label={semester.title}
-                  active={isActive}
-                  onClick={() => handleNav(`/books/${semester.id}/${semester.units[0].id}`)}
-                  styles={{ root: { borderRadius: 8, fontSize: 'var(--mantine-font-size-sm)' } }}
-                  leftSection={
-                    <span style={{
-                      width: 8, height: 8, borderRadius: '50%',
-                      background: isActive ? (semester.color ?? '#1b6ca8') : '#e9ecef',
-                      display: 'inline-block', flexShrink: 0,
-                    }} />
-                  }
-                />
-              )
-            })}
-          </NavLink>
+            {/* 左侧：icon + 文字，点击导航 /books */}
+            <Group
+              gap={8}
+              style={{ flex: 1 }}
+              onClick={() => handleNav('/books')}
+            >
+              <IconBooks size={16} stroke={1.8} />
+              <Text fw={600} size="sm">Books</Text>
+            </Group>
+            {/* 右侧：展开箭头，独立控制 */}
+            <span
+              onClick={(e) => { e.stopPropagation(); setBooksExpanded(v => !v) }}
+              style={{ padding: '2px 4px', borderRadius: 4, display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+            >
+              {booksExpanded
+                ? <IconChevronDown size={14} stroke={1.8} />
+                : <IconChevronRight size={14} stroke={1.8} />
+              }
+            </span>
+          </UnstyledButton>
+
+          <Collapse expanded={booksExpanded}>
+            <div style={{ paddingLeft: rem(8) }}>
+              {semesters.map((semester) => {
+                const isActive = location.pathname.startsWith(`/books/${semester.id}`)
+                return (
+                  <NavLink
+                    key={semester.id}
+                    label={semester.title}
+                    active={isActive}
+                    onClick={() => handleNav(`/books/${semester.id}/${semester.units[0].id}`)}
+                    styles={{ root: { borderRadius: 8, fontSize: 'var(--mantine-font-size-sm)' } }}
+                    leftSection={
+                      <span style={{
+                        width: 8, height: 8, borderRadius: '50%',
+                        background: isActive ? (semester.color ?? '#1b6ca8') : '#e9ecef',
+                        display: 'inline-block', flexShrink: 0,
+                      }} />
+                    }
+                  />
+                )
+              })}
+            </div>
+          </Collapse>
 
         </AppShell.Section>
       </AppShell.Navbar>
