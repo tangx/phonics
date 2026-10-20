@@ -12,7 +12,7 @@ import {
   IconHelpCircle,
 } from '@tabler/icons-react'
 import type { LetterMark, Syllable, WordEntry } from '../types'
-import { playWord } from '../utils/audio'
+import { playWord, speakText } from '../utils/audio'
 import { fetchPixabayImage, getCachedImage, isImageSkipped, setCachedImage, skipImage } from '../utils/pixabay'
 import { getSentencesForWord, nextSentence, pickSentence } from '../utils/sentences'
 
@@ -432,18 +432,30 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
                       : part
                   )}
                 </Text>
-                {wordSentences.length > 1 && (
-                  <Tooltip label="换一句" withArrow events={{ hover: true, focus: true, touch: true }}>
+                <Group gap={2} style={{ flexShrink: 0, marginTop: 2 }}>
+                  <Tooltip label="朗读例句" withArrow events={{ hover: true, focus: true, touch: true }}>
                     <ActionIcon
                       size={22} variant="subtle" radius="xl"
-                      onClick={handleNextSentence}
-                      style={{ color: '#9ca3af', flexShrink: 0, marginTop: 2 }}
-                      aria-label="换一句"
+                      onClick={() => speakText(currentSentence.en)}
+                      style={{ color: '#9ca3af' }}
+                      aria-label="朗读例句"
                     >
-                      <IconRefresh size={14} stroke={1.8} />
+                      <IconVolume size={14} stroke={1.8} />
                     </ActionIcon>
                   </Tooltip>
-                )}
+                  {wordSentences.length > 1 && (
+                    <Tooltip label="换一句" withArrow events={{ hover: true, focus: true, touch: true }}>
+                      <ActionIcon
+                        size={22} variant="subtle" radius="xl"
+                        onClick={handleNextSentence}
+                        style={{ color: '#9ca3af' }}
+                        aria-label="换一句"
+                      >
+                        <IconRefresh size={14} stroke={1.8} />
+                      </ActionIcon>
+                    </Tooltip>
+                  )}
+                </Group>
               </Group>
               <Text style={{ fontSize: 'clamp(11px, 1.5vw, 1.8vh)', color: '#6b7280' }}>
                 {currentSentence.zh}
