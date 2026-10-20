@@ -145,6 +145,39 @@ const C = ['#d64045', '#1b6ca8', '#2d8a4e', '#7b3fa0'] // 音节颜色，多音�
 8. **y 的发音**：词首发 /j/（yes）；短词末尾发 /aɪ/（fly、by）；长词末尾发 /iː/（happy、baby）（Nessy 33集）
 9. **-ould 结尾**：could、would、should 中 oul→/ʊ/，标 cluster（Nessy 75集）
 
+### ⚠️ 音节音标归属规则（onset 原则）
+
+两个音节之间的辅音，**归属于后面那个音节**（最大音节开头 Maximum Onset Principle）。
+音节的 `phonetic` 字段只写**该音节自己发出的音**，不包含下一音节的辅音。
+
+**正确示例：**
+
+| 单词 | ❌ 错误 | ✅ 正确 |
+|---|---|---|
+| happy | `hæp` / `i` | `hæ` / `pi` |
+| apple | `æp` / `əl` | `æ` / `pəl` |
+| rabbit | `ræb` / `ɪt` | `ræ` / `bɪt` |
+| different | `dɪf` / `ər` / `ənt` | `dɪ` / `fər` / `ənt` |
+| animal | `æn` / `ɪ` / `məl` | `æ` / `nɪ` / `məl` |
+| tiger | `taɪ` / `ɡər` | `taɪ` / `ɡər` ✓（辅音 g 已在第二音节）|
+| monkey | `mʌŋ` / `ki` | `mʌŋ` / `ki` ✓（ng 不可分，已正确）|
+
+**规则细化：**
+- 单个辅音夹在两元音之间 → 归后面音节：ha**p**·py → hæ / **p**i
+- 辅音簇夹在两元音之间 → 按发音可行性分割：ra**bb**it → ræ / **b**ɪt（双写只发一音，留一个给后节）
+- cluster 组合不可分割 → 整体归入所在音节：mon·**key** → mʌŋ / **k**i
+
+**代码格式：**
+```ts
+// happy: hap-py，p 归后节
+{ text: 'hap', phonetic: '/hæ/', color: C[0] },
+{ text: 'py',  phonetic: '/pi/', color: C[1] },
+
+// apple: ap-ple，p 归后节
+{ text: 'ap',  phonetic: '/æ/',  color: C[0] },
+{ text: 'ple', phonetic: '/pəl/', color: C[1] },
+```
+
 ---
 
 ## 操作流程
