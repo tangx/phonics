@@ -84,7 +84,7 @@ export default function BookPage() {
       </Box>
 
       {/* 单元选择 */}
-      <Box px="md" py="xs" style={{ flexShrink: 0 }}>
+      <Box px="md" pt="xs" pb={0} style={{ flexShrink: 0 }}>
         <SegmentedControl
           value={activeUnit?.id ?? ''}
           onChange={handleUnitChange}
@@ -92,6 +92,46 @@ export default function BookPage() {
           radius="xl"
           size="xs"
         />
+      </Box>
+
+      {/* 单词快速选择 — Units 正下方 */}
+      <Box
+        style={{
+          flexShrink: 0,
+          borderBottom: '1px solid #eef0f8',
+          padding: '4px 0 6px',
+        }}
+      >
+        <ScrollArea scrollbarSize={0} type="scroll">
+          <Group gap={6} px="md" wrap="nowrap" style={{ paddingBottom: 2 }}>
+            {wordKeys.map((key, idx) => {
+              const isActive = key === currentWord
+              const entry = dictionary[key]
+              return (
+                <UnstyledButton
+                  key={key}
+                  ref={(el) => { chipRefs.current[idx] = el }}
+                  onClick={() => handleWordChip(key, idx)}
+                  style={{
+                    flexShrink: 0,
+                    padding: '3px 10px',
+                    borderRadius: 20,
+                    fontSize: 13,
+                    fontFamily: 'Nunito, sans-serif',
+                    fontWeight: isActive ? 700 : 400,
+                    color: isActive ? semesterColor : '#6b7280',
+                    background: isActive ? `${semesterColor}12` : 'transparent',
+                    borderBottom: isActive ? `2px solid ${semesterColor}` : '2px solid transparent',
+                    transition: 'all 0.15s',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {entry?.word ?? key}
+                </UnstyledButton>
+              )
+            })}
+          </Group>
+        </ScrollArea>
       </Box>
 
       {/* Carousel — 充满剩余空间 */}
@@ -130,47 +170,6 @@ export default function BookPage() {
             )
           })}
         </Carousel>
-      </Box>
-
-      {/* 单词快速选择 — 底部横向滚动 chips */}
-      <Box
-        style={{
-          flexShrink: 0,
-          borderTop: '1px solid #eef0f8',
-          background: '#fff',
-          padding: '6px 0',
-        }}
-      >
-        <ScrollArea scrollbarSize={0} type="scroll">
-          <Group gap={6} px="md" wrap="nowrap" style={{ paddingBottom: 2 }}>
-            {wordKeys.map((key, idx) => {
-              const isActive = key === currentWord
-              const entry = dictionary[key]
-              return (
-                <UnstyledButton
-                  key={key}
-                  ref={(el) => { chipRefs.current[idx] = el }}
-                  onClick={() => handleWordChip(key, idx)}
-                  style={{
-                    flexShrink: 0,
-                    padding: '3px 10px',
-                    borderRadius: 20,
-                    fontSize: 13,
-                    fontFamily: 'Nunito, sans-serif',
-                    fontWeight: isActive ? 700 : 400,
-                    color: isActive ? semesterColor : '#6b7280',
-                    background: isActive ? `${semesterColor}12` : 'transparent',
-                    borderBottom: isActive ? `2px solid ${semesterColor}` : '2px solid transparent',
-                    transition: 'all 0.15s',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {entry?.word ?? key}
-                </UnstyledButton>
-              )
-            })}
-          </Group>
-        </ScrollArea>
       </Box>
     </Box>
   )
