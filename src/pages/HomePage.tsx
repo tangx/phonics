@@ -117,7 +117,7 @@ export default function AppShellLayout() {
       </AppShell.Navbar>
 
       {/* ── Main ───────────────────────────────────────────────── */}
-      <AppShell.Main style={{ height: '100svh', display: 'flex', flexDirection: 'column', background: 'var(--paper)', overflow: 'hidden' }}>
+      <AppShell.Main style={{ display: 'flex', flexDirection: 'column', background: 'var(--paper)', overflow: 'hidden', height: '100svh' }}>
         {/* 手机端：顶部 Burger（无 header 时补充） */}
         <Group hiddenFrom="sm" px="md" h={48} style={{ flexShrink: 0, borderBottom: '1px solid #eef0f8', background: '#fff' }}>
           <Burger opened={navOpened} onClick={toggleNav} size="sm" />

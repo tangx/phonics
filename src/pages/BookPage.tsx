@@ -1,10 +1,10 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Carousel } from '@mantine/carousel'
 import '@mantine/carousel/styles.css'
 import type { EmblaCarouselType } from 'embla-carousel'
 import {
-  Box, Group, SegmentedControl, Text, ActionIcon, Breadcrumbs, Anchor,
+  Box, Group, ScrollArea, SegmentedControl, Text, ActionIcon, Breadcrumbs, Anchor, UnstyledButton,
 } from '@mantine/core'
 import { IconArrowLeft } from '@tabler/icons-react'
 import { semesters } from '../data/units'
@@ -21,36 +21,50 @@ export default function BookPage() {
   const navigate = useNavigate()
   const { pixabayKey } = useSettings()
   const emblaRef = useRef<EmblaCarouselType | null>(null)
+  const chipRefs = useRef<(HTMLButtonElement | null)[]>([])
 
   const semester = semesters.find(s => s.id === semesterId)
   if (!semester) {
     return <Box p="xl"><Text c="dimmed">找不到课本：{semesterId}</Text></Box>
   }
 
-  // 当前单元：URL 有 unitId 就用，否则第一个
   const activeUnit = (unitId ? semester.units.find(u => u.id === unitId) : null)
     ?? semester.units[0]
 
   const wordKeys = activeUnit?.wordKeys ?? []
-
-  // 当前单词的 slide index
   const startIndex = word ? Math.max(0, wordKeys.indexOf(word)) : 0
+  const currentWord = word ?? wordKeys[0]
+  const currentIndex = wordKeys.indexOf(currentWord)
 
-  // 切换单元 → navigate 到新 URL，word 重置
   const handleUnitChange = (newUnitId: string) => {
     navigate(`/books/${semesterId}/${newUnitId}`)
   }
 
-  // Carousel 滑动时更新 URL 中的 word
   const handleSlideChange = (index: number) => {
     const newWord = wordKeys[index]
     if (!newWord) return
-    const newUnitId = activeUnit?.id ?? semester.units[0].id
-    navigate(`/books/${semesterId}/${newUnitId}/${newWord}`, { replace: true })
+    navigate(`/books/${semesterId}/${activeUnit?.id}/${newWord}`, { replace: true })
   }
 
+  const handleWordChip = (key: string, index: number) => {
+    navigate(`/books/${semesterId}/${activeUnit?.id}/${key}`, { replace: true })
+    emblaRef.current?.scrollTo(index)
+  }
+
+  // 当前 chip 滚动到可见区域
+  useEffect(() => {
+    chipRefs.current[currentIndex]?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'center',
+    })
+  }, [currentIndex])
+
+  const semesterColor = semester.color ?? '#1b6ca8'
+
   return (
-    <Box style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Box style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+
       {/* 面包屑 + 返回 */}
       <Box px="md" pt="sm" pb={0} style={{ flexShrink: 0 }}>
         <Group gap={8} align="center">
@@ -80,8 +94,8 @@ export default function BookPage() {
         />
       </Box>
 
-      {/* Carousel */}
-      <Box style={{ flex: 1, minHeight: 0, padding: '0 12px 12px' }}>
+      {/* Carousel — 充满剩余空间 */}
+      <Box style={{ flex: 1, minHeight: 0, padding: '0 12px' }}>
         <Carousel
           key={`${activeUnit?.id}-${startIndex}`}
           withIndicators
@@ -116,6 +130,47 @@ export default function BookPage() {
             )
           })}
         </Carousel>
+      </Box>
+
+      {/* 单词快速选择 — 底部横向滚动 chips */}
+      <Box
+        style={{
+          flexShrink: 0,
+          borderTop: '1px solid #eef0f8',
+          background: '#fff',
+          padding: '6px 0',
+        }}
+      >
+        <ScrollArea scrollbarSize={0} type="scroll">
+          <Group gap={6} px="md" wrap="nowrap" style={{ paddingBottom: 2 }}>
+            {wordKeys.map((key, idx) => {
+              const isActive = key === currentWord
+              const entry = dictionary[key]
+              return (
+                <UnstyledButton
+                  key={key}
+                  ref={(el) => { chipRefs.current[idx] = el }}
+                  onClick={() => handleWordChip(key, idx)}
+                  style={{
+                    flexShrink: 0,
+                    padding: '3px 10px',
+                    borderRadius: 20,
+                    fontSize: 13,
+                    fontFamily: 'Nunito, sans-serif',
+                    fontWeight: isActive ? 700 : 400,
+                    color: isActive ? semesterColor : '#6b7280',
+                    background: isActive ? `${semesterColor}12` : 'transparent',
+                    borderBottom: isActive ? `2px solid ${semesterColor}` : '2px solid transparent',
+                    transition: 'all 0.15s',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {entry?.word ?? key}
+                </UnstyledButton>
+              )
+            })}
+          </Group>
+        </ScrollArea>
       </Box>
     </Box>
   )
