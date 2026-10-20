@@ -12,9 +12,10 @@ import {
   IconHelpCircle,
 } from '@tabler/icons-react'
 import type { LetterMark, Syllable, WordEntry } from '../types'
-import { playWord, speakText } from '../utils/audio'
+import { playWord } from '../utils/audio'
 import { fetchPixabayImage, getCachedImage, isImageSkipped, setCachedImage, skipImage } from '../utils/pixabay'
 import { getSentencesForWord, nextSentence, pickSentence } from '../utils/sentences'
+import { loadVoiceConfigs, speakWithConfig, SLOT_META } from '../pages/SettingsPage'
 
 const SPRING = 'cubic-bezier(0.34, 1.56, 0.64, 1)'
 
@@ -424,40 +425,61 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
           <Tabs.Panel value="sentences" pt="xs">
             <Box px="clamp(8px,1vw,14px)" py="clamp(6px,0.8vw,10px)"
               style={{ background: '#f0f4ff', borderRadius: 10 }}>
-              <Group justify="space-between" align="flex-start" wrap="nowrap" mb={4}>
-                <Text style={{ fontSize: 'clamp(12px, 1.8vw, 2.2vh)', fontFamily: 'Nunito, sans-serif', fontWeight: 600, color: '#1a1a2e', flex: 1 }}>
-                  {currentSentence.en.split(new RegExp(`(\\b${entry.word}\\b)`, 'i')).map((part, j) =>
-                    part.toLowerCase() === entry.word.toLowerCase()
-                      ? <span key={j} style={{ color: '#1b6ca8', fontWeight: 800 }}>{part}</span>
-                      : part
-                  )}
-                </Text>
-                <Group gap={2} style={{ flexShrink: 0, marginTop: 2 }}>
-                  <Tooltip label="朗读例句" withArrow events={{ hover: true, focus: true, touch: true }}>
-                    <ActionIcon
-                      size={22} variant="subtle" radius="xl"
-                      onClick={() => speakText(currentSentence.en)}
-                      style={{ color: '#9ca3af' }}
-                      aria-label="朗读例句"
-                    >
-                      <IconVolume size={14} stroke={1.8} />
-                    </ActionIcon>
-                  </Tooltip>
-                  <Tooltip label="换一句" withArrow events={{ hover: true, focus: true, touch: true }}>
-                    <ActionIcon
-                      size={22} variant="subtle" radius="xl"
-                      onClick={handleNextSentence}
-                      style={{ color: '#9ca3af' }}
-                      aria-label="换一句"
-                    >
-                      <IconRefresh size={14} stroke={1.8} />
-                    </ActionIcon>
-                  </Tooltip>
-                </Group>
-              </Group>
-              <Text style={{ fontSize: 'clamp(11px, 1.5vw, 1.8vh)', color: '#6b7280' }}>
+
+              {/* 句子文本 */}
+              <Text style={{ fontSize: 'clamp(12px, 1.8vw, 2.2vh)', fontFamily: 'Nunito, sans-serif', fontWeight: 600, color: '#1a1a2e', marginBottom: 4 }}>
+                {currentSentence.en.split(new RegExp(`(\b${entry.word}\b)`, 'i')).map((part, j) =>
+                  part.toLowerCase() === entry.word.toLowerCase()
+                    ? <span key={j} style={{ color: '#1b6ca8', fontWeight: 800 }}>{part}</span>
+                    : part
+                )}
+              </Text>
+              <Text style={{ fontSize: 'clamp(11px, 1.5vw, 1.8vh)', color: '#6b7280', marginBottom: 8 }}>
                 {currentSentence.zh}
               </Text>
+
+              {/* 底部操作行 */}
+              <Group justify="space-between" align="center" gap={4}>
+                {/* 左：喇叭 + 激活语音列表 */}
+                <Group gap={4} align="center">
+                  <IconVolume size={13} stroke={1.8} style={{ color: '#9ca3af', flexShrink: 0 }} />
+                  {Object.values(loadVoiceConfigs())
+                    .filter(c => c.active)
+                    .map(c => {
+                      const meta = SLOT_META[c.slot]
+                      return (
+                        <UnstyledButton
+                          key={c.slot}
+                          onClick={() => speakWithConfig(currentSentence.en, c)}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: 3,
+                            padding: '2px 7px', borderRadius: 12,
+                            background: `${meta.color}15`,
+                            fontSize: 11, color: meta.color,
+                            fontFamily: 'Noto Sans SC, sans-serif',
+                            fontWeight: 500,
+                            transition: 'background 0.12s',
+                          }}
+                        >
+                          <img src={meta.avatar} alt={meta.label} style={{ width: 14, height: 14, objectFit: 'contain' }} />
+                          {meta.label}
+                        </UnstyledButton>
+                      )
+                    })
+                  }
+                </Group>
+
+                {/* 右：换一句 */}
+                <Tooltip label="换一句" withArrow events={{ hover: true, focus: true, touch: true }}>
+                  <ActionIcon size={22} variant="subtle" radius="xl"
+                    onClick={handleNextSentence}
+                    style={{ color: '#9ca3af' }}
+                    aria-label="换一句"
+                  >
+                    <IconRefresh size={14} stroke={1.8} />
+                  </ActionIcon>
+                </Tooltip>
+              </Group>
             </Box>
           </Tabs.Panel>
         )}

@@ -20,7 +20,7 @@ export interface VoiceConfig {
   active: boolean     // 是否激活（用于例句阅读）
 }
 
-const SLOT_META: Record<VoiceSlot, { label: string; avatar: string; color: string; defaultVoice: string }> = {
+export const SLOT_META: Record<VoiceSlot, { label: string; avatar: string; color: string; defaultVoice: string }> = {
   woman: { label: 'Woman', avatar: womanSvg, color: '#7b3fa0', defaultVoice: 'Microsoft Ava Online (Natural) - English (United States)' },
   man:   { label: 'Man',   avatar: manSvg,   color: '#1b6ca8', defaultVoice: 'Microsoft Eric Online (Natural) - English (United States)' },
   girl:  { label: 'Girl',  avatar: girlSvg,  color: '#d64045', defaultVoice: '' },
