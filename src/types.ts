@@ -16,27 +16,19 @@ export interface Syllable {
 
 export interface WordEntry {
   word: string
-  phonetic: string       // 完整音标，如 /ˈæp.əl/
+  phonetic: string       // 完整音标，如 /ˈhæpi/
   syllables: Syllable[]
   chinese: string
   image?: string         // 图片文件名（放 public/images/）
-  sentenceIds?: string[] // sentences.ts 中的模板 id
 }
 
-// ── 句型模板 ──────────────────────────────────────────────────────────────
+// ── 例句 ──────────────────────────────────────────────────────────────────
 
-export type DolchLevel = 'pre-primer' | 'primer' | 'grade1' | 'grade2' | 'grade3' | 'fry'
-
-export interface SentenceSlots {
-  [slotName: string]: string[]  // slot名 → 可替换的词 key 列表
-}
-
-export interface SentenceTemplate {
-  id: string            // 唯一标识，如 'i-see-a-color-fruit'
-  en: string            // 英文模板，{slotName} 表示替换位置
-  zh: string            // 中文模板，{slotName} 对应位置
-  slots?: SentenceSlots // 可替换的词分组
-  level: DolchLevel     // 适用等级
+export interface Sentence {
+  id: string             // 唯一标识，如 's001'
+  en: string             // 英文句子
+  zh: string             // 中文翻译
+  words: string[]        // 句中涉及的 dictionary key（用于查询）
 }
 
 export interface UnitData {
@@ -46,9 +38,9 @@ export interface UnitData {
 }
 
 export interface SemesterData {
-  id: string            // 如 "grade1-s1"
+  id: string            // 如 "1a"
   title: string         // 如 "一年级（上）"
   units: UnitData[]
   color?: string        // 封面主色，如 '#1b6ca8'
-  description?: string  // 简介，如 "40个基础单词"
+  description?: string  // 简介
 }

@@ -14,7 +14,7 @@ import {
 import type { LetterMark, Syllable, WordEntry } from '../types'
 import { playWord } from '../utils/audio'
 import { fetchPixabayImage, getCachedImage, isImageSkipped, setCachedImage, skipImage } from '../utils/pixabay'
-import { renderSentences } from '../utils/sentences'
+import { getSentencesForWord, nextSentence, pickSentence } from '../utils/sentences'
 
 const SPRING = 'cubic-bezier(0.34, 1.56, 0.64, 1)'
 
@@ -321,9 +321,19 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
     </Stack>
   )
 
-  const renderedSentences = entry.sentenceIds?.length
-    ? renderSentences(entry.word, entry.sentenceIds)
-    : []
+  // ── 例句逻辑 ──────────────────────────────────────────────────────────────
+  const wordSentences = getSentencesForWord(entry.word)
+  const [sentenceSeed, setSentenceSeed] = useState(() => Date.now())
+  const currentSentence = pickSentence(wordSentences, sentenceSeed)
+
+  const handleNextSentence = useCallback(() => {
+    setSentenceSeed(prev => {
+      const next = nextSentence(wordSentences, currentSentence?.id ?? '', prev + 1)
+      // 找到下一句在列表中的位置作为新 seed
+      const idx = wordSentences.findIndex(s => s.id === next?.id)
+      return idx >= 0 ? idx : prev + 1
+    })
+  }, [wordSentences, currentSentence])
 
   const wordEl = (
     <Stack gap={0} align="center" justify="center" style={{ flex: 1, minWidth: 0, height: '100%' }}>
@@ -382,7 +392,7 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
       <Tabs defaultValue="marks" radius="md" style={{ width: '100%' }}>
         <Tabs.List>
           <Tabs.Tab value="marks" leftSection={<IconAbc size={14} stroke={1.8} />} style={{ fontSize: 'clamp(11px, 1.4vw, 2vh)' }}>拼读</Tabs.Tab>
-          {renderedSentences.length > 0 && (
+          {wordSentences.length > 0 && (
             <Tabs.Tab value="sentences" leftSection={<IconMessageCircle size={14} stroke={1.8} />} style={{ fontSize: 'clamp(11px, 1.4vw, 2vh)' }}>例句</Tabs.Tab>
           )}
         </Tabs.List>
@@ -410,26 +420,35 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
           )}
         </Tabs.Panel>
 
-        {renderedSentences.length > 0 && (
+        {wordSentences.length > 0 && currentSentence && (
           <Tabs.Panel value="sentences" pt="xs">
-            <Stack gap="xs">
-              {renderedSentences.map((s, i) => (
-                <Box key={i} px="clamp(8px,1vw,14px)" py="clamp(6px,0.8vw,10px)"
-                  style={{ background: '#f0f4ff', borderRadius: 10 }}>
-                  <Text style={{ fontSize: 'clamp(12px, 1.8vw, 2.2vh)', fontFamily: 'Nunito, sans-serif', fontWeight: 600, color: '#1a1a2e' }}>
-                    {/* 高亮当前单词 */}
-                    {s.en.split(new RegExp(`(\\b${entry.word}\\b)`, 'i')).map((part, j) =>
-                      part.toLowerCase() === entry.word.toLowerCase()
-                        ? <span key={j} style={{ color: '#1b6ca8', fontWeight: 800 }}>{part}</span>
-                        : part
-                    )}
-                  </Text>
-                  <Text style={{ fontSize: 'clamp(11px, 1.5vw, 1.8vh)', color: '#6b7280', marginTop: 2 }}>
-                    {s.zh}
-                  </Text>
-                </Box>
-              ))}
-            </Stack>
+            <Box px="clamp(8px,1vw,14px)" py="clamp(6px,0.8vw,10px)"
+              style={{ background: '#f0f4ff', borderRadius: 10 }}>
+              <Group justify="space-between" align="flex-start" wrap="nowrap" mb={4}>
+                <Text style={{ fontSize: 'clamp(12px, 1.8vw, 2.2vh)', fontFamily: 'Nunito, sans-serif', fontWeight: 600, color: '#1a1a2e', flex: 1 }}>
+                  {currentSentence.en.split(new RegExp(`(\\b${entry.word}\\b)`, 'i')).map((part, j) =>
+                    part.toLowerCase() === entry.word.toLowerCase()
+                      ? <span key={j} style={{ color: '#1b6ca8', fontWeight: 800 }}>{part}</span>
+                      : part
+                  )}
+                </Text>
+                {wordSentences.length > 1 && (
+                  <Tooltip label="换一句" withArrow events={{ hover: true, focus: true, touch: true }}>
+                    <ActionIcon
+                      size={22} variant="subtle" radius="xl"
+                      onClick={handleNextSentence}
+                      style={{ color: '#9ca3af', flexShrink: 0, marginTop: 2 }}
+                      aria-label="换一句"
+                    >
+                      <IconRefresh size={14} stroke={1.8} />
+                    </ActionIcon>
+                  </Tooltip>
+                )}
+              </Group>
+              <Text style={{ fontSize: 'clamp(11px, 1.5vw, 1.8vh)', color: '#6b7280' }}>
+                {currentSentence.zh}
+              </Text>
+            </Box>
           </Tabs.Panel>
         )}
       </Tabs>
