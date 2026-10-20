@@ -440,7 +440,7 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
 
               {/* 底部操作行 */}
               <Group justify="space-between" align="center" gap={8} mt={6}>
-                {/* 左：喇叭 + 激活语音列表 */}
+                {/* 左：喇叭 + 激活语音列表 + 系统音 */}
                 <Group gap={8} align="center">
                   <IconVolume size={18} stroke={1.8} style={{ color: '#9ca3af', flexShrink: 0 }} />
                   {Object.values(loadVoiceConfigs())
@@ -468,6 +468,26 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
                       )
                     })
                   }
+                  <UnstyledButton
+                    onClick={() => {
+                      if (!('speechSynthesis' in window)) return
+                      window.speechSynthesis.cancel()
+                      const utter = new SpeechSynthesisUtterance(currentSentence.en)
+                      utter.lang = 'en-US'
+                      window.speechSynthesis.speak(utter)
+                    }}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 5,
+                      padding: '5px 12px', borderRadius: 20,
+                      background: 'rgba(100,100,100,0.10)',
+                      fontSize: 13, color: '#555',
+                      fontFamily: 'Noto Sans SC, sans-serif',
+                      fontWeight: 500,
+                      minHeight: 30,
+                    }}
+                  >
+                    系统音
+                  </UnstyledButton>
                 </Group>
 
                 {/* 右：换一句 */}
