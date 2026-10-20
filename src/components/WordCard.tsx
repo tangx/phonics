@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ActionIcon, Box, Card, Group, Popover, Stack, Tabs, Text, Tooltip, Image } from '@mantine/core'
+import { ActionIcon, Box, Card, Group, Popover, Stack, Tabs, Text, Tooltip, Image, UnstyledButton } from '@mantine/core'
 import {
   IconVolume,
   IconRefresh,
@@ -260,29 +260,39 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
     <Stack gap={0} align="center" style={{ height: '100%', justifyContent: 'center', position: 'relative' }}>
       {/* 换图 + 跳过 按钮组 */}
       {pixabayKey && (
-        <Group gap={4} style={{ position: 'absolute', top: 0, right: 0, zIndex: 1 }}>
-          <Tooltip label="换一张" withArrow events={{ hover: true, focus: true, touch: true }}>
-            <ActionIcon
-              size={28} radius="xl" variant="white"
-              loading={imgLoading}
-              onClick={handleRefreshImage}
-              aria-label="换一张图片"
-              style={{ boxShadow: '0 1px 6px rgba(0,0,0,0.12)' }}
-            >
-              <IconRefresh size={16} stroke={1.8} />
-            </ActionIcon>
-          </Tooltip>
-          <Tooltip label="跳过此图" withArrow events={{ hover: true, focus: true, touch: true }}>
-            <ActionIcon
-              size={28} radius="xl" variant="white"
-              loading={imgLoading}
-              onClick={handleSkipImage}
-              aria-label="跳过此图片"
-              style={{ boxShadow: '0 1px 6px rgba(0,0,0,0.12)' }}
-            >
-              <IconX size={16} stroke={1.8} />
-            </ActionIcon>
-          </Tooltip>
+        <Group gap={6} style={{ position: 'absolute', top: 0, right: 0, zIndex: 1 }}>
+          <UnstyledButton
+            onClick={handleRefreshImage}
+            aria-label="换一张图片"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 4,
+              padding: '4px 8px', borderRadius: 20,
+              background: 'rgba(255,255,255,0.92)',
+              boxShadow: '0 1px 6px rgba(0,0,0,0.10)',
+              fontSize: 12, color: '#6b7280',
+              fontFamily: 'Noto Sans SC, sans-serif',
+              opacity: imgLoading ? 0.5 : 1,
+            }}
+          >
+            <IconRefresh size={13} stroke={1.8} />
+            换一张
+          </UnstyledButton>
+          <UnstyledButton
+            onClick={handleSkipImage}
+            aria-label="不再显示此图"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 4,
+              padding: '4px 8px', borderRadius: 20,
+              background: 'rgba(255,255,255,0.92)',
+              boxShadow: '0 1px 6px rgba(0,0,0,0.10)',
+              fontSize: 12, color: '#6b7280',
+              fontFamily: 'Noto Sans SC, sans-serif',
+              opacity: imgLoading ? 0.5 : 1,
+            }}
+          >
+            <IconX size={13} stroke={1.8} />
+            不再显示
+          </UnstyledButton>
         </Group>
       )}
       <Image
