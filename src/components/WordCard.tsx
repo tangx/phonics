@@ -16,7 +16,6 @@ import { playWord } from '../utils/audio'
 import { fetchPixabayImage, getCachedImage, isImageSkipped, setCachedImage, skipImage } from '../utils/pixabay'
 import { getSentencesForWord, nextSentence, pickSentence } from '../utils/sentences'
 import { loadVoiceConfigs, speakWithConfig, SLOT_META } from '../pages/settings/voice'
-import { speakWithIosConfig } from '../pages/settings/IosVoiceTab'
 
 const SPRING = 'cubic-bezier(0.34, 1.56, 0.64, 1)'
 
@@ -469,20 +468,30 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
                       )
                     })
                   }
-                  <UnstyledButton
-                    onClick={() => speakWithIosConfig(currentSentence.en)}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 5,
-                      padding: '5px 12px', borderRadius: 20,
-                      background: 'rgba(100,100,100,0.10)',
-                      fontSize: 13, color: '#555',
-                      fontFamily: 'Noto Sans SC, sans-serif',
-                      fontWeight: 500,
-                      minHeight: 30,
-                    }}
-                  >
-                    系统音
-                  </UnstyledButton>
+                  {[{ label: '0.5x', rate: 0.5 }, { label: '0.8x', rate: 0.8 }, { label: '1x', rate: 1 }].map(({ label, rate }) => (
+                    <UnstyledButton
+                      key={label}
+                      onClick={() => {
+                        if (!('speechSynthesis' in window)) return
+                        window.speechSynthesis.cancel()
+                        const utter = new SpeechSynthesisUtterance(currentSentence.en)
+                        utter.lang = 'en-US'
+                        utter.rate = rate
+                        window.speechSynthesis.speak(utter)
+                      }}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 5,
+                        padding: '5px 12px', borderRadius: 20,
+                        background: 'rgba(100,100,100,0.10)',
+                        fontSize: 13, color: '#555',
+                        fontFamily: 'Noto Sans SC, sans-serif',
+                        fontWeight: 500,
+                        minHeight: 30,
+                      }}
+                    >
+                      {label}
+                    </UnstyledButton>
+                  ))}
                 </Group>
 
                 {/* 右：换一句 */}
