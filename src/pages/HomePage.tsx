@@ -4,6 +4,8 @@ import { Box, Group, SegmentedControl, Text } from '@mantine/core'
 import '@mantine/carousel/styles.css'
 import { units } from '../data/units'
 import WordCard from '../components/WordCard'
+import { SettingsButton } from '../components/SettingsModal'
+import { useSettings } from '../hooks/useSettings'
 
 const SYLLABLE_LEGEND = [
   { color: '#d64045', label: '第1音节' },
@@ -12,11 +14,10 @@ const SYLLABLE_LEGEND = [
   { color: '#7b3fa0', label: '第4音节' },
 ]
 
-const HEADER_H = 48
-
 export default function HomePage() {
   const [activeUnit, setActiveUnit] = useState(units[0].id)
   const unit = units.find((u) => u.id === activeUnit) ?? units[0]
+  const { pixabayKey, setPixabayKey } = useSettings()
 
   return (
     <Box style={{ height: '100svh', display: 'flex', flexDirection: 'column', background: 'var(--paper)' }}>
@@ -24,7 +25,7 @@ export default function HomePage() {
       <Box
         component="header"
         style={{
-          height: HEADER_H,
+          height: 48,
           flexShrink: 0,
           background: '#fff',
           borderBottom: '1px solid #eef0f8',
@@ -41,8 +42,7 @@ export default function HomePage() {
           拼读乐园
         </Text>
 
-        {/* 单元选择放 header 右侧 */}
-        <Box style={{ marginLeft: 'auto' }}>
+        <Box style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
           <SegmentedControl
             value={activeUnit}
             onChange={setActiveUnit}
@@ -50,6 +50,7 @@ export default function HomePage() {
             radius="xl"
             size="xs"
           />
+          <SettingsButton pixabayKey={pixabayKey} onSave={setPixabayKey} />
         </Box>
       </Box>
 
@@ -65,7 +66,7 @@ export default function HomePage() {
         </Group>
       </Box>
 
-      {/* Carousel — 充满剩余高度 */}
+      {/* Carousel */}
       <Box style={{ flex: 1, minHeight: 0, padding: '12px' }}>
         <Carousel
           key={activeUnit}
@@ -91,7 +92,7 @@ export default function HomePage() {
         >
           {unit.words.map((entry) => (
             <Carousel.Slide key={entry.word}>
-              <WordCard entry={entry} />
+              <WordCard entry={entry} pixabayKey={pixabayKey} />
             </Carousel.Slide>
           ))}
         </Carousel>

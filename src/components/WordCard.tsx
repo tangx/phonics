@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { ActionIcon, Box, Card, Group, Stack, Text, Tooltip, Image } from '@mantine/core'
 import type { LetterMark, Syllable, WordEntry } from '../types'
 import { playWord } from '../utils/audio'
+import { fetchPixabayImage, getCachedImage, isImageSkipped, setCachedImage, skipImage } from '../utils/pixabay'
 
 const SPRING = 'cubic-bezier(0.34, 1.56, 0.64, 1)'
 
@@ -92,15 +93,59 @@ function SyllableChip({ syl }: { syl: Syllable }) {
 }
 
 // ── WordCard ───────────────────────────────────────────────────────────────
-export default function WordCard({ entry }: { entry: WordEntry }) {
+export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixabayKey: string }) {
   const cardRef = useRef<HTMLDivElement>(null)
   const [bouncing, setBouncing] = useState(false)
 
-  const imageSrc = entry.image
+  const localSrc = entry.image
     ? `/images/${entry.image}`
     : `https://placehold.co/400x400/e8f4ff/1b6ca8?text=${entry.word}`
 
+  const [imgSrc, setImgSrc] = useState<string>(
+    () => getCachedImage(entry.word) ?? localSrc
+  )
+  const [imgLoading, setImgLoading] = useState(false)
+  const skipRef = useRef(0)
+
   const allMarks = entry.syllables.flatMap((s) => s.marks ?? [])
+
+  // 拉取新图的公共函数（自动排除已跳过的）
+  const fetchNew = useCallback(async (skipCount: number) => {
+    if (!pixabayKey) return
+    setImgLoading(true)
+    try {
+      const skippedUrls = JSON.parse(
+        localStorage.getItem(`phonics_img_skip_${entry.word}`) ?? '[]'
+      ) as string[]
+      const url = await fetchPixabayImage(entry.word, entry.chinese, pixabayKey, skipCount, skippedUrls)
+      if (url) {
+        setImgSrc(url)
+        setCachedImage(entry.word, url)
+      }
+    } finally {
+      setImgLoading(false)
+    }
+  }, [pixabayKey, entry.word, entry.chinese])
+
+  // 卡片 mount：有 key 且（无缓存 或 缓存已被跳过）时自动拉取
+  useEffect(() => {
+    if (!pixabayKey) return
+    const cached = getCachedImage(entry.word)
+    if (cached && !isImageSkipped(entry.word, cached)) return
+    let cancelled = false
+    setImgLoading(true)
+    const skippedUrls = JSON.parse(
+      localStorage.getItem(`phonics_img_skip_${entry.word}`) ?? '[]'
+    ) as string[]
+    fetchPixabayImage(entry.word, entry.chinese, pixabayKey, 0, skippedUrls).then((url) => {
+      if (cancelled || !url) return
+      setImgSrc(url)
+      setCachedImage(entry.word, url)
+    }).finally(() => {
+      if (!cancelled) setImgLoading(false)
+    })
+    return () => { cancelled = true }
+  }, [entry.word, entry.chinese, pixabayKey])
 
   useEffect(() => {
     const el = cardRef.current
@@ -120,10 +165,50 @@ export default function WordCard({ entry }: { entry: WordEntry }) {
     setTimeout(() => setBouncing(false), 380)
   }, [entry.word])
 
+  const handleRefreshImage = useCallback(async () => {
+    if (!pixabayKey || imgLoading) return
+    skipRef.current += 1
+    await fetchNew(skipRef.current)
+  }, [pixabayKey, imgLoading, fetchNew])
+
+  const handleSkipImage = useCallback(async () => {
+    if (!pixabayKey || imgLoading) return
+    skipImage(entry.word, imgSrc)
+    skipRef.current += 1
+    await fetchNew(skipRef.current)
+  }, [pixabayKey, imgLoading, imgSrc, entry.word, fetchNew])
+
   const imageEl = (
-    <Stack gap={0} align="center" style={{ height: '100%', justifyContent: 'center' }}>
+    <Stack gap={0} align="center" style={{ height: '100%', justifyContent: 'center', position: 'relative' }}>
+      {/* 换图 + 跳过 按钮组 */}
+      {pixabayKey && (
+        <Group gap={4} style={{ position: 'absolute', top: 0, right: 0, zIndex: 1 }}>
+          <Tooltip label="换一张" withArrow events={{ hover: true, focus: true, touch: true }}>
+            <ActionIcon
+              size={28} radius="xl" variant="white"
+              loading={imgLoading}
+              onClick={handleRefreshImage}
+              aria-label="换一张图片"
+              style={{ boxShadow: '0 1px 6px rgba(0,0,0,0.12)' }}
+            >
+              🔄
+            </ActionIcon>
+          </Tooltip>
+          <Tooltip label="跳过此图" withArrow events={{ hover: true, focus: true, touch: true }}>
+            <ActionIcon
+              size={28} radius="xl" variant="white"
+              loading={imgLoading}
+              onClick={handleSkipImage}
+              aria-label="跳过此图片"
+              style={{ boxShadow: '0 1px 6px rgba(0,0,0,0.12)' }}
+            >
+              🚫
+            </ActionIcon>
+          </Tooltip>
+        </Group>
+      )}
       <Image
-        src={imageSrc}
+        src={imgSrc}
         alt={entry.chinese}
         fit="contain"
         style={{
