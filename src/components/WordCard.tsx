@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ActionIcon, Box, Card, Group, Stack, Tabs, Text, Tooltip, Image } from '@mantine/core'
+import { ActionIcon, Box, Card, Group, Popover, Stack, Tabs, Text, Tooltip, Image } from '@mantine/core'
 import {
   IconVolume,
   IconRefresh,
@@ -9,6 +9,7 @@ import {
   IconLink,
   IconVolumeOff,
   IconWaveSine,
+  IconHelpCircle,
 } from '@tabler/icons-react'
 import type { LetterMark, Syllable, WordEntry } from '../types'
 import { playWord } from '../utils/audio'
@@ -425,14 +426,49 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
     </Stack>
   )
 
+  const SYLLABLE_LEGEND = [
+    { color: '#d64045', label: '第1音节' },
+    { color: '#1b6ca8', label: '第2音节' },
+    { color: '#2d8a4e', label: '第3音节' },
+    { color: '#7b3fa0', label: '第4音节' },
+  ]
+
   return (
     <Card
       ref={cardRef}
       radius="xl"
       shadow="lg"
       p={0}
-      style={{ overflow: 'hidden', willChange: 'transform', height: '100%', display: 'flex', flexDirection: 'column' }}
+      style={{ overflow: 'hidden', willChange: 'transform', height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}
     >
+      {/* ? 音节图例 Popover，左上角 */}
+      <Box style={{ position: 'absolute', top: 8, left: 8, zIndex: 10 }}>
+        <Popover position="bottom-start" withArrow shadow="md" radius="md">
+          <Popover.Target>
+            <ActionIcon
+              variant="subtle"
+              size="sm"
+              radius="xl"
+              aria-label="音节说明"
+              style={{ color: '#9ca3af' }}
+            >
+              <IconHelpCircle size={16} stroke={1.5} />
+            </ActionIcon>
+          </Popover.Target>
+          <Popover.Dropdown>
+            <Stack gap={6} p={4}>
+              <Text size="xs" fw={600} c="dimmed" mb={2}>音节颜色说明</Text>
+              {SYLLABLE_LEGEND.map(item => (
+                <Group key={item.label} gap={8}>
+                  <Box style={{ width: 10, height: 10, borderRadius: '50%', background: item.color, flexShrink: 0 }} />
+                  <Text size="sm">{item.label}</Text>
+                </Group>
+              ))}
+            </Stack>
+          </Popover.Dropdown>
+        </Popover>
+      </Box>
+
       {/* 横屏：左字右图 / 竖屏：上图下字 */}
       <Box
         style={{
@@ -464,32 +500,6 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
         }}>
           {imageEl}
         </Box>
-      </Box>
-
-      {/* 音节颜色图例 */}
-      <Box
-        style={{
-          flexShrink: 0,
-          background: '#f8faff',
-          borderTop: '1px solid #eef0f8',
-          padding: 'clamp(4px, 0.8vh, 8px) clamp(12px, 2vw, 24px)',
-          display: 'flex',
-          gap: 'clamp(10px, 2vw, 24px)',
-          justifyContent: 'center',
-          flexWrap: 'wrap',
-        }}
-      >
-        {[
-          { color: '#d64045', label: '第1音节' },
-          { color: '#1b6ca8', label: '第2音节' },
-          { color: '#2d8a4e', label: '第3音节' },
-          { color: '#7b3fa0', label: '第4音节' },
-        ].map(item => (
-          <Group key={item.label} gap={5}>
-            <Box style={{ width: 8, height: 8, borderRadius: '50%', background: item.color, flexShrink: 0 }} />
-            <Text size="xs" c="dimmed" style={{ fontSize: 'clamp(10px, 1.2vw, 13px)' }}>{item.label}</Text>
-          </Group>
-        ))}
       </Box>
     </Card>
   )
