@@ -25,7 +25,7 @@ export interface WordEntry {
 export interface UnitData {
   id: string
   title: string
-  words: WordEntry[]
+  wordKeys: string[]   // dictionary.ts 中的 key 列表
 }
 
 export interface SemesterData {

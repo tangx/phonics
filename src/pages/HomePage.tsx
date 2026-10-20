@@ -13,6 +13,7 @@ import { useDisclosure } from '@mantine/hooks'
 import { Carousel } from '@mantine/carousel'
 import '@mantine/carousel/styles.css'
 import { semesters } from '../data/units'
+import { dictionary } from '../data/dictionary'
 import type { UnitData } from '../types'
 import WordCard from '../components/WordCard'
 import { SettingsButton } from '../components/SettingsModal'
@@ -165,11 +166,15 @@ export default function HomePage() {
               },
             }}
           >
-            {activeUnit.words.map((entry) => (
-              <Carousel.Slide key={entry.word}>
-                <WordCard entry={entry} pixabayKey={pixabayKey} />
-              </Carousel.Slide>
-            ))}
+            {activeUnit.wordKeys.map((key) => {
+              const entry = dictionary[key]
+              if (!entry) return null
+              return (
+                <Carousel.Slide key={entry.word}>
+                  <WordCard entry={entry} pixabayKey={pixabayKey} />
+                </Carousel.Slide>
+              )
+            })}
           </Carousel>
         </div>
       </AppShell.Main>
