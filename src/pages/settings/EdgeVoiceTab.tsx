@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
 import {
-  Box, Button, Collapse, Group, Select, Slider, Stack, Switch, Text,
+  Alert, Box, Button, Collapse, Group, Select, Slider, Stack, Switch, Text,
 } from '@mantine/core'
-import { IconChevronDown, IconChevronUp, IconVolume } from '@tabler/icons-react'
+import { IconChevronDown, IconChevronUp, IconInfoCircle, IconVolume } from '@tabler/icons-react'
 import {
   type VoiceConfig, type VoiceSlot,
   SLOT_META, SLOT_ORDER,
   loadVoiceConfigs, saveVoiceConfigs, speakWithConfig,
 } from './voice'
+import { isIOS } from '../../utils/platform'
 
 // ── VoiceRow ────────────────────────────────────────────────────────────
 function VoiceRow({
@@ -46,6 +47,7 @@ function VoiceRow({
           onChange={e => onChange({ ...config, active: e.currentTarget.checked })}
           color={meta.color}
           size="sm"
+          disabled={isIOS}
         />
 
         <Button size="xs" variant="subtle" px={6} color="gray"
@@ -119,9 +121,15 @@ export default function EdgeVoiceTab() {
 
   return (
     <Stack gap="md">
-      <Text size="xs" c="dimmed">
-        激活的语音将用于例句朗读。在 Microsoft Edge 中可获取 Natural 语音列表。
-      </Text>
+      {isIOS ? (
+        <Alert icon={<IconInfoCircle size={16} />} color="orange" radius="md">
+          iPhone / iPad 不支持 Edge Neural 语音，已自动禁用所有角色。请使用「iOS 系统音」标签页。
+        </Alert>
+      ) : (
+        <Text size="xs" c="dimmed">
+          激活的语音将用于例句朗读。在 Microsoft Edge 中可获取 Natural 语音列表。
+        </Text>
+      )}
       {SLOT_ORDER.map(slot => (
         <VoiceRow
           key={slot}
@@ -130,10 +138,12 @@ export default function EdgeVoiceTab() {
           onChange={c => setConfigs(prev => ({ ...prev, [slot]: c }))}
         />
       ))}
-      <Button onClick={handleSave} radius="xl"
-        style={{ background: saved ? '#2d8a4e' : '#1a1a2e' }} fullWidth>
-        {saved ? '已保存 ✓' : '保存设置'}
-      </Button>
+      {!isIOS && (
+        <Button onClick={handleSave} radius="xl"
+          style={{ background: saved ? '#2d8a4e' : '#1a1a2e' }} fullWidth>
+          {saved ? '已保存 ✓' : '保存设置'}
+        </Button>
+      )}
     </Stack>
   )
 }

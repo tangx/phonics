@@ -5,6 +5,7 @@ import womanSvg from '../../assets/woman.svg'
 import manSvg from '../../assets/man.svg'
 import girlSvg from '../../assets/girl.svg'
 import boySvg from '../../assets/boy.svg'
+import { isIOS } from '../../utils/platform'
 
 export type VoiceSlot = 'man' | 'woman' | 'boy' | 'girl'
 
@@ -30,8 +31,8 @@ export const PIXABAY_KEY_LS = 'phonics_pixabay_key'
 
 export function defaultVoiceConfigs(): Record<VoiceSlot, VoiceConfig> {
   return {
-    man:   { slot: 'man',   voiceName: SLOT_META.man.defaultVoice,   rate: 1, pitch: 1, active: true },
-    woman: { slot: 'woman', voiceName: SLOT_META.woman.defaultVoice, rate: 1, pitch: 1, active: true },
+    man:   { slot: 'man',   voiceName: SLOT_META.man.defaultVoice,   rate: 1, pitch: 1, active: !isIOS },
+    woman: { slot: 'woman', voiceName: SLOT_META.woman.defaultVoice, rate: 1, pitch: 1, active: !isIOS },
     boy:   { slot: 'boy',   voiceName: SLOT_META.boy.defaultVoice,   rate: 1, pitch: 1, active: false },
     girl:  { slot: 'girl',  voiceName: SLOT_META.girl.defaultVoice,  rate: 1, pitch: 1, active: false },
   }
@@ -41,7 +42,11 @@ export function loadVoiceConfigs(): Record<VoiceSlot, VoiceConfig> {
   try {
     const raw = localStorage.getItem(VOICE_CONFIG_KEY)
     if (!raw) return defaultVoiceConfigs()
-    return { ...defaultVoiceConfigs(), ...JSON.parse(raw) }
+    const saved: Record<VoiceSlot, VoiceConfig> = { ...defaultVoiceConfigs(), ...JSON.parse(raw) }
+    if (isIOS) {
+      for (const slot of SLOT_ORDER) saved[slot] = { ...saved[slot], active: false }
+    }
+    return saved
   } catch { return defaultVoiceConfigs() }
 }
 
