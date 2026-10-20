@@ -4,6 +4,8 @@ export const semesters: SemesterData[] = [
   {
     id: 'grade1-s1',
     title: '一年级（上）',
+    color: '#2d8a4e',
+    description: '4个单词 · 2个单元',
     units: [
       { id: 'grade1-s1-u1', title: 'Unit 1', wordKeys: ['apple', 'hello'] },
       { id: 'grade1-s1-u2', title: 'Unit 2', wordKeys: ['kite', 'have'] },
@@ -12,6 +14,8 @@ export const semesters: SemesterData[] = [
   {
     id: 'grade1-s2',
     title: '一年级（下）',
+    color: '#7b3fa0',
+    description: '2个单词 · 1个单元',
     units: [
       { id: 'grade1-s2-u1', title: 'Unit 1', wordKeys: ['who', 'stand'] },
     ],
@@ -19,6 +23,8 @@ export const semesters: SemesterData[] = [
   {
     id: 'grade2-s1',
     title: '二年级（上）',
+    color: '#1b6ca8',
+    description: '58个单词 · 5个单元',
     units: [
       {
         id: 'grade2-s1-u1', title: 'Unit 1',

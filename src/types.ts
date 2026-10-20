@@ -49,4 +49,6 @@ export interface SemesterData {
   id: string            // 如 "grade1-s1"
   title: string         // 如 "一年级（上）"
   units: UnitData[]
+  color?: string        // 封面主色，如 '#1b6ca8'
+  description?: string  // 简介，如 "40个基础单词"
 }

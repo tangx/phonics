@@ -1,6 +1,21 @@
 import './index.css'
-import HomePage from './pages/HomePage'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import AppShellLayout from './pages/HomePage'
+import BooksHomePage from './pages/BooksHomePage'
+import BookPage from './pages/BookPage'
+import SightWordsPage from './pages/SightWordsPage'
 
 export default function App() {
-  return <HomePage />
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route element={<AppShellLayout />}>
+          <Route index element={<Navigate to="/books" replace />} />
+          <Route path="books" element={<BooksHomePage />} />
+          <Route path="books/:semesterId" element={<BookPage />} />
+          <Route path="sight-words" element={<SightWordsPage />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  )
 }
