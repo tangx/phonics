@@ -1,72 +1,72 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
-  Anchor, Box, Button, Group, PasswordInput,
-  Stack, Tabs, Text, Title, UnstyledButton,
+  Anchor, Box, Button, Collapse, Group, PasswordInput,
+  Select, Slider, Stack, Switch, Tabs, Text, Title,
 } from '@mantine/core'
-import { IconCheck, IconPhoto, IconVolume } from '@tabler/icons-react'
+import { IconChevronDown, IconChevronUp, IconPhoto, IconVolume } from '@tabler/icons-react'
 import womanSvg from '../assets/woman.svg'
 import manSvg from '../assets/man.svg'
 import girlSvg from '../assets/girl.svg'
 import boySvg from '../assets/boy.svg'
 
-// ── 语音预设 ──────────────────────────────────────────────────────────────
-export const VOICE_PRESETS = [
-  {
-    key: 'ava',
-    name: 'Ava',
-    label: '美式英语・女',
-    voiceName: 'Microsoft Ava Online (Natural) - English (United States)',
-    avatar: womanSvg,
-    color: '#7b3fa0',
-  },
-  {
-    key: 'eric',
-    name: 'Eric',
-    label: '美式英语・男',
-    voiceName: 'Microsoft Eric Online (Natural) - English (United States)',
-    avatar: manSvg,
-    color: '#1b6ca8',
-  },
-  {
-    key: 'girl',
-    name: 'Girl',
-    label: '系统语音・女孩',
-    voiceName: '',
-    avatar: girlSvg,
-    color: '#d64045',
-  },
-  {
-    key: 'boy',
-    name: 'Boy',
-    label: '系统语音・男孩',
-    voiceName: '',
-    avatar: boySvg,
-    color: '#2d8a4e',
-  },
-]
+// ── 语音槽位定义 ────────────────────────────────────────────────────────
+export type VoiceSlot = 'man' | 'woman' | 'boy' | 'girl'
 
-export const VOICE_KEY = 'phonics_voice_name'
-export const ACTIVE_VOICE_KEY = 'phonics_active_voice'   // 激活的语音 key（用于例句阅读）
+export interface VoiceConfig {
+  slot: VoiceSlot
+  voiceName: string   // SpeechSynthesisVoice.name，空则系统默认英语
+  rate: number        // 0.5 ~ 2，默认 1
+  pitch: number       // 0.5 ~ 2，默认 1
+  active: boolean     // 是否激活（用于例句阅读）
+}
+
+const SLOT_META: Record<VoiceSlot, { label: string; avatar: string; color: string; defaultVoice: string }> = {
+  woman: { label: 'Woman', avatar: womanSvg, color: '#7b3fa0', defaultVoice: 'Microsoft Ava Online (Natural) - English (United States)' },
+  man:   { label: 'Man',   avatar: manSvg,   color: '#1b6ca8', defaultVoice: 'Microsoft Eric Online (Natural) - English (United States)' },
+  girl:  { label: 'Girl',  avatar: girlSvg,  color: '#d64045', defaultVoice: '' },
+  boy:   { label: 'Boy',   avatar: boySvg,   color: '#2d8a4e', defaultVoice: '' },
+}
+
+const SLOT_ORDER: VoiceSlot[] = ['man', 'woman', 'boy', 'girl']
+
+const VOICE_CONFIG_KEY = 'phonics_voice_configs'
 const PIXABAY_KEY_LS = 'phonics_pixabay_key'
 
-export function loadVoiceName() {
-  try { return localStorage.getItem(VOICE_KEY) ?? VOICE_PRESETS[0].voiceName } catch { return VOICE_PRESETS[0].voiceName }
+function defaultConfigs(): Record<VoiceSlot, VoiceConfig> {
+  return {
+    man:    { slot: 'man',    voiceName: SLOT_META.man.defaultVoice,    rate: 1, pitch: 1, active: true },
+    woman:  { slot: 'woman',  voiceName: SLOT_META.woman.defaultVoice,  rate: 1, pitch: 1, active: true },
+    boy:    { slot: 'boy',    voiceName: SLOT_META.boy.defaultVoice,    rate: 1, pitch: 1, active: false },
+    girl:   { slot: 'girl',   voiceName: SLOT_META.girl.defaultVoice,   rate: 1, pitch: 1, active: false },
+  }
 }
-export function loadActiveVoiceKey() {
-  try { return localStorage.getItem(ACTIVE_VOICE_KEY) ?? VOICE_PRESETS[0].key } catch { return VOICE_PRESETS[0].key }
+
+export function loadVoiceConfigs(): Record<VoiceSlot, VoiceConfig> {
+  try {
+    const raw = localStorage.getItem(VOICE_CONFIG_KEY)
+    if (!raw) return defaultConfigs()
+    return { ...defaultConfigs(), ...JSON.parse(raw) }
+  } catch { return defaultConfigs() }
 }
+
+function saveVoiceConfigs(configs: Record<VoiceSlot, VoiceConfig>) {
+  try { localStorage.setItem(VOICE_CONFIG_KEY, JSON.stringify(configs)) } catch {}
+}
+
 function loadPixabayKey() {
   try { return localStorage.getItem(PIXABAY_KEY_LS) ?? '' } catch { return '' }
 }
 
-// ── 朗读函数（供外部复用）────────────────────────────────────────────────
-export function speakWithVoiceName(text: string, vName: string) {
+// ── 朗读函数 ────────────────────────────────────────────────────────────
+export function speakWithConfig(text: string, config: VoiceConfig) {
   if (!('speechSynthesis' in window)) return
   const say = (voices: SpeechSynthesisVoice[]) => {
     const utter = new SpeechSynthesisUtterance(text)
     utter.lang = 'en-US'
-    const voice = vName
-      ? voices.find(v => v.name === vName)
+    utter.rate = config.rate
+    utter.pitch = config.pitch
+    const voice = config.voiceName
+      ? voices.find(v => v.name === config.voiceName)
       : voices.find(v => v.lang.startsWith('en') && !v.localService) ?? voices.find(v => v.lang.startsWith('en'))
     if (voice) utter.voice = voice
     window.speechSynthesis.cancel()
@@ -77,19 +77,137 @@ export function speakWithVoiceName(text: string, vName: string) {
   else { window.speechSynthesis.onvoiceschanged = () => { say(window.speechSynthesis.getVoices()); window.speechSynthesis.onvoiceschanged = null } }
 }
 
-// ── SettingsPage ──────────────────────────────────────────────────────────
+// ── VoiceRow ────────────────────────────────────────────────────────────
+function VoiceRow({
+  config, naturalVoices, onChange,
+}: {
+  config: VoiceConfig
+  naturalVoices: { value: string; label: string }[]
+  onChange: (c: VoiceConfig) => void
+}) {
+  const [expanded, setExpanded] = useState(false)
+  const meta = SLOT_META[config.slot]
+
+  return (
+    <Box style={{ borderRadius: 12, border: '1px solid #e9ecef', overflow: 'hidden' }}>
+      {/* 主行 */}
+      <Group px="md" py="sm" gap="sm" wrap="nowrap"
+        style={{ background: config.active ? `${meta.color}08` : '#fff' }}>
+        {/* 头像 */}
+        <img src={meta.avatar} alt={meta.label}
+          style={{ width: 40, height: 40, objectFit: 'contain', flexShrink: 0 }} />
+
+        {/* 名称 + 语音名 */}
+        <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
+          <Text size="sm" fw={600} style={{ color: meta.color }}>{meta.label}</Text>
+          <Text size="xs" c="dimmed" style={{ fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {config.voiceName || '系统默认英语语音'}
+          </Text>
+        </Stack>
+
+        {/* 试听 */}
+        <Button size="xs" variant="subtle" radius="xl" px={8}
+          leftSection={<IconVolume size={12} />}
+          color={meta.color}
+          onClick={() => speakWithConfig('Hello! Nice to meet you.', config)}>
+          试听
+        </Button>
+
+        {/* 激活开关 */}
+        <Switch
+          checked={config.active}
+          onChange={e => onChange({ ...config, active: e.currentTarget.checked })}
+          color={meta.color}
+          size="sm"
+        />
+
+        {/* 展开配置 */}
+        <Button size="xs" variant="subtle" px={6} color="gray"
+          onClick={() => setExpanded(v => !v)}>
+          {expanded ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />}
+        </Button>
+      </Group>
+
+      {/* 配置面板 */}
+      <Collapse expanded={expanded}>
+        <Stack gap="md" p="md" style={{ background: '#f8f9fa', borderTop: '1px solid #e9ecef' }}>
+          {/* 语音选择 */}
+          <Select
+            label="语音"
+            placeholder="选择 Natural 语音"
+            data={[{ value: '', label: '系统默认英语语音' }, ...naturalVoices]}
+            value={config.voiceName}
+            onChange={v => onChange({ ...config, voiceName: v ?? '' })}
+            searchable
+            size="sm"
+            radius="md"
+          />
+
+          {/* 语速 */}
+          <Stack gap={4}>
+            <Group justify="space-between">
+              <Text size="xs" fw={500}>语速</Text>
+              <Text size="xs" c="dimmed">{config.rate.toFixed(1)}x</Text>
+            </Group>
+            <Slider
+              value={config.rate}
+              onChange={v => onChange({ ...config, rate: v })}
+              min={0.5} max={2} step={0.1}
+              color={meta.color}
+              size="sm"
+              marks={[{ value: 0.5, label: '0.5x' }, { value: 1, label: '1x' }, { value: 2, label: '2x' }]}
+            />
+          </Stack>
+
+          {/* 音调 */}
+          <Stack gap={4}>
+            <Group justify="space-between">
+              <Text size="xs" fw={500}>音调</Text>
+              <Text size="xs" c="dimmed">{config.pitch.toFixed(1)}</Text>
+            </Group>
+            <Slider
+              value={config.pitch}
+              onChange={v => onChange({ ...config, pitch: v })}
+              min={0.5} max={2} step={0.1}
+              color={meta.color}
+              size="sm"
+              marks={[{ value: 0.5, label: '低' }, { value: 1, label: '正常' }, { value: 2, label: '高' }]}
+            />
+          </Stack>
+        </Stack>
+      </Collapse>
+    </Box>
+  )
+}
+
+// ── SettingsPage ────────────────────────────────────────────────────────
 export default function SettingsPage() {
-  const [selectedVoice, setSelectedVoice] = useState(loadVoiceName)
-  const [activeVoiceKey, setActiveVoiceKey] = useState(loadActiveVoiceKey)
+  const [configs, setConfigs] = useState<Record<VoiceSlot, VoiceConfig>>(loadVoiceConfigs)
+  const [naturalVoices, setNaturalVoices] = useState<{ value: string; label: string }[]>([])
   const [pixabayKey, setPixabayKey] = useState(loadPixabayKey)
   const [voiceSaved, setVoiceSaved] = useState(false)
   const [pixabaySaved, setPixabaySaved] = useState(false)
 
+  // 加载 Edge Natural 语音列表
+  useEffect(() => {
+    const load = () => {
+      const voices = window.speechSynthesis.getVoices()
+      const natural = voices
+        .filter(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('natural'))
+        .map(v => ({ value: v.name, label: v.name }))
+      if (natural.length > 0) setNaturalVoices(natural)
+    }
+    load()
+    window.speechSynthesis.onvoiceschanged = load
+    return () => { window.speechSynthesis.onvoiceschanged = null }
+  }, [])
+
+  const handleChange = (slot: VoiceSlot, c: VoiceConfig) => {
+    setConfigs(prev => ({ ...prev, [slot]: c }))
+  }
+
   const handleSaveVoice = () => {
-    try {
-      localStorage.setItem(VOICE_KEY, selectedVoice)
-      localStorage.setItem(ACTIVE_VOICE_KEY, activeVoiceKey)
-    } catch {}
+    saveVoiceConfigs(configs)
     setVoiceSaved(true)
     setTimeout(() => setVoiceSaved(false), 2000)
   }
@@ -100,12 +218,8 @@ export default function SettingsPage() {
     setTimeout(() => setPixabaySaved(false), 2000)
   }
 
-  const handlePreview = (vName: string) => {
-    speakWithVoiceName('Hello! Nice to meet you. Let\'s learn English together!', vName)
-  }
-
   return (
-    <Box p="xl" style={{ maxWidth: 640, margin: '0 auto' }}>
+    <Box p="xl" style={{ maxWidth: 600, margin: '0 auto' }}>
       <Title order={2} mb="xl" style={{ fontFamily: "'Nunito', sans-serif", color: '#1a1a2e' }}>
         设置
       </Title>
@@ -118,90 +232,19 @@ export default function SettingsPage() {
 
         {/* ── 语音 tab ── */}
         <Tabs.Panel value="voice">
-          <Stack gap="xl">
-            <Stack gap="xs">
-              <Text fw={600} size="sm">选择语音</Text>
-              <Text size="xs" c="dimmed">在 Microsoft Edge 中可使用高质量 Neural 语音。</Text>
-            </Stack>
+          <Stack gap="md">
+            <Text size="xs" c="dimmed">
+              激活的语音将用于例句朗读。在 Microsoft Edge 中可获取 Natural 语音列表。
+            </Text>
 
-            {/* 语音卡片网格 */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              {VOICE_PRESETS.map(preset => {
-                const isSelected = selectedVoice === preset.voiceName
-                const isActive = activeVoiceKey === preset.key
-                return (
-                  <UnstyledButton
-                    key={preset.key}
-                    onClick={() => setSelectedVoice(preset.voiceName)}
-                    style={{
-                      borderRadius: 16,
-                      border: `2px solid ${isSelected ? preset.color : '#e9ecef'}`,
-                      background: isSelected ? `${preset.color}10` : '#fff',
-                      padding: '16px 14px',
-                      transition: 'all 0.15s',
-                      position: 'relative',
-                    }}
-                  >
-                    {/* 激活标记 */}
-                    {isActive && (
-                      <Box style={{
-                        position: 'absolute', top: 8, right: 8,
-                        width: 18, height: 18, borderRadius: '50%',
-                        background: preset.color,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      }}>
-                        <IconCheck size={11} color="white" stroke={2.5} />
-                      </Box>
-                    )}
-
-                    <Stack gap={8} align="center">
-                      {/* 头像 */}
-                      <img
-                        src={preset.avatar}
-                        alt={preset.name}
-                        style={{ width: 56, height: 56, objectFit: 'contain' }}
-                      />
-
-                      {/* 名字 */}
-                      <Stack gap={2} align="center">
-                        <Text fw={700} size="sm" style={{ color: isSelected ? preset.color : '#1a1a2e' }}>
-                          {preset.name}
-                        </Text>
-                        <Text size="xs" c="dimmed">{preset.label}</Text>
-                      </Stack>
-
-                      {/* 操作按钮 */}
-                      <Group gap={6} onClick={e => e.stopPropagation()}>
-                        {/* 试听 */}
-                        <Button
-                          size="xs"
-                          variant="light"
-                          radius="xl"
-                          leftSection={<IconVolume size={12} />}
-                          color={preset.color}
-                          onClick={() => handlePreview(preset.voiceName)}
-                          style={{ fontSize: 11 }}
-                        >
-                          试听
-                        </Button>
-                        {/* 激活 */}
-                        <Button
-                          size="xs"
-                          radius="xl"
-                          variant={isActive ? 'filled' : 'outline'}
-                          color={preset.color}
-                          leftSection={isActive ? <IconCheck size={11} stroke={2.5} /> : undefined}
-                          onClick={() => setActiveVoiceKey(preset.key)}
-                          style={{ fontSize: 11 }}
-                        >
-                          {isActive ? '已激活' : '激活'}
-                        </Button>
-                      </Group>
-                    </Stack>
-                  </UnstyledButton>
-                )
-              })}
-            </div>
+            {SLOT_ORDER.map(slot => (
+              <VoiceRow
+                key={slot}
+                config={configs[slot]}
+                naturalVoices={naturalVoices}
+                onChange={c => handleChange(slot, c)}
+              />
+            ))}
 
             <Button
               onClick={handleSaveVoice}
@@ -230,12 +273,8 @@ export default function SettingsPage() {
             <Text size="xs" c="dimmed">
               没有 Key？<Anchor href="https://pixabay.com/api/docs/" target="_blank" size="xs" ml={4}>免费注册获取 →</Anchor>
             </Text>
-            <Button
-              onClick={handleSavePixabay}
-              radius="xl"
-              style={{ background: pixabaySaved ? '#2d8a4e' : '#1a1a2e' }}
-              fullWidth
-            >
+            <Button onClick={handleSavePixabay} radius="xl"
+              style={{ background: pixabaySaved ? '#2d8a4e' : '#1a1a2e' }} fullWidth>
               {pixabaySaved ? '已保存 ✓' : '保存'}
             </Button>
           </Stack>
