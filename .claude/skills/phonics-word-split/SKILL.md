@@ -10,7 +10,9 @@ description: 为中国小学英语教学网站录入新单词时，分析英文�
 面向中国小学生的英语拼读教学网站。核心理念：**自然拼读规则 + 国际音标双轨并行**，帮助孩子建立"字母组合 → 音标 → 发音"的完整映射。
 
 数据文件：`src/data/units.ts`，类型定义：`src/types.ts`。
-音素完整参考：读取 `references/phonemes.md`（44个英语音素、拼写对应、例词）。
+完整参考文档（需要时读取）：
+- `references/phonemes.md` — 44个英语音素、拼写对应、例词
+- `references/nessy-phonics-rules.md` — Nessy 76集自然拼读规则，含教学顺序、快速索引
 
 ---
 
@@ -53,9 +55,11 @@ const C = ['#d64045', '#1b6ca8', '#2d8a4e', '#7b3fa0'] // 音节颜色，多音�
 | sh | /ʃ/ | wish, short, show, shopping | |
 | th | /θ/ | thin, mouth, bath | 清音，舌尖抵上齿 |
 | th | /ð/ | this, with, they, clothes | 浊音，需在 note 区分 |
-| ch | /tʃ/ | chin, teach, lunch | |
-| tch | /tʃ/ | match, catch, watch | 元音后用 tch |
-| ck | /k/ | neck, luck, duck, back | 短元音后用 ck |
+| ch | /tʃ/ | chin, teach, lunch | 最常见发音 |
+| ch | /k/ | school, chorus | 来自希腊语借词（Nessy 12集）|
+| ch | /ʃ/ | chef, machine | 来自法语借词（Nessy 12集）|
+| tch | /tʃ/ | match, catch, watch | **短元音后**用 tch；长元音/辅音后用 ch（Nessy 55集）|
+| ck | /k/ | neck, luck, duck, back | **短元音后**用 ck；长元音/辅音后用 k（Nessy 13集）|
 | ng | /ŋ/ | ring, king, long, sing | 词尾鼻音 |
 | nk | /ŋk/ | think, drink, bank | ng+k 两个音素 |
 | ph | /f/ | phone, photo | |
@@ -69,15 +73,15 @@ const C = ['#d64045', '#1b6ca8', '#2d8a4e', '#7b3fa0'] // 音节颜色，多音�
 
 | 组合 | 音素 | 例词 | 说明 |
 |---|---|---|---|
-| ai | /eɪ/ | rain, tail, wait | 长音 a |
-| ay | /eɪ/ | day, say, play | 词尾长音 a |
+| ai | /eɪ/ | rain, tail, wait | **单词中间**用 ai（Nessy 31集） |
+| ay | /eɪ/ | day, say, play | **单词末尾**用 ay（Nessy 31集） |
 | ee | /i/ | tree, see, need | 长音 e |
 | ea | /i/ | sea, meat, mean, eat | 长音 e（常规） |
 | ea | /ɛ/ | head, bread, dead | **不规则**，需在 note 说明 |
 | ea | /ɛr/ | wear, bear, pear | r控制元音 |
 | oa | /oʊ/ | boat, coat, road | 长音 o |
-| ow | /oʊ/ | snow, show, bowl | 词尾/辅音前 |
-| ow | /aʊ/ | now, cow, down, wow | 感叹/词尾 |
+| ow | /oʊ/ | snow, show, bowl | 辅音前或词尾（如 -ow 静止义）|
+| ow | /aʊ/ | now, cow, down, wow | 动态/感叹义词尾，需在 note 区分 |
 | oo | /u/ | moon, food, zoo, school | 长音（多数情况） |
 | oo | /ʊ/ | book, good, look, foot | 短音，需在 note 说明 |
 | ou | /aʊ/ | mouth, out, cloud | |
@@ -86,7 +90,7 @@ const C = ['#d64045', '#1b6ca8', '#2d8a4e', '#7b3fa0'] // 音节颜色，多音�
 | oy | /ɔɪ/ | boy, toy, joy | 词尾 |
 | aw | /ɔ/ | saw, draw, claw | |
 | au | /ɔ/ | haul, because | |
-| igh | /aɪ/ | night, right, high | |
+| igh | /aɪ/ | night, right, high | gh 不发音（Nessy 76集）→ gh 标 `silent` |
 | ie | /aɪ/ | pie, tie, lie | 词尾 |
 | ue | /u/ | blue, clue, true | |
 | ew | /u/ | flew, drew, new | |
@@ -113,11 +117,12 @@ const C = ['#d64045', '#1b6ca8', '#2d8a4e', '#7b3fa0'] // 音节颜色，多音�
 ### 3. `silent`（不发音字母）
 
 字母完全不发音，对周围字母无影响：
-- 词首 w：`wrong`（w）、`who`（w）
-- kn 组合：`knee`、`knife`（k → silent，n 才是音素）
-- wr 组合：`write`、`wrap`（w → silent）
-- `often` 的 t、`lamb` 的 b、`comb` 的 b
-- 不规则魔法e：`have`、`come`、`some` 的末尾 e
+- 词首 `w`：`wrong`、`who`、`write`、`wrap`（wr 组合）
+- 词首 `k`：`knee`、`knife`、`know`（kn 组合）
+- 词中 `gh`：`night`、`light`、`right`、`eight`（igh 组合中 gh 不发音）
+- 词尾 `b`：`lamb`、`comb`、`climb`（-mb 组合）
+- `often` 的 `t`
+- 不规则魔法e：`have`、`come`、`some`、`give` 的末尾 e（v 后必须加 e，Nessy 15集）
 
 ### 4. `changed`（变音）
 
@@ -131,11 +136,14 @@ const C = ['#d64045', '#1b6ca8', '#2d8a4e', '#7b3fa0'] // 音节颜色，多音�
 ## 音节拆分原则
 
 1. **按发音自然断点**拆分，以说话停顿为准
-2. **单音节词**整体作一个 syllable，不拆
-3. **多音节词**颜色依次 `C[0]→C[1]→C[2]→C[3]`
-4. **cluster 跨越音节边界时**，cluster 归入它主要影响的那个音节
-5. **同一字母多标注**时优先顺序：cluster > silent-e > silent > changed
-6. **不规则发音**必须在 note 中说明"不规则"，并对比常规规则
+2. **开音节**（元音结尾）→ 元音发长音（he, go, ba·by）；**闭音节**（辅音结尾）→ 元音发短音（cat, hop, nap·kin）（Nessy 02集）
+3. **单音节词**整体作一个 syllable，不拆
+4. **多音节词**颜色依次 `C[0]→C[1]→C[2]→C[3]`
+5. **cluster 跨越音节边界时**，cluster 归入它主要影响的那个音节
+6. **同一字母多标注**时优先顺序：cluster > silent-e > silent > changed
+7. **不规则发音**必须在 note 中说明"不规则"，并对比常规规则
+8. **y 的发音**：词首发 /j/（yes）；短词末尾发 /aɪ/（fly、by）；长词末尾发 /iː/（happy、baby）（Nessy 33集）
+9. **-ould 结尾**：could、would、should 中 oul→/ʊ/，标 cluster（Nessy 75集）
 
 ---
 
