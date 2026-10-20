@@ -1,9 +1,10 @@
-export type LetterMarkType = 'silent-e' | 'silent' | 'changed'
+export type LetterMarkType = 'silent-e' | 'silent' | 'changed' | 'cluster'
 
 export interface LetterMark {
   letters: string        // 需要标注的字母，如 "e"、"w"、"t"
   type: LetterMarkType
   note: string           // 说明文字，如 "魔法e：让 i 发长音 /aɪ/"
+  phonetic?: string      // cluster 对应的音标片段，如 "/aʊ/"，用于音节块音标点分隔
 }
 
 export interface Syllable {

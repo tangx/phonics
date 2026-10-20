@@ -14,14 +14,31 @@ const SYLLABLE_BG: Record<string, string> = {
 }
 
 // ── Letter mark ────────────────────────────────────────────────────────────
-function LetterBadge({ text, mark }: { text: string; mark: LetterMark }) {
+function LetterBadge({ text, mark, syllableColor }: { text: string; mark: LetterMark; syllableColor: string }) {
+  const isCluster = mark.type === 'cluster'
   const isChanged = mark.type === 'changed'
+  const isSilent = mark.type === 'silent' || mark.type === 'silent-e'
+
+  // cluster：只用音节颜色，无背景框
+  if (isCluster) {
+    return (
+      <Tooltip label={mark.note} withArrow multiline maw={220}
+        events={{ hover: true, focus: true, touch: true }}>
+        <span style={{ color: syllableColor, cursor: 'help' }}>
+          {text}
+        </span>
+      </Tooltip>
+    )
+  }
+
   return (
     <Tooltip label={mark.note} withArrow multiline maw={220}
       events={{ hover: true, focus: true, touch: true }}>
       <span style={{
         color: isChanged ? '#c2410c' : '#9ca3af',
-        textDecoration: isChanged ? 'underline wavy #c2410c' : 'line-through #9ca3af',
+        textDecoration: isSilent
+          ? 'line-through #9ca3af'
+          : 'underline wavy #c2410c',
         textDecorationThickness: '2px',
         cursor: 'help',
       }}>
@@ -35,6 +52,8 @@ function SyllableLetters({ syl }: { syl: Syllable }) {
   if (!syl.marks?.length) {
     return <span style={{ color: syl.color }}>{syl.text}</span>
   }
+
+  // 把音节文字按 marks 切成 segment 数组
   const sorted = [...syl.marks].sort(
     (a, b) => syl.text.indexOf(a.letters) - syl.text.indexOf(b.letters),
   )
@@ -48,22 +67,69 @@ function SyllableLetters({ syl }: { syl: Syllable }) {
     remaining = remaining.slice(idx + mark.letters.length)
   }
   if (remaining) segments.push({ text: remaining })
+
+  // cluster 字母用背景色块，其余直接渲染；segment 之间加中点分隔
   return (
     <>
-      {segments.map((seg, i) =>
-        seg.mark
-          ? <LetterBadge key={i} text={seg.text} mark={seg.mark} />
-          : <span key={i} style={{ color: syl.color }}>{seg.text}</span>
-      )}
+      {segments.map((seg, i) => {
+        const dot = i > 0
+          ? <span key={`dot-${i}`} style={{ color: `${syl.color}80`, margin: '0 0.05em', fontSize: '0.7em', verticalAlign: 'middle' }}>·</span>
+          : null
+        if (seg.mark) {
+          return (
+            <span key={i}>
+              {dot}
+              <LetterBadge text={seg.text} mark={seg.mark} syllableColor={syl.color} />
+            </span>
+          )
+        }
+        // 普通字母段：如果多于1个字符也加点分隔（如 "m" 和 "th" 之间）
+        return (
+          <span key={i}>
+            {dot}
+            <span style={{ color: syl.color }}>{seg.text}</span>
+          </span>
+        )
+      })}
     </>
   )
+}
+
+// 生成带点分隔的音标行：cluster 片段用音节色，其余用 dimmed
+function buildPhoneticWithDots(syl: Syllable): React.ReactNode {
+  const clusters = (syl.marks ?? []).filter(m => m.type === 'cluster' && m.phonetic)
+  if (!clusters.length) return syl.phonetic
+
+  // 把整体音标按 cluster 的 phonetic 片段拆分
+  const dot = <span style={{ color: `${syl.color}60`, margin: '0 0.15em' }}>·</span>
+  const raw = syl.phonetic.replace(/^\/|\/$/g, '')
+  const parts: React.ReactNode[] = []
+  let rem = raw
+
+  for (const mark of clusters) {
+    const frag = mark.phonetic!.replace(/^\/|\/$/g, '')
+    const idx = rem.indexOf(frag)
+    if (idx === -1) continue
+    if (idx > 0) {
+      parts.push(<span key={`pre-${frag}`} style={{ color: syl.color }}>{rem.slice(0, idx)}</span>)
+      parts.push(dot)
+    }
+    parts.push(
+      <span key={frag} style={{ color: syl.color }}>{frag}</span>
+    )
+    rem = rem.slice(idx + frag.length)
+    if (rem.length > 0) parts.push(dot)
+  }
+  if (rem) parts.push(<span key="tail" style={{ color: syl.color }}>{rem}</span>)
+
+  return <span>/{parts}/</span>
 }
 
 // ── Syllable chip ──────────────────────────────────────────────────────────
 function SyllableChip({ syl }: { syl: Syllable }) {
   const bg = SYLLABLE_BG[syl.color] ?? 'rgba(0,0,0,0.06)'
   return (
-    <Stack gap={0} align="center" style={{
+    <Stack gap={2} align="center" style={{
       background: bg,
       border: `2px solid ${syl.color}`,
       borderRadius: '1vw',
@@ -86,7 +152,7 @@ function SyllableChip({ syl }: { syl: Syllable }) {
         lineHeight: 1.2,
         letterSpacing: '0.2px',
       }}>
-        {syl.phonetic}
+        {buildPhoneticWithDots(syl)}
       </span>
     </Stack>
   )
@@ -293,7 +359,7 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
           <Stack gap={4}>
             {allMarks.map((m, i) => (
               <Text key={i} style={{ fontSize: 'clamp(11px, 1.5vw, 2vh)' }} c="dark.4">
-                {m.type === 'changed' ? '〰️ ' : '🔇 '}
+                {m.type === 'cluster' ? '🔗 ' : m.type === 'changed' ? '〰️ ' : '🔇 '}
                 <Text component="span" fw={700}>{m.letters}</Text>：{m.note}
               </Text>
             ))}
