@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ActionIcon, Box, Card, Group, Stack, Text, Tooltip, Image } from '@mantine/core'
+import { ActionIcon, Box, Card, Group, Stack, Tabs, Text, Tooltip, Image } from '@mantine/core'
 import type { LetterMark, Syllable, WordEntry } from '../types'
 import { playWord } from '../utils/audio'
 import { fetchPixabayImage, getCachedImage, isImageSkipped, setCachedImage, skipImage } from '../utils/pixabay'
+import { renderSentences } from '../utils/sentences'
 
 const SPRING = 'cubic-bezier(0.34, 1.56, 0.64, 1)'
 
@@ -299,17 +300,21 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
     </Stack>
   )
 
+  const renderedSentences = entry.sentenceIds?.length
+    ? renderSentences(entry.word, entry.sentenceIds)
+    : []
+
   const wordEl = (
-    <Stack gap="clamp(12px, 2vh, 24px)" align="center" justify="center" style={{ flex: 1, minWidth: 0 }}>
+    <Stack gap={0} align="center" justify="center" style={{ flex: 1, minWidth: 0, height: '100%' }}>
       {/* 音节块 横排 */}
-      <Group gap="clamp(6px, 1vw, 14px)" align="flex-start" wrap="wrap">
+      <Group gap="clamp(6px, 1vw, 14px)" align="flex-start" wrap="wrap" mb="clamp(8px,1.5vh,20px)">
         {entry.syllables.map((syl, i) => (
           <SyllableChip key={i} syl={syl} />
         ))}
       </Group>
 
       {/* 完整单词 + 发音 */}
-      <Group gap="clamp(8px, 1.5vw, 20px)" align="flex-end" wrap="nowrap">
+      <Group gap="clamp(8px, 1.5vw, 20px)" align="flex-end" wrap="nowrap" mb="clamp(4px,0.8vh,10px)">
         <Stack gap={2} style={{ minWidth: 0 }}>
           <Group gap="clamp(4px, 0.8vw, 10px)" align="flex-end" wrap="nowrap">
             <Text style={{
@@ -352,20 +357,56 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
         </Stack>
       </Group>
 
-      {/* 字母标注说明 */}
-      {allMarks.length > 0 && (
-        <Box px="clamp(8px,1vw,14px)" py="clamp(6px,0.8vw,10px)"
-          style={{ background: '#f0f4ff', borderRadius: 10 }}>
-          <Stack gap={4}>
-            {allMarks.map((m, i) => (
-              <Text key={i} style={{ fontSize: 'clamp(11px, 1.5vw, 2vh)' }} c="dark.4">
-                {m.type === 'cluster' ? '🔗 ' : m.type === 'changed' ? '〰️ ' : '🔇 '}
-                <Text component="span" fw={700}>{m.letters}</Text>：{m.note}
-              </Text>
-            ))}
-          </Stack>
-        </Box>
-      )}
+      {/* Tabs：标注 / 句子 */}
+      <Tabs defaultValue="marks" radius="md" style={{ width: '100%' }}>
+        <Tabs.List>
+          <Tabs.Tab value="marks" style={{ fontSize: 'clamp(11px, 1.4vw, 2vh)' }}>📖 拼读</Tabs.Tab>
+          {renderedSentences.length > 0 && (
+            <Tabs.Tab value="sentences" style={{ fontSize: 'clamp(11px, 1.4vw, 2vh)' }}>💬 例句</Tabs.Tab>
+          )}
+        </Tabs.List>
+
+        <Tabs.Panel value="marks" pt="xs">
+          {allMarks.length > 0 ? (
+            <Box px="clamp(8px,1vw,14px)" py="clamp(6px,0.8vw,10px)"
+              style={{ background: '#f0f4ff', borderRadius: 10 }}>
+              <Stack gap={4}>
+                {allMarks.map((m, i) => (
+                  <Text key={i} style={{ fontSize: 'clamp(11px, 1.5vw, 2vh)' }} c="dark.4">
+                    {m.type === 'cluster' ? '🔗 ' : m.type === 'changed' ? '〰️ ' : '🔇 '}
+                    <Text component="span" fw={700}>{m.letters}</Text>：{m.note}
+                  </Text>
+                ))}
+              </Stack>
+            </Box>
+          ) : (
+            <Text size="xs" c="dimmed" ta="center" py="xs">规则发音，无特殊标注</Text>
+          )}
+        </Tabs.Panel>
+
+        {renderedSentences.length > 0 && (
+          <Tabs.Panel value="sentences" pt="xs">
+            <Stack gap="xs">
+              {renderedSentences.map((s, i) => (
+                <Box key={i} px="clamp(8px,1vw,14px)" py="clamp(6px,0.8vw,10px)"
+                  style={{ background: '#f0f4ff', borderRadius: 10 }}>
+                  <Text style={{ fontSize: 'clamp(12px, 1.8vw, 2.2vh)', fontFamily: 'Nunito, sans-serif', fontWeight: 600, color: '#1a1a2e' }}>
+                    {/* 高亮当前单词 */}
+                    {s.en.split(new RegExp(`(\\b${entry.word}\\b)`, 'i')).map((part, j) =>
+                      part.toLowerCase() === entry.word.toLowerCase()
+                        ? <span key={j} style={{ color: '#1b6ca8', fontWeight: 800 }}>{part}</span>
+                        : part
+                    )}
+                  </Text>
+                  <Text style={{ fontSize: 'clamp(11px, 1.5vw, 1.8vh)', color: '#6b7280', marginTop: 2 }}>
+                    {s.zh}
+                  </Text>
+                </Box>
+              ))}
+            </Stack>
+          </Tabs.Panel>
+        )}
+      </Tabs>
     </Stack>
   )
 
