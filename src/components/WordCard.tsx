@@ -15,7 +15,7 @@ import type { LetterMark, Syllable, WordEntry } from '../types'
 import { playWord } from '../utils/audio'
 import { fetchPixabayImage, getCachedImage, isImageSkipped, setCachedImage, skipImage } from '../utils/pixabay'
 import { getSentencesForWord, nextSentence, pickSentence } from '../utils/sentences'
-import { loadVoiceConfigs, speakWithConfig, SLOT_META } from '../pages/SettingsPage'
+import { loadVoiceConfigs, speakWithConfig, SLOT_META } from '../pages/settings/voice'
 
 const SPRING = 'cubic-bezier(0.34, 1.56, 0.64, 1)'
 
