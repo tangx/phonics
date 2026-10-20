@@ -439,10 +439,10 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
               </Text>
 
               {/* 底部操作行 */}
-              <Group justify="space-between" align="center" gap={4}>
+              <Group justify="space-between" align="center" gap={8} mt={6}>
                 {/* 左：喇叭 + 激活语音列表 */}
-                <Group gap={4} align="center">
-                  <IconVolume size={13} stroke={1.8} style={{ color: '#9ca3af', flexShrink: 0 }} />
+                <Group gap={8} align="center">
+                  <IconVolume size={18} stroke={1.8} style={{ color: '#9ca3af', flexShrink: 0 }} />
                   {Object.values(loadVoiceConfigs())
                     .filter(c => c.active)
                     .map(c => {
@@ -452,16 +452,17 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
                           key={c.slot}
                           onClick={() => speakWithConfig(currentSentence.en, c)}
                           style={{
-                            display: 'flex', alignItems: 'center', gap: 3,
-                            padding: '2px 7px', borderRadius: 12,
+                            display: 'flex', alignItems: 'center', gap: 5,
+                            padding: '5px 12px', borderRadius: 20,
                             background: `${meta.color}15`,
-                            fontSize: 11, color: meta.color,
+                            fontSize: 13, color: meta.color,
                             fontFamily: 'Noto Sans SC, sans-serif',
                             fontWeight: 500,
                             transition: 'background 0.12s',
+                            minHeight: 30,
                           }}
                         >
-                          <img src={meta.avatar} alt={meta.label} style={{ width: 14, height: 14, objectFit: 'contain' }} />
+                          <img src={meta.avatar} alt={meta.label} style={{ width: 18, height: 18, objectFit: 'contain' }} />
                           {meta.label}
                         </UnstyledButton>
                       )
@@ -471,12 +472,12 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
 
                 {/* 右：换一句 */}
                 <Tooltip label="换一句" withArrow events={{ hover: true, focus: true, touch: true }}>
-                  <ActionIcon size={22} variant="subtle" radius="xl"
+                  <ActionIcon size={30} variant="subtle" radius="xl"
                     onClick={handleNextSentence}
                     style={{ color: '#9ca3af' }}
                     aria-label="换一句"
                   >
-                    <IconRefresh size={14} stroke={1.8} />
+                    <IconRefresh size={18} stroke={1.8} />
                   </ActionIcon>
                 </Tooltip>
               </Group>
