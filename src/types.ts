@@ -26,3 +26,9 @@ export interface UnitData {
   title: string
   words: WordEntry[]
 }
+
+export interface SemesterData {
+  id: string        // 如 "grade1-s1"
+  title: string     // 如 "一年级（上）"
+  units: UnitData[]
+}
