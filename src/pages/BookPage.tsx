@@ -1,23 +1,16 @@
 import { useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Carousel } from '@mantine/carousel'
+import '@mantine/carousel/styles.css'
 import type { EmblaCarouselType } from 'embla-carousel'
 import {
   Box, Group, SegmentedControl, Text, ActionIcon, Breadcrumbs, Anchor,
 } from '@mantine/core'
-import '@mantine/carousel/styles.css'
 import { IconArrowLeft } from '@tabler/icons-react'
 import { semesters } from '../data/units'
 import { dictionary } from '../data/dictionary'
 import WordCard from '../components/WordCard'
 import { useSettings } from '../hooks/useSettings'
-
-const SYLLABLE_LEGEND = [
-  { color: '#d64045', label: '第1音节' },
-  { color: '#1b6ca8', label: '第2音节' },
-  { color: '#2d8a4e', label: '第3音节' },
-  { color: '#7b3fa0', label: '第4音节' },
-]
 
 export default function BookPage() {
   const { semesterId, unitId, word } = useParams<{
@@ -76,25 +69,15 @@ export default function BookPage() {
         </Group>
       </Box>
 
-      {/* 单元选择 + 音节图例 */}
+      {/* 单元选择 */}
       <Box px="md" py="xs" style={{ flexShrink: 0 }}>
-        <Group justify="space-between" wrap="wrap" gap={8}>
-          <SegmentedControl
-            value={activeUnit?.id ?? ''}
-            onChange={handleUnitChange}
-            data={semester.units.map(u => ({ value: u.id, label: u.title }))}
-            radius="xl"
-            size="xs"
-          />
-          <Group gap={12} visibleFrom="sm">
-            {SYLLABLE_LEGEND.map(item => (
-              <Group key={item.label} gap={5}>
-                <Box style={{ width: 10, height: 10, borderRadius: '50%', background: item.color, flexShrink: 0 }} />
-                <Text size="xs" c="dimmed">{item.label}</Text>
-              </Group>
-            ))}
-          </Group>
-        </Group>
+        <SegmentedControl
+          value={activeUnit?.id ?? ''}
+          onChange={handleUnitChange}
+          data={semester.units.map(u => ({ value: u.id, label: u.title }))}
+          radius="xl"
+          size="xs"
+        />
       </Box>
 
       {/* Carousel */}

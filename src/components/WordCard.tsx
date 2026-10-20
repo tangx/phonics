@@ -431,14 +431,14 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
       radius="xl"
       shadow="lg"
       p={0}
-      style={{ overflow: 'hidden', willChange: 'transform', height: '100%' }}
+      style={{ overflow: 'hidden', willChange: 'transform', height: '100%', display: 'flex', flexDirection: 'column' }}
     >
       {/* 横屏：左字右图 / 竖屏：上图下字 */}
       <Box
         style={{
           display: 'grid',
-          height: '100%',
-          // 横屏：左60右40；竖屏：上图下字（通过 @media 覆盖）
+          flex: 1,
+          minHeight: 0,
           gridTemplateColumns: '60fr 40fr',
           gridTemplateRows: '1fr',
           gridTemplateAreas: '"word image"',
@@ -464,6 +464,32 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
         }}>
           {imageEl}
         </Box>
+      </Box>
+
+      {/* 音节颜色图例 */}
+      <Box
+        style={{
+          flexShrink: 0,
+          background: '#f8faff',
+          borderTop: '1px solid #eef0f8',
+          padding: 'clamp(4px, 0.8vh, 8px) clamp(12px, 2vw, 24px)',
+          display: 'flex',
+          gap: 'clamp(10px, 2vw, 24px)',
+          justifyContent: 'center',
+          flexWrap: 'wrap',
+        }}
+      >
+        {[
+          { color: '#d64045', label: '第1音节' },
+          { color: '#1b6ca8', label: '第2音节' },
+          { color: '#2d8a4e', label: '第3音节' },
+          { color: '#7b3fa0', label: '第4音节' },
+        ].map(item => (
+          <Group key={item.label} gap={5}>
+            <Box style={{ width: 8, height: 8, borderRadius: '50%', background: item.color, flexShrink: 0 }} />
+            <Text size="xs" c="dimmed" style={{ fontSize: 'clamp(10px, 1.2vw, 13px)' }}>{item.label}</Text>
+          </Group>
+        ))}
       </Box>
     </Card>
   )

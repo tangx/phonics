@@ -40,7 +40,6 @@ export default function AppShellLayout() {
               拼读乐园
             </Text>
           </Group>
-          <SettingsButton pixabayKey={pixabayKey} onSave={setPixabayKey} />
         </Group>
       </AppShell.Header>
 
@@ -114,6 +113,11 @@ export default function AppShellLayout() {
             </div>
           </Collapse>
 
+        </AppShell.Section>
+
+        {/* Settings 固定在底部 */}
+        <AppShell.Section p="xs" style={{ borderTop: '1px solid #eef0f8' }}>
+          <SettingsButton pixabayKey={pixabayKey} onSave={setPixabayKey} />
         </AppShell.Section>
       </AppShell.Navbar>
 
