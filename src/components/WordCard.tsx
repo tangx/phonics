@@ -389,12 +389,12 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
       </Group>
 
       {/* Tabs：标注 / 句子 */}
-      <Tabs defaultValue="marks" radius="md" style={{ width: '100%' }}>
+      <Tabs defaultValue={wordSentences.length > 0 ? 'sentences' : 'marks'} radius="md" style={{ width: '100%' }}>
         <Tabs.List>
-          <Tabs.Tab value="marks" leftSection={<IconAbc size={14} stroke={1.8} />} style={{ fontSize: 'clamp(11px, 1.4vw, 2vh)' }}>拼读</Tabs.Tab>
           {wordSentences.length > 0 && (
             <Tabs.Tab value="sentences" leftSection={<IconMessageCircle size={14} stroke={1.8} />} style={{ fontSize: 'clamp(11px, 1.4vw, 2vh)' }}>例句</Tabs.Tab>
           )}
+          <Tabs.Tab value="marks" leftSection={<IconAbc size={14} stroke={1.8} />} style={{ fontSize: 'clamp(11px, 1.4vw, 2vh)' }}>拼读</Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel value="marks" pt="xs">
