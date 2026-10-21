@@ -11,49 +11,35 @@ import {
   TextInput,
   Title,
 } from '@mantine/core'
-import { IconCloudDownload, IconCloudUpload, IconInfoCircle } from '@tabler/icons-react'
+import { IconInfoCircle, IconTrash } from '@tabler/icons-react'
 import {
   QINIU_REGIONS,
   type SyncConfig,
   deriveRegion,
   loadSyncConfig,
   saveSyncConfig,
+  clearSyncConfig,
 } from './sync'
 import { loadUserProfile } from './user'
 import { buildObjectKey } from '../../utils/s3sync'
-import { type SyncStatus, canSyncNow, runDownload, runUpload } from '../../utils/syncActions'
 
 export default function SyncTab() {
   const [config, setConfig] = useState<SyncConfig>(loadSyncConfig)
-  const [username, setUsername] = useState(() => loadUserProfile().username)
-  const [status, setStatus] = useState<SyncStatus>('idle')
-  const [errorMsg, setErrorMsg] = useState('')
-  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [username] = useState(() => loadUserProfile().username)
+  const [destroyOpen, setDestroyOpen] = useState(false)
 
   const isCustomEndpoint = config.endpoint === ''
 
   const patch = (partial: Partial<SyncConfig>) =>
     setConfig(prev => ({ ...prev, ...partial }))
 
-  const save = (c: SyncConfig) => saveSyncConfig(c)
+  const handleSave = () => saveSyncConfig(config)
 
-  const refreshUsername = () => {
-    const u = loadUserProfile().username
-    setUsername(u)
+  const handleDestroy = () => {
+    clearSyncConfig()
+    setConfig(loadSyncConfig())
+    setDestroyOpen(false)
   }
-
-  const cb = {
-    onStatusChange: (s: SyncStatus) => {
-      if (s === 'idle') refreshUsername()
-      setStatus(s)
-    },
-    onError: (msg: string) => setErrorMsg(msg),
-  }
-
-  const handleUpload = () => { setErrorMsg(''); runUpload(cb) }
-  const handleDownloadConfirmed = () => { setConfirmOpen(false); setErrorMsg(''); runDownload(cb) }
-
-  const canSync = canSyncNow()
 
   return (
     <Stack gap="lg">
@@ -76,9 +62,7 @@ export default function SyncTab() {
           value={config.endpoint}
           onChange={v => {
             const ep = v ?? ''
-            const updated = { ...config, endpoint: ep, region: ep ? deriveRegion(ep) : config.region }
-            setConfig(updated)
-            save(updated)
+            setConfig(prev => ({ ...prev, endpoint: ep, region: ep ? deriveRegion(ep) : prev.region }))
           }}
           radius="md"
         />
@@ -90,7 +74,6 @@ export default function SyncTab() {
           placeholder="e.g. s3-cn-east-1.qiniucs.com"
           value={config.customEndpoint}
           onChange={e => patch({ customEndpoint: e.currentTarget.value })}
-          onBlur={() => save(config)}
           radius="md"
         />
       )}
@@ -100,7 +83,6 @@ export default function SyncTab() {
         placeholder="your-bucket-name"
         value={config.bucket}
         onChange={e => patch({ bucket: e.currentTarget.value })}
-        onBlur={() => save(config)}
         radius="md"
       />
 
@@ -109,7 +91,6 @@ export default function SyncTab() {
         placeholder="AK..."
         value={config.accessKey}
         onChange={e => patch({ accessKey: e.currentTarget.value })}
-        onBlur={() => save(config)}
         radius="md"
       />
 
@@ -118,7 +99,6 @@ export default function SyncTab() {
         placeholder="SK..."
         value={config.secretKey}
         onChange={e => patch({ secretKey: e.currentTarget.value })}
-        onBlur={() => save(config)}
         radius="md"
       />
 
@@ -134,60 +114,45 @@ export default function SyncTab() {
         </Text>
       )}
 
-      <Text size="xs" c="dimmed">
-        上次同步：{config.lastSyncAt
-          ? new Date(config.lastSyncAt).toLocaleString('zh-CN')
-          : '从未'}
-      </Text>
-
       {!username && (
         <Alert color="orange" radius="md" variant="light">
           请先在「用户」Tab 设置用户名，才能使用同步功能。
         </Alert>
       )}
 
-      {status === 'error' && (
-        <Alert color="red" radius="md">{errorMsg}</Alert>
-      )}
-
-      <Group grow>
+      <Group justify="space-between">
         <Button
-          leftSection={<IconCloudUpload size={16} />}
-          loading={status === 'uploading'}
-          disabled={!canSync}
-          onClick={handleUpload}
+          onClick={handleSave}
           radius="xl"
           style={{ background: '#1a1a2e' }}
         >
-          上传到云端
+          保存配置
         </Button>
         <Button
-          leftSection={<IconCloudDownload size={16} />}
-          loading={status === 'downloading'}
-          disabled={!canSync}
-          onClick={() => setConfirmOpen(true)}
-          radius="xl"
+          leftSection={<IconTrash size={16} />}
+          color="red"
           variant="outline"
-          color="dark"
+          radius="xl"
+          onClick={() => setDestroyOpen(true)}
         >
-          从云端恢复
+          销毁配置
         </Button>
       </Group>
 
       <Modal
-        opened={confirmOpen}
-        onClose={() => setConfirmOpen(false)}
-        title="确认从云端恢复"
+        opened={destroyOpen}
+        onClose={() => setDestroyOpen(false)}
+        title="确认销毁同步配置"
         centered
         radius="md"
       >
         <Stack gap="md">
           <Text size="sm">
-            此操作将用云端数据覆盖本地所有 phonics 设置（语音配置、图片缓存、Pixabay Key 等）。确认继续？
+            此操作将清除本地保存的所有云同步配置（Bucket、Access Key、Secret Key 等），且不可恢复。确认继续？
           </Text>
           <Group justify="flex-end">
-            <Button variant="subtle" onClick={() => setConfirmOpen(false)}>取消</Button>
-            <Button color="red" onClick={handleDownloadConfirmed}>覆盖本地</Button>
+            <Button variant="subtle" onClick={() => setDestroyOpen(false)}>取消</Button>
+            <Button color="red" onClick={handleDestroy}>确认销毁</Button>
           </Group>
         </Stack>
       </Modal>

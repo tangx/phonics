@@ -53,6 +53,10 @@ export function saveSyncConfig(c: SyncConfig): void {
   try { localStorage.setItem(SYNC_CONFIG_KEY, JSON.stringify(c)) } catch {}
 }
 
+export function clearSyncConfig(): void {
+  try { localStorage.removeItem(SYNC_CONFIG_KEY) } catch {}
+}
+
 export function resolveEndpoint(c: SyncConfig): string {
   return c.endpoint === '' ? c.customEndpoint : c.endpoint
 }
