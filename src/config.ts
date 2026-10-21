@@ -1,1 +1,7 @@
-export const PIXABAY_API_KEY = "***REMOVED***";
+export function getPixabayApiKey(): string {
+  try {
+    return localStorage.getItem('phonics_pixabay_key') ?? ''
+  } catch {
+    return ''
+  }
+}
