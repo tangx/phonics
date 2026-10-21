@@ -1,5 +1,5 @@
 import './index.css'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import AppShellLayout from './pages/HomePage'
 import BooksHomePage from './pages/BooksHomePage'
 import BookUnitsPage from './pages/BookUnitsPage'
@@ -9,7 +9,7 @@ import SettingsPage from './pages/SettingsPage'
 
 export default function App() {
   return (
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
+    <HashRouter>
       <Routes>
         <Route element={<AppShellLayout />}>
           <Route index element={<Navigate to="/books" replace />} />
@@ -21,6 +21,6 @@ export default function App() {
           <Route path="settings" element={<SettingsPage />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
