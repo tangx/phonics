@@ -19,6 +19,7 @@
 | [10-settings-image.md](10-settings-image.md) | `src/pages/settings/ImageTab.tsx` | 图片 / Pixabay 设置 |
 | [11-settings-sync.md](11-settings-sync.md) | `src/pages/settings/SyncTab.tsx` | 云端同步设置 |
 | [12-settings-user.md](12-settings-user.md) | `src/pages/settings/UserTab.tsx` | 用户信息设置 |
+| [13-deployment.md](13-deployment.md) | `.github/workflows/deploy.yml`、`vite.config.ts` | GitHub Actions 自动部署到 gh-pages |
 
 ## 设计语言约定
 
