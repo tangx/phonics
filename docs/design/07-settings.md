@@ -15,9 +15,10 @@ Box (maxWidth=600, margin=0 auto, p="xl")
     │   ├── Edge 语音 (IconVolume)
     │   ├── iOS 系统音 (IconDeviceMobile)
     │   ├── 图片 (IconPhoto)
+    │   ├── 高频词 (IconLetterCase)
     │   ├── 同步 (IconCloud)
     │   └── 用户 (IconUser)
-    └── Tabs.Panel × 5
+    └── Tabs.Panel × 6
 ```
 
 ---
@@ -29,6 +30,7 @@ Box (maxWidth=600, margin=0 auto, p="xl")
 | `edge-voice` | `EdgeVoiceTab` | [08-settings-edge-voice.md](08-settings-edge-voice.md) |
 | `ios-voice` | `IosVoiceTab` | [09-settings-ios-voice.md](09-settings-ios-voice.md) |
 | `image` | `ImageTab` | [10-settings-image.md](10-settings-image.md) |
+| `sight-words` | `SightWordsTab` | [06-sight-words.md](06-sight-words.md) |
 | `sync` | `SyncTab` | [11-settings-sync.md](11-settings-sync.md) |
 | `user` | `UserTab` | [12-settings-user.md](12-settings-user.md) |
 

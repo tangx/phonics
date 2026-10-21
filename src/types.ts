@@ -44,3 +44,28 @@ export interface SemesterData {
   color?: string        // 封面主色，如 '#1b6ca8'
   description?: string  // 简介
 }
+
+// ── Sight Words ───────────────────────────────────────────────────────────────
+
+export interface SightWordEntry {
+  word: string
+  chinese: string
+  example: string       // 含该词的例句
+  exampleZh: string     // 例句中文
+  isContentWord?: boolean // 实词（名词/动词/形容词），用于标记是否可配图
+}
+
+export interface SightWordGroup {
+  id: string            // 如 "pre-primer-1"
+  words: SightWordEntry[]
+}
+
+export interface SightWordLevel {
+  id: string            // 如 "pre-primer"
+  title: string         // 如 "Pre-Primer"
+  color: string
+  groups: SightWordGroup[]
+}
+
+// 解锁模式：auto = 看完自动解锁；quiz = 答对才解锁
+export type UnlockMode = 'auto' | 'quiz'
