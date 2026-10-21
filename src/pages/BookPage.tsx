@@ -1,12 +1,12 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Carousel } from '@mantine/carousel'
 import '@mantine/carousel/styles.css'
 import type { EmblaCarouselType } from 'embla-carousel'
 import {
-  Box, Group, SegmentedControl, Text, ActionIcon, Breadcrumbs, Anchor, UnstyledButton,
+  Box, Group, Text, UnstyledButton, Collapse, ActionIcon,
 } from '@mantine/core'
-import { IconArrowLeft } from '@tabler/icons-react'
+import { IconChevronDown, IconChevronUp } from '@tabler/icons-react'
 import { semesters } from '../data/units'
 import { dictionary } from '../data/dictionary'
 import WordCard from '../components/WordCard'
@@ -22,12 +22,9 @@ export default function BookPage() {
   const { pixabayKey } = useSettings()
   const emblaRef = useRef<EmblaCarouselType | null>(null)
   const chipRefs = useRef<(HTMLButtonElement | null)[]>([])
+  const [wordListOpen, setWordListOpen] = useState(false)
 
-  const semester = semesters.find(s => s.id === semesterId)
-  if (!semester) {
-    return <Box p="xl"><Text c="dimmed">找不到课本：{semesterId}</Text></Box>
-  }
-
+  const semester = semesters.find(s => s.id === semesterId) ?? semesters[0]
   const activeUnit = (unitId ? semester.units.find(u => u.id === unitId) : null)
     ?? semester.units[0]
 
@@ -36,22 +33,17 @@ export default function BookPage() {
   const currentWord = word ?? wordKeys[0]
   const currentIndex = wordKeys.indexOf(currentWord)
 
-  const handleUnitChange = (newUnitId: string) => {
-    navigate(`/books/${semesterId}/${newUnitId}`)
-  }
-
   const handleSlideChange = (index: number) => {
     const newWord = wordKeys[index]
     if (!newWord) return
-    navigate(`/books/${semesterId}/${activeUnit?.id}/${newWord}`, { replace: true })
+    navigate(`/books/${semester.id}/${activeUnit?.id}/${newWord}`, { replace: true })
   }
 
   const handleWordChip = (key: string, index: number) => {
-    navigate(`/books/${semesterId}/${activeUnit?.id}/${key}`, { replace: true })
+    navigate(`/books/${semester.id}/${activeUnit?.id}/${key}`, { replace: true })
     emblaRef.current?.scrollTo(index)
   }
 
-  // 当前 chip 滚动到可见区域
   useEffect(() => {
     chipRefs.current[currentIndex]?.scrollIntoView({
       behavior: 'smooth',
@@ -65,72 +57,55 @@ export default function BookPage() {
   return (
     <Box style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
-      {/* 面包屑 + 返回 */}
-      <Box px="md" pt="sm" pb={0} style={{ flexShrink: 0 }}>
-        <Group gap={8} align="center">
-          <ActionIcon variant="subtle" size="sm" onClick={() => navigate('/books')} aria-label="返回">
-            <IconArrowLeft size={16} stroke={1.8} />
+      {/* 单词折叠栏 */}
+      <Box style={{ flexShrink: 0, borderBottom: '1px solid #eef0f8' }}>
+        <Group
+          px="md"
+          py={6}
+          gap={6}
+          style={{ cursor: 'pointer', userSelect: 'none' }}
+          onClick={() => setWordListOpen(v => !v)}
+        >
+          <Text size="xs" c="dimmed" style={{ flex: 1 }}>
+            {currentWord} · {currentIndex + 1}/{wordKeys.length} 个单词
+          </Text>
+          <ActionIcon variant="subtle" size="xs" color="gray">
+            {wordListOpen ? <IconChevronUp size={12} /> : <IconChevronDown size={12} />}
           </ActionIcon>
-          <Breadcrumbs separatorMargin={4} styles={{ separator: { color: '#d1d5db' } }}>
-            <Anchor size="xs" c="dimmed" onClick={() => navigate('/books')} style={{ cursor: 'pointer' }}>
-              Books
-            </Anchor>
-            <Anchor size="xs" c="dimmed" onClick={() => navigate(`/books/${semesterId}`)} style={{ cursor: 'pointer' }}>
-              {semester.title}
-            </Anchor>
-            <Text size="xs" c="dark">{activeUnit?.title}</Text>
-          </Breadcrumbs>
         </Group>
+        <Collapse expanded={wordListOpen}>
+          <Box style={{ padding: '0 16px 8px' }}>
+            <Group gap={4} wrap="wrap">
+              {wordKeys.map((key, idx) => {
+                const isActive = key === currentWord
+                const entry = dictionary[key]
+                return (
+                  <UnstyledButton
+                    key={key}
+                    ref={(el) => { chipRefs.current[idx] = el }}
+                    onClick={() => handleWordChip(key, idx)}
+                    style={{
+                      padding: '3px 10px',
+                      borderRadius: 20,
+                      fontSize: 13,
+                      fontFamily: 'Nunito, sans-serif',
+                      fontWeight: isActive ? 700 : 400,
+                      color: isActive ? semesterColor : '#6b7280',
+                      background: isActive ? `${semesterColor}12` : 'transparent',
+                      borderBottom: isActive ? `2px solid ${semesterColor}` : '2px solid transparent',
+                      transition: 'all 0.15s',
+                    }}
+                  >
+                    {entry?.word ?? key}
+                  </UnstyledButton>
+                )
+              })}
+            </Group>
+          </Box>
+        </Collapse>
       </Box>
 
-      {/* 单元选择 */}
-      <Box px="md" pt="xs" pb={0} style={{ flexShrink: 0 }}>
-        <SegmentedControl
-          value={activeUnit?.id ?? ''}
-          onChange={handleUnitChange}
-          data={semester.units.map(u => ({ value: u.id, label: u.title }))}
-          radius="xl"
-          size="xs"
-        />
-      </Box>
-
-      {/* 单词快速选择 — 自动换行 */}
-      <Box
-        style={{
-          flexShrink: 0,
-          borderBottom: '1px solid #eef0f8',
-          padding: '4px 16px 8px',
-        }}
-      >
-        <Group gap={4} wrap="wrap">
-          {wordKeys.map((key, idx) => {
-            const isActive = key === currentWord
-            const entry = dictionary[key]
-            return (
-              <UnstyledButton
-                key={key}
-                ref={(el) => { chipRefs.current[idx] = el }}
-                onClick={() => handleWordChip(key, idx)}
-                style={{
-                  padding: '3px 10px',
-                  borderRadius: 20,
-                  fontSize: 13,
-                  fontFamily: 'Nunito, sans-serif',
-                  fontWeight: isActive ? 700 : 400,
-                  color: isActive ? semesterColor : '#6b7280',
-                  background: isActive ? `${semesterColor}12` : 'transparent',
-                  borderBottom: isActive ? `2px solid ${semesterColor}` : '2px solid transparent',
-                  transition: 'all 0.15s',
-                }}
-              >
-                {entry?.word ?? key}
-              </UnstyledButton>
-            )
-          })}
-        </Group>
-      </Box>
-
-      {/* Carousel — 充满剩余空间 */}
+      {/* Carousel */}
       <Box style={{ flex: 1, minHeight: 0, padding: '0 12px' }}>
         <Carousel
           key={`${activeUnit?.id}-${startIndex}`}

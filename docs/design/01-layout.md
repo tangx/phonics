@@ -32,7 +32,7 @@ AppShell
 ### 手机端 TopBar
 
 | 属性 | 值 |
-|------|----|
+|------|-----|
 | 高度 | 48px |
 | 背景 | `#fff` |
 | 底边 | `1px solid #eef0f8` |
@@ -48,7 +48,7 @@ AppShell
 ```
 AppShell.Navbar
 ├── Section (品牌区)       — 品牌 Logo + 手机端 Burger
-├── Section grow (菜单区)  — ScrollArea，Sight Words + Books 折叠树
+├── Section grow (菜单区)  — ScrollArea，Sight Words + Books 两级折叠树
 └── Section (底部)         — 设置入口
 ```
 
@@ -59,25 +59,40 @@ AppShell.Navbar
 - 点击品牌名跳转到 `/books`
 - 手机端 Burger：`hiddenFrom="sm"` 在大屏隐藏
 
-### 菜单区（导航项规范）
+### 菜单区（两级折叠树）
 
-| 导航项 | 路由 | 图标 |
-|--------|------|------|
+Books 展开后呈现两级结构：
+
+```
+Books（可展开）
+└── 一年级（上）▶   ← 年级行，点击跳转并展开单元
+    ├── Unit 1
+    ├── Unit 2
+    └── ...
+└── 一年级（下）▶
+    └── ...
+```
+
+| 导航项 | 路由 | 图标/标记 |
+|--------|------|----------|
 | Sight Words | `/sight-words` | `IconLetterCase` |
 | Books（可展开） | `/books` | `IconBooks` |
-| └ 各学期子项 | `/books/:semesterId/:firstUnitId` | 彩色圆点（`semester.color`） |
+| └ 年级行 | `/books/:semesterId/:firstUnitId` | 彩色圆点 |
+| └ └ 单元行 | `/books/:semesterId/:unitId` | NavLink 激活高亮 |
 
-Books 使用自定义 `UnstyledButton` 而非 `NavLink`，以实现：
-- 点击主文本 → 跳转 `/books`
-- 点击展开箭头 → 仅折叠/展开，不跳转
+**年级行**：`UnstyledButton`，点击同时导航到年级首单元并展开该年级单元列表。  
+右侧小箭头单独 `stopPropagation`，仅控制折叠，不导航。
 
-展开状态用 `Collapse` 管理；学期子项高亮条件：`location.pathname.startsWith('/books/:semesterId')`。
+**单元行**：Mantine `NavLink`，`size="xs"`，激活条件：URL 包含 `:semesterId/:unitId`。
 
-激活状态样式：
-- 背景 `var(--mantine-color-blue-0)`
-- 文字 `var(--mantine-color-blue-7)`
+**展开状态逻辑**：
+- `booksExpanded`：Books 整体展开状态
+- `expandedSemester`：当前展开的年级 ID；`null` = 全收起
+- 当 URL 处于某年级时，该年级自动展开（`isSemesterActive || expandedSemester === id`）
 
-圆点颜色：激活时用 `semester.color`，未激活时 `#e9ecef`。
+激活样式：
+- Books 整体激活：背景 `var(--mantine-color-blue-0)`，文字 `var(--mantine-color-blue-7)`
+- 年级激活：背景 `${semester.color}15`，文字 `semester.color`，圆点变色
 
 ### 底部设置入口
 

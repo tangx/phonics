@@ -9,9 +9,11 @@
 
 ```
 Box (height=100%, flex column, overflow=hidden)
-├── 面包屑 + 返回区  (flexShrink=0)
-├── 单元选择器       (flexShrink=0)
-├── 单词快捷栏       (flexShrink=0, borderBottom)
+├── 年级选择器       (flexShrink=0)  ← Select，可切换年级
+├── 单元选择器       (flexShrink=0)  ← SegmentedControl
+├── 单词折叠栏       (flexShrink=0, borderBottom)
+│   ├── 折叠触发行   ← "当前词 · x/n 个单词" + 展开箭头
+│   └── Collapse    ← 展开后显示所有单词 chip，默认收起
 └── Carousel 区域   (flex=1, minHeight=0)
 ```
 
@@ -19,14 +21,13 @@ Box (height=100%, flex column, overflow=hidden)
 
 ---
 
-## 面包屑区
+## 年级选择器
 
-| 元素 | 说明 |
-|------|------|
-| `ActionIcon` variant="subtle" size="sm" | 返回按钮，`IconArrowLeft`，点击 → `/books` |
-| `Breadcrumbs` | Books → {semester.title} → {unit.title} |
-| 链接颜色 | `c="dimmed"` |
-| 当前项 | `Text size="xs" c="dark"` |
+- Mantine `Select`，`size="xs"`，`radius="xl"`
+- `data` = 所有学期 `[{ value: s.id, label: s.title }]`
+- 切换年级时跳转到 `/books/:newSemesterId/:firstUnitId`
+- input 颜色使用当前学期的 `semesterColor`
+- 若 URL 中 `semesterId` 不存在，fallback 到 `semesters[0]`（不显示报错）
 
 ---
 
@@ -38,15 +39,19 @@ Box (height=100%, flex column, overflow=hidden)
 
 ---
 
-## 单词快捷栏
+## 单词折叠栏
+
+### 折叠触发行
+
+- `Group` 整体可点击，`onClick` 切换 `wordListOpen` 状态
+- 左侧：`当前词 · x/n 个单词`（`Text size="xs" c="dimmed"`）
+- 右侧：`ActionIcon` variant="subtle" size="xs"，图标随展开/收起切换（`IconChevronUp` / `IconChevronDown`）
+
+### 单词 chip 列表（Collapse 内）
 
 - `Group gap={4} wrap="wrap"`，显示当前单元所有单词
 - 每个词渲染为 `UnstyledButton`（自定义 chip 样式）
-- 激活态：
-  - 文字色 `semesterColor`
-  - 背景 `${semesterColor}12`
-  - 底边 `2px solid ${semesterColor}`
-  - `fontWeight=700`
+- 激活态：文字色 `semesterColor`，背景 `${semesterColor}12`，底边 `2px solid ${semesterColor}`，`fontWeight=700`
 - 非激活态：`color=#6b7280`，底边透明
 - 点击 chip → 更新 URL + Embla scrollTo 对应下标
 - 通过 `useEffect + chipRefs + scrollIntoView` 保证当前激活词自动滚入可见区域
@@ -69,7 +74,7 @@ Box (height=100%, flex column, overflow=hidden)
 
 | 参数 | 缺省行为 |
 |------|---------|
-| `semesterId` 不存在 | 显示「找不到课本」提示 |
+| `semesterId` 不存在 | fallback 到 `semesters[0]` |
 | `unitId` 未传 | 使用第一个单元 `semester.units[0]` |
 | `word` 未传 | 从第一个单词开始（`startIndex=0`） |
 | `word` 不在列表中 | `indexOf` 返回 -1，取 0 |
@@ -78,6 +83,7 @@ Box (height=100%, flex column, overflow=hidden)
 
 ## 状态与副作用
 
+- `wordListOpen`：单词折叠栏展开状态，默认 `false`（收起）
 - `emblaRef`：持有 Embla 实例，用于命令式 scrollTo
 - `chipRefs`：数组 ref，驱动 chip 自动滚入视口
 - `useEffect([currentIndex])`：每次激活词变化时将对应 chip 滚入可见区

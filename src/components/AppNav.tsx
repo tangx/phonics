@@ -14,6 +14,7 @@ interface AppNavProps {
 
 export default function AppNav({ navOpened, toggleNav, closeNav }: AppNavProps) {
   const [booksExpanded, setBooksExpanded] = useState(true)
+  const [expandedSemester, setExpandedSemester] = useState<string | null>(null)
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -24,6 +25,12 @@ export default function AppNav({ navOpened, toggleNav, closeNav }: AppNavProps) 
 
   const isBooks = location.pathname.startsWith('/books')
   const isSightWords = location.pathname.startsWith('/sight-words')
+
+  const currentSemesterId = location.pathname.match(/^\/books\/([^/]+)/)?.[1] ?? null
+
+  const toggleSemester = (semesterId: string) => {
+    setExpandedSemester(v => v === semesterId ? null : semesterId)
+  }
 
   return (
     <AppShell.Navbar style={{ display: 'flex', flexDirection: 'column' }}>
@@ -52,6 +59,7 @@ export default function AppNav({ navOpened, toggleNav, closeNav }: AppNavProps) 
           styles={{ root: { borderRadius: 8 } }}
         />
 
+        {/* Books 顶层展开 */}
         <UnstyledButton
           style={{
             display: 'flex',
@@ -81,22 +89,65 @@ export default function AppNav({ navOpened, toggleNav, closeNav }: AppNavProps) 
         <Collapse expanded={booksExpanded}>
           <div style={{ paddingLeft: rem(8) }}>
             {semesters.map((semester) => {
-              const isActive = location.pathname.startsWith(`/books/${semester.id}`)
+              const isSemesterActive = currentSemesterId === semester.id
+              const isOpen = expandedSemester === semester.id || isSemesterActive
+
               return (
-                <NavLink
-                  key={semester.id}
-                  label={semester.title}
-                  active={isActive}
-                  onClick={() => handleNav(`/books/${semester.id}/${semester.units[0].id}`)}
-                  styles={{ root: { borderRadius: 8, fontSize: 'var(--mantine-font-size-sm)' } }}
-                  leftSection={
+                <div key={semester.id}>
+                  {/* 年级行 */}
+                  <UnstyledButton
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      width: '100%',
+                      padding: `${rem(6)} ${rem(8)}`,
+                      borderRadius: 8,
+                      background: isSemesterActive ? `${semester.color ?? '#1b6ca8'}15` : 'transparent',
+                    }}
+                    onClick={() => {
+                      toggleSemester(semester.id)
+                      handleNav(`/books/${semester.id}`)
+                    }}
+                  >
                     <span style={{
                       width: 8, height: 8, borderRadius: '50%',
-                      background: isActive ? (semester.color ?? '#1b6ca8') : '#e9ecef',
-                      display: 'inline-block', flexShrink: 0,
+                      background: isSemesterActive ? (semester.color ?? '#1b6ca8') : '#e9ecef',
+                      display: 'inline-block', flexShrink: 0, marginRight: 8,
                     }} />
-                  }
-                />
+                    <Text size="sm" fw={isSemesterActive ? 600 : 400} style={{ flex: 1, color: isSemesterActive ? (semester.color ?? '#1b6ca8') : 'var(--mantine-color-gray-7)' }}>
+                      {semester.title}
+                    </Text>
+                    <span
+                      onClick={(e) => { e.stopPropagation(); toggleSemester(semester.id) }}
+                      style={{ padding: '2px 4px', display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+                    >
+                      {isOpen
+                        ? <IconChevronDown size={12} stroke={1.8} color="#9ca3af" />
+                        : <IconChevronRight size={12} stroke={1.8} color="#9ca3af" />
+                      }
+                    </span>
+                  </UnstyledButton>
+
+                  {/* 单元列表 */}
+                  <Collapse expanded={isOpen}>
+                    <div style={{ paddingLeft: rem(16), paddingBottom: rem(4) }}>
+                      {semester.units.map((unit) => {
+                        const isUnitActive = location.pathname.includes(`/books/${semester.id}/${unit.id}`)
+                        return (
+                          <NavLink
+                            key={unit.id}
+                            label={unit.title}
+                            active={isUnitActive}
+                            onClick={() => handleNav(`/books/${semester.id}/${unit.id}`)}
+                            styles={{
+                              root: { borderRadius: 6, fontSize: 'var(--mantine-font-size-xs)', paddingTop: rem(4), paddingBottom: rem(4) },
+                            }}
+                          />
+                        )
+                      })}
+                    </div>
+                  </Collapse>
+                </div>
               )
             })}
           </div>
