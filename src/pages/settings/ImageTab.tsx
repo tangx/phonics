@@ -60,6 +60,20 @@ export default function ImageTab() {
         onChange={e => setSettings(s => ({ ...s, shuffle: e.currentTarget.checked }))}
       />
 
+      <Stack gap={4}>
+        <Text fw={600} size="sm">轮询间隔（秒）</Text>
+        <Text size="xs" c="dimmed">每隔多少秒自动切换到下一张缓存图片，设为 0 关闭自动轮询。</Text>
+        <NumberInput
+          value={settings.interval}
+          onChange={v => setSettings(s => ({ ...s, interval: Number(v) }))}
+          min={0}
+          max={60}
+          step={1}
+          radius="md"
+          style={{ maxWidth: 120 }}
+        />
+      </Stack>
+
       <Button onClick={handleSave} radius="xl"
         style={{ background: saved ? '#2d8a4e' : '#1a1a2e' }} fullWidth>
         {saved ? '已保存 ✓' : '保存'}

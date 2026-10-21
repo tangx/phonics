@@ -1,11 +1,12 @@
 export interface ImageSettings {
   cacheSize: number    // 每个单词缓存图片上限，1–20，默认 5
   shuffle: boolean     // 随机轮询，默认 true
+  interval: number     // 轮询间隔秒数，0 表示不自动轮询，默认 2
 }
 
 export const IMAGE_SETTINGS_KEY = 'phonics_img_settings'
 
-const DEFAULTS: ImageSettings = { cacheSize: 5, shuffle: true }
+const DEFAULTS: ImageSettings = { cacheSize: 5, shuffle: true, interval: 2 }
 
 export function loadImageSettings(): ImageSettings {
   try {

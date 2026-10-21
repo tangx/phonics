@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Group, Image, Stack, Text, Tooltip, UnstyledButton } from '@mantine/core'
 import { IconBookmark, IconBookmarkOff, IconRefresh, IconX } from '@tabler/icons-react'
 import type { WordEntry } from '../types'
@@ -9,7 +9,6 @@ import {
   getBlacklist,
   getImageCache,
   isBlacklisted,
-  pickFromCache,
   removeFromImageCache,
 } from '../utils/pixabay'
 import { loadImageSettings } from '../pages/settings/image'
@@ -41,11 +40,38 @@ export default function WordImage({ entry, pixabayKey }: WordImageProps) {
   // previewUrl: 联网拉取但尚未加入缓存的图
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [imgLoading, setImgLoading] = useState(false)
+  // 当前展示的缓存下标（轮询用）
+  const [cacheIndex, setCacheIndex] = useState(0)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  // 当前展示的图：preview 优先，其次从缓存选，最后 fallback
-  const displayUrl = previewUrl ?? pickFromCache(entry.word, settings.shuffle) ?? localSrc
+  // 有效缓存（过滤黑名单）
+  const validCache = cacheList.filter(u => !isBlacklisted(entry.word, u))
+
+  // 当前展示的图：preview 优先，其次从有效缓存按 index 取，最后 fallback
+  const displayUrl = previewUrl
+    ?? (validCache.length > 0 ? validCache[cacheIndex % validCache.length] : null)
+    ?? localSrc
   const inCache = cacheList.includes(displayUrl)
   const cacheFull = cacheList.length >= settings.cacheSize
+
+  // 定时轮询：有多张有效缓存 且 interval>0 且 无 preview 时启动
+  useEffect(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current)
+    if (settings.interval > 0 && validCache.length > 1 && !previewUrl) {
+      intervalRef.current = setInterval(() => {
+        setCacheIndex(prev => {
+          if (settings.shuffle) {
+            // 随机选一个不同于当前的下标
+            const next = Math.floor(Math.random() * (validCache.length - 1))
+            return next >= (prev % validCache.length) ? next + 1 : next
+          }
+          return prev + 1
+        })
+      }, settings.interval * 1000)
+    }
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings.interval, settings.shuffle, validCache.length, previewUrl])
 
   const fetchNew = useCallback(async () => {
     if (!pixabayKey) return
@@ -100,10 +126,11 @@ export default function WordImage({ entry, pixabayKey }: WordImageProps) {
       setCacheList(getImageCache(entry.word))
     }
     if (previewUrl === displayUrl) setPreviewUrl(null)
-    // 尝试自动切换到下一张缓存
-    const next = pickFromCache(entry.word, settings.shuffle, displayUrl)
-    if (!next && pixabayKey && !cacheFull) fetchNew()
-  }, [entry.word, displayUrl, inCache, previewUrl, settings.shuffle, pixabayKey, cacheFull, fetchNew])
+    // 推进 index，定时器会自然切换；若无缓存则联网拉一张
+    setCacheIndex(prev => prev + 1)
+    const remaining = getImageCache(entry.word).filter(u => !isBlacklisted(entry.word, u))
+    if (remaining.length === 0 && pixabayKey && !cacheFull) fetchNew()
+  }, [entry.word, displayUrl, inCache, previewUrl, pixabayKey, cacheFull, fetchNew])
 
   return (
     <Stack gap={0} align="center" style={{ height: '100%', justifyContent: 'center', position: 'relative' }}>
