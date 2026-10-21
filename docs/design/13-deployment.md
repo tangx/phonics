@@ -6,6 +6,7 @@
 |------|------|
 | `.github/workflows/deploy.yml` | GitHub Actions 自动部署 workflow |
 | `vite.config.ts` | Vite 构建配置，含 `base` 路径设置 |
+| `src/App.tsx` | React Router `basename` 配置 |
 
 ## 部署方式
 
@@ -42,6 +43,14 @@ export default defineConfig(({ command }) => ({
 ```
 
 使用 Vite 提供的 `command` 参数判断构建模式：`'build'` 对应 `vite build`，`'serve'` 对应 `vite dev`。比 `process.env.NODE_ENV` 更直接，不依赖外部环境变量。生产构建时所有静态资源路径前缀为 `/phonics/`，匹配 GitHub Pages 子路径；本地开发（`bun run dev`）仍使用 `/`。
+
+### src/App.tsx — React Router basename
+
+```tsx
+<BrowserRouter basename={import.meta.env.BASE_URL}>
+```
+
+`import.meta.env.BASE_URL` 是 Vite 注入的变量，值与 `vite.config.ts` 的 `base` 保持一致：生产构建时为 `/phonics/`，本地开发时为 `/`。不设置 `basename` 会导致路由无法匹配子路径，出现 "No routes matched location" 错误。
 
 ### .github/workflows/deploy.yml
 
