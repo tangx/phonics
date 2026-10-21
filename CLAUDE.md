@@ -30,7 +30,9 @@ bun run preview      # 预览构建产物
 面向中国小学生的英语学习静态网站，核心理念：**自然拼读规则 + 国际音标双轨并行**。
 
 - 技术栈：React + TypeScript + Vite + Tailwind CSS v4
-- 构建产物：`dist/` 静态文件，可直接部署到 GitHub Pages 等
+- 构建产物：`dist/` 静态文件，部署到 GitHub Pages
+- **路由必须使用 HashRouter**（`#` 路径），确保 GitHub Pages 静态托管下刷新/直链不会 404
+- 所有页面跳转、`<Link>`、`useNavigate` 均基于 HashRouter，禁止使用 BrowserRouter
 
 ## 数据管理
 
