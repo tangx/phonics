@@ -1,39 +1,70 @@
-const CACHE_PREFIX = 'phonics_img_'
-const SKIP_PREFIX = 'phonics_img_skip_'
+const CACHE_LIST_PREFIX = 'phonics_imgcache_'
+const BLACK_LIST_PREFIX = 'phonics_imgblack_'
 
-export function getCachedImage(word: string): string | null {
-  try { return localStorage.getItem(CACHE_PREFIX + word) } catch { return null }
+// ── 图片缓存池 ──────────────────────────────────────────────────────────
+
+export function getImageCache(word: string): string[] {
+  try { return JSON.parse(localStorage.getItem(CACHE_LIST_PREFIX + word) ?? '[]') } catch { return [] }
 }
 
-export function setCachedImage(word: string, url: string): void {
-  try { localStorage.setItem(CACHE_PREFIX + word, url) } catch {}
-}
-
-export function isImageSkipped(word: string, url: string): boolean {
+export function addToImageCache(word: string, url: string, limit: number): void {
   try {
-    const skipped = JSON.parse(localStorage.getItem(SKIP_PREFIX + word) ?? '[]') as string[]
-    return skipped.includes(url)
-  } catch { return false }
-}
-
-export function skipImage(word: string, url: string): void {
-  try {
-    const skipped = JSON.parse(localStorage.getItem(SKIP_PREFIX + word) ?? '[]') as string[]
-    if (!skipped.includes(url)) {
-      skipped.push(url)
-      localStorage.setItem(SKIP_PREFIX + word, JSON.stringify(skipped))
-    }
-    // 清除当前缓存，下次加载会拉新图
-    localStorage.removeItem(CACHE_PREFIX + word)
+    const list = getImageCache(word)
+    if (list.includes(url)) return
+    if (list.length >= limit) list.shift()
+    list.push(url)
+    localStorage.setItem(CACHE_LIST_PREFIX + word, JSON.stringify(list))
   } catch {}
 }
+
+export function removeFromImageCache(word: string, url: string): void {
+  try {
+    const list = getImageCache(word).filter(u => u !== url)
+    localStorage.setItem(CACHE_LIST_PREFIX + word, JSON.stringify(list))
+  } catch {}
+}
+
+export function isCacheFull(word: string, limit: number): boolean {
+  return getImageCache(word).length >= limit
+}
+
+// ── 黑名单 ──────────────────────────────────────────────────────────────
+
+export function getBlacklist(word: string): string[] {
+  try { return JSON.parse(localStorage.getItem(BLACK_LIST_PREFIX + word) ?? '[]') } catch { return [] }
+}
+
+export function addToBlacklist(word: string, url: string): void {
+  try {
+    const list = getBlacklist(word)
+    if (!list.includes(url)) {
+      list.push(url)
+      localStorage.setItem(BLACK_LIST_PREFIX + word, JSON.stringify(list))
+    }
+  } catch {}
+}
+
+export function isBlacklisted(word: string, url: string): boolean {
+  return getBlacklist(word).includes(url)
+}
+
+// ── 从缓存选一张（过滤黑名单）────────────────────────────────────────────
+
+export function pickFromCache(word: string, random: boolean, exclude?: string): string | null {
+  const blacklist = getBlacklist(word)
+  const available = getImageCache(word).filter(u => !blacklist.includes(u) && u !== exclude)
+  if (!available.length) return null
+  if (random) return available[Math.floor(Math.random() * available.length)]
+  return available[0]
+}
+
+// ── 网络拉取 ────────────────────────────────────────────────────────────
 
 export async function fetchPixabayImage(
   word: string,
   chinese: string,
   apiKey: string,
-  skip = 0,
-  skippedUrls: string[] = [],
+  excludeUrls: string[] = [],
 ): Promise<string | null> {
   for (const q of [word, chinese]) {
     const url = new URL('https://pixabay.com/api/')
@@ -41,22 +72,41 @@ export async function fetchPixabayImage(
     url.searchParams.set('q', q)
     url.searchParams.set('image_type', 'illustration')
     url.searchParams.set('safesearch', 'true')
-    url.searchParams.set('per_page', '10')
+    url.searchParams.set('per_page', '20')
     url.searchParams.set('lang', 'en')
 
     try {
       const res = await fetch(url.toString())
       if (!res.ok) continue
       const data = await res.json() as { hits: { webformatURL: string }[] }
-      // 过滤掉已跳过的图片
-      const candidates = data.hits.filter(h => !skippedUrls.includes(h.webformatURL))
+      const candidates = data.hits.filter(h => !excludeUrls.includes(h.webformatURL))
       const pool = candidates.length > 0 ? candidates : data.hits
       if (pool.length > 0) {
-        return pool[skip % pool.length].webformatURL
+        return pool[Math.floor(Math.random() * pool.length)].webformatURL
       }
     } catch {
       continue
     }
   }
   return null
+}
+
+// ── 旧 API 兼容（已废弃，仅供迁移期过渡）──────────────────────────────────
+/** @deprecated 使用 getImageCache */
+export function getCachedImage(word: string): string | null {
+  const list = getImageCache(word)
+  return list.length > 0 ? list[0] : null
+}
+/** @deprecated 使用 addToImageCache */
+export function setCachedImage(word: string, url: string): void {
+  addToImageCache(word, url, 5)
+}
+/** @deprecated 使用 isBlacklisted */
+export function isImageSkipped(word: string, url: string): boolean {
+  return isBlacklisted(word, url)
+}
+/** @deprecated 使用 addToBlacklist */
+export function skipImage(word: string, url: string): void {
+  addToBlacklist(word, url)
+  removeFromImageCache(word, url)
 }

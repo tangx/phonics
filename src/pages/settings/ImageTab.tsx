@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Anchor, Button, PasswordInput, Stack, Text } from '@mantine/core'
+import { Anchor, Button, NumberInput, PasswordInput, Stack, Switch, Text, Title } from '@mantine/core'
 import { PIXABAY_KEY_LS } from './voice'
+import { loadImageSettings, saveImageSettings } from './image'
 
 function loadPixabayKey() {
   try { return localStorage.getItem(PIXABAY_KEY_LS) ?? '' } catch { return '' }
@@ -8,10 +9,12 @@ function loadPixabayKey() {
 
 export default function ImageTab() {
   const [pixabayKey, setPixabayKey] = useState(loadPixabayKey)
+  const [settings, setSettings] = useState(loadImageSettings)
   const [saved, setSaved] = useState(false)
 
   const handleSave = () => {
     try { localStorage.setItem(PIXABAY_KEY_LS, pixabayKey.trim()) } catch {}
+    saveImageSettings(settings)
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
@@ -34,6 +37,29 @@ export default function ImageTab() {
           免费注册获取 →
         </Anchor>
       </Text>
+
+      <Title order={5} mt="sm" style={{ color: '#1a1a2e' }}>图片缓存</Title>
+
+      <Stack gap={4}>
+        <Text fw={600} size="sm">每个单词缓存数量</Text>
+        <Text size="xs" c="dimmed">缓存满后不再联网获取，在本地图片间轮询。</Text>
+        <NumberInput
+          value={settings.cacheSize}
+          onChange={v => setSettings(s => ({ ...s, cacheSize: Number(v) || 5 }))}
+          min={1}
+          max={20}
+          radius="md"
+          style={{ maxWidth: 120 }}
+        />
+      </Stack>
+
+      <Switch
+        label="随机轮询"
+        description="开启后每次显示随机一张缓存图片，否则按顺序显示"
+        checked={settings.shuffle}
+        onChange={e => setSettings(s => ({ ...s, shuffle: e.currentTarget.checked }))}
+      />
+
       <Button onClick={handleSave} radius="xl"
         style={{ background: saved ? '#2d8a4e' : '#1a1a2e' }} fullWidth>
         {saved ? '已保存 ✓' : '保存'}

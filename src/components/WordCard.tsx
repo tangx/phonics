@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ActionIcon, Box, Card, Group, Popover, Stack, Tabs, Text, Tooltip, Image, UnstyledButton } from '@mantine/core'
+import { ActionIcon, Box, Card, Group, Popover, Stack, Tabs, Text, Tooltip, UnstyledButton } from '@mantine/core'
 import {
   IconVolume,
   IconRefresh,
-  IconX,
   IconAbc,
   IconMessageCircle,
   IconLink,
@@ -13,9 +12,9 @@ import {
 } from '@tabler/icons-react'
 import type { LetterMark, Syllable, WordEntry } from '../types'
 import { playWord } from '../utils/audio'
-import { fetchPixabayImage, getCachedImage, isImageSkipped, setCachedImage, skipImage } from '../utils/pixabay'
 import { getSentencesForWord, nextSentence, pickSentence } from '../utils/sentences'
 import { loadVoiceConfigs, speakWithConfig, SLOT_META } from '../pages/settings/voice'
+import WordImage from './WordImage'
 
 const SPRING = 'cubic-bezier(0.34, 1.56, 0.64, 1)'
 
@@ -176,55 +175,7 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
   const cardRef = useRef<HTMLDivElement>(null)
   const [bouncing, setBouncing] = useState(false)
 
-  const localSrc = entry.image
-    ? `/images/${entry.image}`
-    : `https://placehold.co/400x400/e8f4ff/1b6ca8?text=${entry.word}`
-
-  const [imgSrc, setImgSrc] = useState<string>(
-    () => getCachedImage(entry.word) ?? localSrc
-  )
-  const [imgLoading, setImgLoading] = useState(false)
-  const skipRef = useRef(0)
-
   const allMarks = entry.syllables.flatMap((s) => s.marks ?? [])
-
-  // 拉取新图的公共函数（自动排除已跳过的）
-  const fetchNew = useCallback(async (skipCount: number) => {
-    if (!pixabayKey) return
-    setImgLoading(true)
-    try {
-      const skippedUrls = JSON.parse(
-        localStorage.getItem(`phonics_img_skip_${entry.word}`) ?? '[]'
-      ) as string[]
-      const url = await fetchPixabayImage(entry.word, entry.chinese, pixabayKey, skipCount, skippedUrls)
-      if (url) {
-        setImgSrc(url)
-        setCachedImage(entry.word, url)
-      }
-    } finally {
-      setImgLoading(false)
-    }
-  }, [pixabayKey, entry.word, entry.chinese])
-
-  // 卡片 mount：有 key 且（无缓存 或 缓存已被跳过）时自动拉取
-  useEffect(() => {
-    if (!pixabayKey) return
-    const cached = getCachedImage(entry.word)
-    if (cached && !isImageSkipped(entry.word, cached)) return
-    let cancelled = false
-    setImgLoading(true)
-    const skippedUrls = JSON.parse(
-      localStorage.getItem(`phonics_img_skip_${entry.word}`) ?? '[]'
-    ) as string[]
-    fetchPixabayImage(entry.word, entry.chinese, pixabayKey, 0, skippedUrls).then((url) => {
-      if (cancelled || !url) return
-      setImgSrc(url)
-      setCachedImage(entry.word, url)
-    }).finally(() => {
-      if (!cancelled) setImgLoading(false)
-    })
-    return () => { cancelled = true }
-  }, [entry.word, entry.chinese, pixabayKey])
 
   useEffect(() => {
     const el = cardRef.current
@@ -243,84 +194,6 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
     playWord(entry.word)
     setTimeout(() => setBouncing(false), 380)
   }, [entry.word])
-
-  const handleRefreshImage = useCallback(async () => {
-    if (!pixabayKey || imgLoading) return
-    skipRef.current += 1
-    await fetchNew(skipRef.current)
-  }, [pixabayKey, imgLoading, fetchNew])
-
-  const handleSkipImage = useCallback(async () => {
-    if (!pixabayKey || imgLoading) return
-    skipImage(entry.word, imgSrc)
-    skipRef.current += 1
-    await fetchNew(skipRef.current)
-  }, [pixabayKey, imgLoading, imgSrc, entry.word, fetchNew])
-
-  const imageEl = (
-    <Stack gap={0} align="center" style={{ height: '100%', justifyContent: 'center', position: 'relative' }}>
-      {/* 换图 + 跳过 按钮组 */}
-      {pixabayKey && (
-        <Group gap={6} style={{ position: 'absolute', top: 0, right: 0, zIndex: 1 }}>
-          <UnstyledButton
-            onClick={handleRefreshImage}
-            aria-label="换一张图片"
-            style={{
-              display: 'flex', alignItems: 'center', gap: 4,
-              padding: '4px 8px', borderRadius: 20,
-              background: 'rgba(255,255,255,0.92)',
-              boxShadow: '0 1px 6px rgba(0,0,0,0.10)',
-              fontSize: 12, color: '#6b7280',
-              fontFamily: 'Noto Sans SC, sans-serif',
-              opacity: imgLoading ? 0.5 : 1,
-            }}
-          >
-            <IconRefresh size={13} stroke={1.8} />
-            换一张
-          </UnstyledButton>
-          <UnstyledButton
-            onClick={handleSkipImage}
-            aria-label="不再显示此图"
-            style={{
-              display: 'flex', alignItems: 'center', gap: 4,
-              padding: '4px 8px', borderRadius: 20,
-              background: 'rgba(255,255,255,0.92)',
-              boxShadow: '0 1px 6px rgba(0,0,0,0.10)',
-              fontSize: 12, color: '#6b7280',
-              fontFamily: 'Noto Sans SC, sans-serif',
-              opacity: imgLoading ? 0.5 : 1,
-            }}
-          >
-            <IconX size={13} stroke={1.8} />
-            不再显示
-          </UnstyledButton>
-        </Group>
-      )}
-      <Image
-        src={imgSrc}
-        alt={entry.chinese}
-        fit="contain"
-        style={{
-          width: 'min(30vw, 50vh)',
-          height: 'min(30vw, 50vh)',
-          borderRadius: 'clamp(8px, 1.5vw, 20px)',
-        }}
-        onError={(e) => {
-          ;(e.currentTarget as HTMLImageElement).src =
-            `https://placehold.co/400x400/e8f4ff/1b6ca8?text=${entry.word}`
-        }}
-      />
-      <Text style={{
-        fontFamily: "'Noto Sans SC', sans-serif",
-        fontWeight: 500,
-        fontSize: 'clamp(18px, 3vw, 4.5vh)',
-        color: '#1a1a2e',
-        marginTop: 'clamp(6px, 1vw, 14px)',
-      }}>
-        {entry.chinese}
-      </Text>
-    </Stack>
-  )
 
   // ── 例句逻辑 ──────────────────────────────────────────────────────────────
   const wordSentences = getSentencesForWord(entry.word)
@@ -584,7 +457,7 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
           justifyContent: 'center',
           padding: 'clamp(12px, 2vw, 28px)',
         }}>
-          {imageEl}
+          <WordImage entry={entry} pixabayKey={pixabayKey} />
         </Box>
       </Box>
     </Card>
