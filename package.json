@@ -11,10 +11,13 @@
     "images": "bun --env-file=.env.local scripts/download-images.ts"
   },
   "dependencies": {
+    "@aws-crypto/sha256-browser": "5.2.0",
+    "@aws-sdk/signature-v4": "3.374.0",
     "@mantine/carousel": "9.7.3",
     "@mantine/core": "9.7.3",
     "@mantine/hooks": "9.7.3",
     "@mantine/notifications": "9.7.3",
+    "@smithy/types": "4.19.0",
     "@tabler/icons-react": "3.49.0",
     "embla-carousel-react": "8.6.0",
     "hyphen": "1.14.1",
