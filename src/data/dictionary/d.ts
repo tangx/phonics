@@ -3,7 +3,7 @@ import type { WordEntry } from '../../types'
 const C = ['#d64045', '#1b6ca8', '#2d8a4e', '#7b3fa0']
 
 export const dictD: Record<string, WordEntry> = {
-  different: { word: 'different', phonetic: '/ˈdɪfərənt/', syllables: [{ text: 'dif', phonetic: '/dɪ/', color: C[0] }, { text: 'fer', phonetic: '/fər/', color: C[1] }, { text: 'ent', phonetic: '/ənt/', color: C[2] }], chinese: '不同的' },
+  different: { word: 'different', phonetic: '/ˈdɪfərənt/', syllables: [{ text: 'di', phonetic: '/dɪ/', color: C[0] }, { text: 'fer', phonetic: '/fər/', color: C[1] }, { text: 'ent', phonetic: '/ənt/', color: C[2] }], chinese: '不同的' },
   deer: { word: 'deer', phonetic: '/dɪər/', syllables: [{ text: 'deer', phonetic: '/dɪər/', color: C[0], marks: [{ letters: 'ee', type: 'cluster', phonetic: 'ɪə', note: 'ee 组合→/ɪə/ 双元音' }] }], chinese: '鹿'  },
   day: { word: 'day', phonetic: '/deɪ/', syllables: [{ text: 'day', phonetic: '/deɪ/', color: C[0] }], chinese: '天；白天'  },
   does: { word: 'does', phonetic: '/dʌz/', syllables: [{ text: 'does', phonetic: '/dʌz/', color: C[0], marks: [{ letters: 'oe', type: 'changed', note: '不规则：oe→/ʌ/（通常 o→/oʊ/）' }] }], chinese: '做（第三人称）' },

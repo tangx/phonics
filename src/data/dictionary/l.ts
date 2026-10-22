@@ -8,7 +8,7 @@ export const dictL: Record<string, WordEntry> = {
   list: { word: 'list', phonetic: '/lɪst/', syllables: [{ text: 'list', phonetic: '/lɪst/', color: C[0] }], chinese: '清单' },
   luck: { word: 'luck', phonetic: '/lʌk/', syllables: [{ text: 'luck', phonetic: '/lʌk/', color: C[0], marks: [{ letters: 'ck', type: 'cluster', phonetic: 'k', note: 'ck 组合→/k/，只发一个 k 音' }] }], chinese: '运气' },
   lantern: { word: 'lantern', phonetic: '/ˈlæntərn/', syllables: [{ text: 'lan', phonetic: '/læn/', color: C[0] }, { text: 'tern', phonetic: '/tərn/', color: C[1] }], chinese: '灯笼' },
-  lucky: { word: 'lucky', phonetic: '/ˈlʌki/', syllables: [{ text: 'luck', phonetic: '/lʌ/', color: C[0], marks: [{ letters: 'ck', type: 'cluster', phonetic: 'k', note: 'ck 组合→/k/，只发一个 k 音' }] }, { text: 'y', phonetic: '/ki/', color: C[1] }], chinese: '幸运的' },
+  lucky: { word: 'lucky', phonetic: '/ˈlʌki/', syllables: [{ text: 'lu', phonetic: '/lʌ/', color: C[0] }, { text: 'cky', phonetic: '/ki/', color: C[1], marks: [{ letters: 'ck', type: 'cluster', phonetic: 'k', note: 'ck 组合→/k/，只发一个 k 音' }] }], chinese: '幸运的' },
   let: { word: 'let', phonetic: '/let/', syllables: [{ text: 'let', phonetic: '/let/', color: C[0] }], chinese: '让'  },
   live: { word: 'live', phonetic: '/lɪv/', syllables: [{ text: 'live', phonetic: '/lɪv/', color: C[0], marks: [{ letters: 'e', type: 'silent', note: 'v 后必须加 e，不改变 i 的发音（不规则）' }] }], chinese: '居住；生活' },
   little: { word: 'little', phonetic: '/ˈlɪtəl/', syllables: [{ text: 'lit', phonetic: '/lɪ/', color: C[0] }, { text: 'tle', phonetic: '/təl/', color: C[1] }], chinese: '小的；少的'  },

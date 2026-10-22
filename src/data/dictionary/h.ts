@@ -25,6 +25,6 @@ export const dictH: Record<string, WordEntry> = {
   hooray: { word: 'hooray', phonetic: '/hʊˈreɪ/', syllables: [{ text: 'hoo', phonetic: '/hʊ/', color: C[0], marks: [{ letters: 'oo', type: 'cluster', phonetic: 'ʊ', note: 'oo→/ʊ/ 短音' }] }, { text: 'ray', phonetic: '/reɪ/', color: C[1], marks: [{ letters: 'ay', type: 'cluster', phonetic: 'eɪ', note: 'ay 词尾→/eɪ/' }] }], chinese: '好哇！万岁！' },
   happy: { word: 'happy', phonetic: '/ˈhæpi/', syllables: [{ text: 'hap', phonetic: '/hæ/', color: C[0] }, { text: 'py', phonetic: '/pi/', color: C[1] }], chinese: '快乐的' },
   hand: { word: 'hand', phonetic: '/hænd/', syllables: [{ text: 'hand', phonetic: '/hænd/', color: C[0] }], chinese: '手' },
-  hungry: { word: 'hungry', phonetic: '/ˈhʌŋɡri/', syllables: [{ text: 'hun', phonetic: '/hʌŋ/', color: C[0], marks: [{ letters: 'ng', type: 'cluster', phonetic: 'ŋ', note: 'ng 组合→/ŋ/' }] }, { text: 'gry', phonetic: '/ɡri/', color: C[1] }], chinese: '饿的' },
+  hungry: { word: 'hungry', phonetic: '/ˈhʌŋɡri/', syllables: [{ text: 'hun', phonetic: '/hʌŋ/', color: C[0] }, { text: 'gry', phonetic: '/ɡri/', color: C[1] }], chinese: '饿的' },
   hard: { word: 'hard', phonetic: '/hɑːrd/', syllables: [{ text: 'hard', phonetic: '/hɑːrd/', color: C[0], marks: [{ letters: 'ar', type: 'cluster', phonetic: 'ɑːr', note: 'ar r控制元音→/ɑːr/' }] }], chinese: '难的；努力地' },
 }

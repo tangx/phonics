@@ -4,7 +4,7 @@ const C = ['#d64045', '#1b6ca8', '#2d8a4e', '#7b3fa0']
 
 export const dictB: Record<string, WordEntry> = {
   big: { word: 'big', phonetic: '/bɪɡ/', syllables: [{ text: 'big', phonetic: '/bɪɡ/', color: C[0] }], chinese: '大的'  },
-  body: { word: 'body', phonetic: '/ˈbɒdi/', syllables: [{ text: 'bod', phonetic: '/bɒ/', color: C[0] }, { text: 'y', phonetic: '/di/', color: C[1] }], chinese: '身体' },
+  body: { word: 'body', phonetic: '/ˈbɒdi/', syllables: [{ text: 'bo', phonetic: '/bɒ/', color: C[0] }, { text: 'dy', phonetic: '/di/', color: C[1] }], chinese: '身体' },
   banana: { word: 'banana', phonetic: '/bəˈnɑːnə/', syllables: [{ text: 'ba', phonetic: '/bə/', color: C[0] }, { text: 'na', phonetic: '/nɑː/', color: C[1] }, { text: 'na', phonetic: '/nə/', color: C[2] }], chinese: '香蕉'  },
   bread: { word: 'bread', phonetic: '/bred/', syllables: [{ text: 'bread', phonetic: '/bred/', color: C[0], marks: [{ letters: 'ea', type: 'cluster', phonetic: 'e', note: '不规则：ea→/e/（通常 ea→/iː/）' }] }], chinese: '面包'  },
   best: { word: 'best', phonetic: '/best/', syllables: [{ text: 'best', phonetic: '/best/', color: C[0] }], chinese: '最好的' },

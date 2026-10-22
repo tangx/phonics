@@ -10,7 +10,7 @@ export const dictR: Record<string, WordEntry> = {
   red: { word: 'red', phonetic: '/red/', syllables: [{ text: 'red', phonetic: '/red/', color: C[0] }], chinese: '红色'  },
   ran: { word: 'ran', phonetic: '/ræn/', syllables: [{ text: 'ran', phonetic: '/ræn/', color: C[0] }], chinese: '跑了（run 过去式）' },
   ride: { word: 'ride', phonetic: '/raɪd/', syllables: [{ text: 'ride', phonetic: '/raɪd/', color: C[0], marks: [{ letters: 'e', type: 'silent-e', note: '魔法e：末尾 e 不发音，i→/aɪ/' }] }], chinese: '骑；乘坐' },
-  river: { word: 'river', phonetic: '/ˈrɪvər/', syllables: [{ text: 'riv', phonetic: '/rɪ/', color: C[0] }, { text: 'er', phonetic: '/vər/', color: C[1], marks: [{ letters: 'er', type: 'cluster', phonetic: 'ər', note: 'er r控制元音→/ər/' }] }], chinese: '河流' },
+  river: { word: 'river', phonetic: '/ˈrɪvər/', syllables: [{ text: 'ri', phonetic: '/rɪ/', color: C[0] }, { text: 'ver', phonetic: '/vər/', color: C[1], marks: [{ letters: 'er', type: 'cluster', phonetic: 'ər', note: 'er r控制元音→/ər/' }] }], chinese: '河流' },
   ruler: { word: 'ruler', phonetic: '/ˈruːlər/', syllables: [{ text: 'ru', phonetic: '/ruː/', color: C[0] }, { text: 'ler', phonetic: '/lər/', color: C[1], marks: [{ letters: 'er', type: 'cluster', phonetic: 'ər', note: 'er r控制元音→/ər/' }] }], chinese: '尺子' },
   rabbit: { word: 'rabbit', phonetic: '/ˈræbɪt/', syllables: [{ text: 'rab', phonetic: '/ræ/', color: C[0] }, { text: 'bit', phonetic: '/bɪt/', color: C[1] }], chinese: '兔子' },
   room: { word: 'room', phonetic: '/ruːm/', syllables: [{ text: 'room', phonetic: '/ruːm/', color: C[0], marks: [{ letters: 'oo', type: 'cluster', phonetic: 'uː', note: 'oo 组合→/uː/ 长音' }] }], chinese: '房间' },

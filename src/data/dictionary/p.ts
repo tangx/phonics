@@ -3,7 +3,7 @@ import type { WordEntry } from '../../types'
 const C = ['#d64045', '#1b6ca8', '#2d8a4e', '#7b3fa0']
 
 export const dictP: Record<string, WordEntry> = {
-  people: { word: 'people', phonetic: '/ˈpiːpəl/', syllables: [{ text: 'peo', phonetic: '/piː/', color: C[0] }, { text: 'ple', phonetic: '/pəl/', color: C[1] }], chinese: '人们' },
+  people: { word: 'people', phonetic: '/ˈpiːpəl/', syllables: [{ text: 'peo', phonetic: '/piː/', color: C[0], marks: [{ letters: 'eo', type: 'cluster', phonetic: 'iː', note: 'eo 组合→/iː/（不规则）' }] }, { text: 'ple', phonetic: '/pəl/', color: C[1] }], chinese: '人们' },
   put: { word: 'put', phonetic: '/pʊt/', syllables: [{ text: 'put', phonetic: '/pʊt/', color: C[0] }], chinese: '放' },
   picnic: { word: 'picnic', phonetic: '/ˈpɪknɪk/', syllables: [{ text: 'pic', phonetic: '/pɪk/', color: C[0] }, { text: 'nic', phonetic: '/nɪk/', color: C[1] }], chinese: '野餐' },
   pull: { word: 'pull', phonetic: '/pʊl/', syllables: [{ text: 'pull', phonetic: '/pʊl/', color: C[0] }], chinese: '拉' },

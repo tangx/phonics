@@ -5,7 +5,7 @@ const C = ['#d64045', '#1b6ca8', '#2d8a4e', '#7b3fa0']
 export const dictC: Record<string, WordEntry> = {
   can: { word: 'can', phonetic: '/kæn/', syllables: [{ text: 'can', phonetic: '/kæn/', color: C[0] }], chinese: '能；罐头'  },
   come: { word: 'come', phonetic: '/kʌm/', syllables: [{ text: 'come', phonetic: '/kʌm/', color: C[0], marks: [{ letters: 'e', type: 'silent', note: '魔法e（不规则）：o→/ʌ/ 而非 /oʊ/' }] }], chinese: '来'  },
-  celebrate: { word: 'celebrate', phonetic: '/ˈselɪbreɪt/', syllables: [{ text: 'cel', phonetic: '/se/', color: C[0] }, { text: 'e', phonetic: '/lɪ/', color: C[1] }, { text: 'brate', phonetic: '/breɪt/', color: C[2], marks: [{ letters: 'e', type: 'silent-e', note: '魔法e：末尾 e 不发音' }] }], chinese: '庆祝' },
+  celebrate: { word: 'celebrate', phonetic: '/ˈselɪbreɪt/', syllables: [{ text: 'ce', phonetic: '/se/', color: C[0] }, { text: 'le', phonetic: '/lɪ/', color: C[1] }, { text: 'brate', phonetic: '/breɪt/', color: C[2], marks: [{ letters: 'e', type: 'silent-e', note: '魔法e：末尾 e 不发音' }] }], chinese: '庆祝' },
   clothes: { word: 'clothes', phonetic: '/kloʊðz/', syllables: [{ text: 'clothes', phonetic: '/kloʊðz/', color: C[0], marks: [{ letters: 'th', type: 'cluster', phonetic: 'ð', note: 'th 组合→/ð/（浊音）' }, { letters: 'e', type: 'silent-e', note: '魔法e：末尾 e 不发音' }] }], chinese: '衣服'  },
   candy: { word: 'candy', phonetic: '/ˈkændi/', syllables: [{ text: 'can', phonetic: '/kæn/', color: C[0] }, { text: 'dy', phonetic: '/di/', color: C[1] }], chinese: '糖果' },
   could: { word: 'could', phonetic: '/kʊd/', syllables: [{ text: 'could', phonetic: '/kʊd/', color: C[0], marks: [{ letters: 'oul', type: 'cluster', phonetic: 'ʊ', note: '-ould 中 oul→/ʊ/' }, { letters: 'd', type: 'silent', note: 'd 不发音（could/would/should）' }] }], chinese: '能；可以（过去式）' },

@@ -22,7 +22,7 @@ export const dictS: Record<string, WordEntry> = {
   she: { word: 'she', phonetic: '/ʃiː/', syllables: [{ text: 'she', phonetic: '/ʃiː/', color: C[0], marks: [{ letters: 'sh', type: 'cluster', phonetic: 'ʃ', note: 'sh 组合→/ʃ/' }] }], chinese: '她'  },
   so: { word: 'so', phonetic: '/soʊ/', syllables: [{ text: 'so', phonetic: '/soʊ/', color: C[0] }], chinese: '所以；如此' },
   soon: { word: 'soon', phonetic: '/suːn/', syllables: [{ text: 'soon', phonetic: '/suːn/', color: C[0], marks: [{ letters: 'oo', type: 'cluster', phonetic: 'uː', note: 'oo 组合→/uː/ 长音' }] }], chinese: '很快；不久'  },
-  seven: { word: 'seven', phonetic: '/ˈsevən/', syllables: [{ text: 'sev', phonetic: '/se/', color: C[0] }, { text: 'en', phonetic: '/vən/', color: C[1] }], chinese: '七' },
+  seven: { word: 'seven', phonetic: '/ˈsevən/', syllables: [{ text: 'se', phonetic: '/se/', color: C[0] }, { text: 'ven', phonetic: '/vən/', color: C[1] }], chinese: '七' },
   shall: { word: 'shall', phonetic: '/ʃæl/', syllables: [{ text: 'shall', phonetic: '/ʃæl/', color: C[0], marks: [{ letters: 'sh', type: 'cluster', phonetic: 'ʃ', note: 'sh 组合→/ʃ/' }] }], chinese: '将要（助动词）' },
   six: { word: 'six', phonetic: '/sɪks/', syllables: [{ text: 'six', phonetic: '/sɪks/', color: C[0] }], chinese: '六' },
   start: { word: 'start', phonetic: '/stɑːrt/', syllables: [{ text: 'start', phonetic: '/stɑːrt/', color: C[0], marks: [{ letters: 'ar', type: 'cluster', phonetic: 'ɑːr', note: 'ar r控制元音→/ɑːr/' }] }], chinese: '开始；出发' },
