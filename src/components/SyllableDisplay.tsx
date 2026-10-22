@@ -11,14 +11,15 @@ import type { LetterMark, Syllable } from '../types'
 
 // ── 常量 ────────────────────────────────────────────────────────────────────
 
-// 音节背景/边框色 → bg（透明度适当加深，让色块更明显）
-const SYLLABLE_COLORS: Record<string, { bg: string }> = {
-  '#d64045': { bg: 'rgba(214,64,69,0.10)'  },
-  '#1b6ca8': { bg: 'rgba(27,108,168,0.10)' },
-  '#2d8a4e': { bg: 'rgba(45,138,78,0.10)'  },
-  '#7b3fa0': { bg: 'rgba(123,63,160,0.10)' },
+// 音节背景/边框色（边框用同色系淡化，与背景融合，不突兀）
+const SYLLABLE_COLORS: Record<string, { bg: string; border: string }> = {
+  '#d64045': { bg: 'rgba(214,64,69,0.10)',   border: 'rgba(214,64,69,0.35)'  },
+  '#1b6ca8': { bg: 'rgba(27,108,168,0.12)',  border: 'rgba(27,108,168,0.35)' },
+  '#2d8a4e': { bg: 'rgba(45,138,78,0.10)',   border: 'rgba(45,138,78,0.35)'  },
+  '#7b3fa0': { bg: 'rgba(123,63,160,0.10)',  border: 'rgba(123,63,160,0.35)' },
 }
-const FALLBACK_BG = 'rgba(0,0,0,0.06)'
+const FALLBACK_BG     = 'rgba(0,0,0,0.06)'
+const FALLBACK_BORDER = 'rgba(0,0,0,0.20)'
 
 // 全局统一：元音暖红，辅音钢蓝（参考图配色，与音节背景色无关）
 const VOWEL_COLOR     = '#c0392b'  // 暖红
@@ -247,13 +248,13 @@ const CHIP_SIZES: Record<SyllableChipSize, {
 }
 
 export function SyllableChip({ syl, size = 'lg' }: { syl: Syllable; size?: SyllableChipSize }) {
-  const bg = (SYLLABLE_COLORS[syl.color] ?? { bg: FALLBACK_BG }).bg
+  const palette = SYLLABLE_COLORS[syl.color] ?? { bg: FALLBACK_BG, border: FALLBACK_BORDER }
   const s = CHIP_SIZES[size]
 
   return (
     <Stack gap={2} align="center" style={{
-      background: bg,
-      border: `2px solid ${syl.color}`,
+      background: palette.bg,
+      border: `2px solid ${palette.border}`,
       borderRadius: s.borderRadius,
       padding: s.padding,
       minWidth: s.minWidth,
