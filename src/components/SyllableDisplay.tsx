@@ -42,6 +42,28 @@ function charColor(ch: string, posInSyllable: number): string {
   return isVowelChar(ch) ? VOWEL_COLOR : CONSONANT_COLOR
 }
 
+// IPA 元音字符集：单元音 + 双元音起始字符 + r控制元音
+// 判断 IPA 字符是否为元音音素（逐字符着色用）
+const IPA_VOWEL_CHARS = new Set('iɪeæɑɒɔʊuʌɜəaɪɔɪaʊeɪəʊ'.split(''))
+
+function phoneticCharColor(ch: string): string {
+  // 斜杠、应力符、长音符、点 → 中性灰
+  if ('/ˈˌːˑ·'.includes(ch)) return '#9ca3af'
+  if (IPA_VOWEL_CHARS.has(ch)) return VOWEL_COLOR
+  return CONSONANT_COLOR
+}
+
+// 将音标字符串逐字符着色渲染（用于音节块内的音标行）
+function renderColoredPhonetic(text: string): React.ReactNode {
+  return (
+    <>
+      {text.split('').map((ch, i) => (
+        <span key={i} style={{ color: phoneticCharColor(ch) }}>{ch}</span>
+      ))}
+    </>
+  )
+}
+
 // ── LetterBadge ─────────────────────────────────────────────────────────────
 
 function LetterBadge({ text, mark, syllableColor }: {
@@ -188,29 +210,7 @@ function SyllableLetters({ syl }: { syl: Syllable }) {
 // ── buildPhoneticWithDots ───────────────────────────────────────────────────
 
 function buildPhoneticWithDots(syl: Syllable): React.ReactNode {
-  const clusters = (syl.marks ?? []).filter(m => m.type === 'cluster' && m.phonetic)
-  if (!clusters.length) return syl.phonetic
-
-  const dot = <span style={{ color: `${syl.color}60`, margin: '0 0.15em' }}>·</span>
-  const raw = syl.phonetic.replace(/^\/|\/$/g, '')
-  const parts: React.ReactNode[] = []
-  let rem = raw
-
-  for (const mark of clusters) {
-    const frag = mark.phonetic!.replace(/^\/|\/$/g, '')
-    const idx = rem.indexOf(frag)
-    if (idx === -1) continue
-    if (idx > 0) {
-      parts.push(<span key={`pre-${frag}`} style={{ color: syl.color }}>{rem.slice(0, idx)}</span>)
-      parts.push(dot)
-    }
-    parts.push(<span key={frag} style={{ color: syl.color }}>{frag}</span>)
-    rem = rem.slice(idx + frag.length)
-    if (rem.length > 0) parts.push(dot)
-  }
-  if (rem) parts.push(<span key="tail" style={{ color: syl.color }}>{rem}</span>)
-
-  return <span>/{parts}/</span>
+  return renderColoredPhonetic(syl.phonetic)
 }
 
 // ── SyllableChip ────────────────────────────────────────────────────────────
