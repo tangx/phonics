@@ -11,11 +11,34 @@ import type { LetterMark, Syllable } from '../types'
 
 // ── 常量 ────────────────────────────────────────────────────────────────────
 
-const SYLLABLE_BG: Record<string, string> = {
-  '#d64045': 'rgba(214,64,69,0.12)',
-  '#1b6ca8': 'rgba(27,108,168,0.12)',
-  '#2d8a4e': 'rgba(45,138,78,0.12)',
-  '#7b3fa0': 'rgba(123,63,160,0.12)',
+// 音节背景/边框色 → bg
+const SYLLABLE_COLORS: Record<string, { bg: string }> = {
+  '#d64045': { bg: 'rgba(214,64,69,0.12)'  },
+  '#1b6ca8': { bg: 'rgba(27,108,168,0.12)' },
+  '#2d8a4e': { bg: 'rgba(45,138,78,0.12)'  },
+  '#7b3fa0': { bg: 'rgba(123,63,160,0.12)' },
+}
+const FALLBACK_BG = 'rgba(0,0,0,0.06)'
+
+// 全局统一：元音鲜橙色，辅音深灰色（与音节背景无关）
+const VOWEL_COLOR     = '#e85d04'
+const CONSONANT_COLOR = '#374151'
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function isVowelChar(ch: string): boolean {
+  return 'aeiou'.includes(ch.toLowerCase())
+}
+
+// cluster 首字母是元音（oo, ea, ai, er, ir, or…）→ 元音色；辅音开头（th, sh, ck…）→ 辅音色
+function isVowelCluster(letters: string): boolean {
+  return letters.length > 0 && 'aeiou'.includes(letters[0].toLowerCase())
+}
+
+// y 在音节位置 0 = 辅音（yes, yell）；其他位置 = 元音（happy→py, fly→y）
+function charColor(ch: string, posInSyllable: number): string {
+  if (ch.toLowerCase() === 'y') return posInSyllable === 0 ? CONSONANT_COLOR : VOWEL_COLOR
+  return isVowelChar(ch) ? VOWEL_COLOR : CONSONANT_COLOR
 }
 
 // ── LetterBadge ─────────────────────────────────────────────────────────────
@@ -31,10 +54,11 @@ function LetterBadge({ text, mark, syllableColor }: {
   const isSelfAffected = mark.affectedVowel !== undefined && mark.affectedVowel === mark.letters
 
   if (isCluster) {
+    const clusterColor = isVowelCluster(mark.letters) ? VOWEL_COLOR : CONSONANT_COLOR
     return (
       <Tooltip label={mark.note} withArrow multiline maw={220}
         events={{ hover: true, focus: true, touch: true }}>
-        <span style={{ color: syllableColor, cursor: 'help' }}>{text}</span>
+        <span style={{ color: clusterColor, cursor: 'help' }}>{text}</span>
       </Tooltip>
     )
   }
@@ -53,6 +77,8 @@ function LetterBadge({ text, mark, syllableColor }: {
     )
   }
 
+  void syllableColor  // kept for Tooltip key identification if needed
+
   return (
     <Tooltip label={mark.note} withArrow multiline maw={220}
       events={{ hover: true, focus: true, touch: true }}>
@@ -70,43 +96,64 @@ function LetterBadge({ text, mark, syllableColor }: {
 
 // ── SyllableLetters ─────────────────────────────────────────────────────────
 
-function renderUnmarkedSegment(segText: string, sylColor: string, affectedVowels: Set<string>): React.ReactNode {
-  if (!affectedVowels.size) return <span style={{ color: sylColor }}>{segText}</span>
+function renderUnmarkedSegment(
+  segText: string,
+  affectedVowels: Set<string>,
+  segStartInSyllable: number,
+): React.ReactNode {
   return (
     <>
-      {segText.split('').map((ch, idx) =>
-        affectedVowels.has(ch)
-          ? <span key={idx} style={{ color: '#c2410c', textDecoration: 'overline', textDecorationThickness: '2px' }}>{ch}</span>
-          : <span key={idx} style={{ color: sylColor }}>{ch}</span>
-      )}
+      {segText.split('').map((ch, idx) => {
+        const sylPos = segStartInSyllable + idx
+        if (affectedVowels.has(ch)) {
+          return (
+            <span key={idx} style={{ color: '#c2410c', textDecoration: 'overline', textDecorationThickness: '2px' }}>{ch}</span>
+          )
+        }
+        return (
+          <span key={idx} style={{ color: charColor(ch, sylPos) }}>{ch}</span>
+        )
+      })}
     </>
   )
 }
 
 function SyllableLetters({ syl }: { syl: Syllable }) {
   if (!syl.marks?.length) {
-    return <span style={{ color: syl.color }}>{syl.text}</span>
+    return (
+      <>
+        {syl.text.split('').map((ch, idx) => (
+          <span key={idx} style={{ color: charColor(ch, idx) }}>{ch}</span>
+        ))}
+      </>
+    )
   }
 
   const externallyAffectedVowels = new Set(
     (syl.marks ?? [])
       .filter(m => m.affectedVowel && m.affectedVowel !== m.letters)
-      .map(m => m.affectedVowel!)
+      .map(m => m.affectedVowel!),
   )
 
   const sorted = [...syl.marks].sort(
     (a, b) => syl.text.indexOf(a.letters) - syl.text.indexOf(b.letters),
   )
-  const segments: { text: string; mark?: LetterMark }[] = []
+  const segments: { text: string; mark?: LetterMark; startOffset: number }[] = []
   let remaining = syl.text
+  let charOffset = 0
+
   for (const mark of sorted) {
     const idx = remaining.indexOf(mark.letters)
     if (idx === -1) continue
-    if (idx > 0) segments.push({ text: remaining.slice(0, idx) })
-    segments.push({ text: mark.letters, mark })
+    if (idx > 0) {
+      segments.push({ text: remaining.slice(0, idx), startOffset: charOffset })
+      charOffset += idx
+    }
+    segments.push({ text: mark.letters, mark, startOffset: charOffset })
+    charOffset += mark.letters.length
     remaining = remaining.slice(idx + mark.letters.length)
   }
-  if (remaining) segments.push({ text: remaining })
+  if (remaining) segments.push({ text: remaining, startOffset: charOffset })
 
   return (
     <>
@@ -118,14 +165,18 @@ function SyllableLetters({ syl }: { syl: Syllable }) {
           return (
             <span key={i}>
               {dot}
-              <LetterBadge text={seg.text} mark={seg.mark} syllableColor={syl.color} />
+              <LetterBadge
+                text={seg.text}
+                mark={seg.mark}
+                syllableColor={syl.color}
+              />
             </span>
           )
         }
         return (
           <span key={i}>
             {dot}
-            {renderUnmarkedSegment(seg.text, syl.color, externallyAffectedVowels)}
+            {renderUnmarkedSegment(seg.text, externallyAffectedVowels, seg.startOffset)}
           </span>
         )
       })}
@@ -196,7 +247,7 @@ const CHIP_SIZES: Record<SyllableChipSize, {
 }
 
 export function SyllableChip({ syl, size = 'lg' }: { syl: Syllable; size?: SyllableChipSize }) {
-  const bg = SYLLABLE_BG[syl.color] ?? 'rgba(0,0,0,0.06)'
+  const bg = (SYLLABLE_COLORS[syl.color] ?? { bg: FALLBACK_BG }).bg
   const s = CHIP_SIZES[size]
 
   return (

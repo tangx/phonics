@@ -72,15 +72,37 @@ Stack (align=center, gap=6)
 
 ---
 
+## 辅音/元音颜色区分
+
+字母文字颜色**全局统一**，与音节背景色无关：
+
+| 角色 | 颜色 | 说明 |
+|---|---|---|
+| 元音（a/e/i/o/u，非词首 y） | `#e85d04`（橙） | 突出，承载音节的核心音 |
+| 辅音 | `#374151`（深灰） | 退后，框架性字母 |
+
+音节身份仍由背景色 + 边框颜色区分（不变）。
+
+**y 的处理**：音节位置 0 = 辅音（yes, yell）；其他位置 = 元音（happy→py, fly→y）。
+
+**cluster**：首字母是 a/e/i/o/u → 元音色（oo, ea, ai, er, ir, or…）；否则 → 辅音色（th, sh, ck, ng…）。
+
+特殊标注颜色不受影响（优先级更高）：`changed`=#c2410c、`silent`=#9ca3af、`affectedVowel`=#c2410c overline。
+
+---
+
 ## 字母标注视觉规则
 
 | 类型 | 视觉表现 |
 |------|---------|
-| `cluster` | 纯音节颜色，hover/touch 触发 Tooltip |
+| `cluster`（元音开头） | `#e85d04` 元音橙，hover/touch 触发 Tooltip |
+| `cluster`（辅音开头） | `#374151` 辅音灰，hover/touch 触发 Tooltip |
 | `silent` / `silent-e` | 灰色删除线 `line-through #9ca3af` + Tooltip |
 | `changed` | 橙色波浪下划线 `underline wavy #c2410c` + Tooltip |
 | `changed` + `affectedVowel: 'y'`（自身即受影响元音） | 橙色顶线 + 波浪下划线叠加（嵌套 span 实现）|
 | 无 mark 的 `affectedVowel` 字母（如 `nice` 的 `i`） | 橙色顶线 `overline #c2410c`，无 Tooltip |
+| 普通元音字母 | `#e85d04` 元音橙 |
+| 普通辅音字母 | `#374151` 辅音灰 |
 
 ### affectedVowel 渲染逻辑
 
