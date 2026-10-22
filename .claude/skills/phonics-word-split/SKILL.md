@@ -14,6 +14,10 @@ description: 为中国小学英语教学网站录入新单词时，分析英文�
 - `references/phonemes.md` — 44个英语音素、拼写对应、例词
 - `references/nessy-phonics-rules.md` — Nessy 76集自然拼读规则，含教学顺序、快速索引
 
+> 官方来源文档（更完整版本）：
+> - `docs/references/phonemes/english-phonemes-reference.md`
+> - `docs/references/phonemes/nessy-phonics-rules.md`
+
 ---
 
 ## 数据结构
@@ -139,7 +143,7 @@ const C = ['#d64045', '#1b6ca8', '#2d8a4e', '#7b3fa0'] // 音节颜色，多音�
 2. **开音节**（元音结尾）→ 元音发长音（he, go, ba·by）；**闭音节**（辅音结尾）→ 元音发短音（cat, hop, nap·kin）（Nessy 02集）
 3. **单音节词**整体作一个 syllable，不拆
 4. **多音节词**颜色依次 `C[0]→C[1]→C[2]→C[3]`
-5. **cluster 跨越音节边界时**，cluster 归入它主要影响的那个音节
+5. **cluster 跨越音节边界时**，cluster 作为整体遵循 Onset 原则，整个归入**后面**那个音节（mother = `mo`+`ther`，不是 `moth`+`er`）
 6. **同一字母多标注**时优先顺序：cluster > silent-e > silent > changed
 7. **不规则发音**必须在 note 中说明"不规则"，并对比常规规则
 8. **y 的发音**：词首发 /j/（yes）；短词末尾发 /aɪ/（fly、by）；长词末尾发 /iː/（happy、baby）（Nessy 33集）
@@ -167,15 +171,30 @@ RIGHT: /ˈhæpi/   /ˈæpəl/   /bəˈnɑːnə/
 | happy | `hæp` / `i` | `hæ` / `pi` |
 | apple | `æp` / `əl` | `æ` / `pəl` |
 | rabbit | `ræb` / `ɪt` | `ræ` / `bɪt` |
+| hello | `həl` / `oʊ` | `hə` / `loʊ` |
 | different | `dɪf` / `ər` / `ənt` | `dɪ` / `fər` / `ənt` |
 | animal | `æn` / `ɪ` / `məl` | `æ` / `nɪ` / `məl` |
 | tiger | `taɪ` / `ɡər` | already correct |
 | monkey | `mʌŋ` / `ki` | already correct (ng inseparable) |
 
 Rules:
-- Single consonant between vowels: assign to next syllable (ha-ppy: hæ / pi)
-- Double consonant (bb/pp/tt): keep one for next syllable (rab-bit: ræ / bɪt)
-- Cluster (sh/th/ng/ck): inseparable, stays as one unit
+- Single consonant between vowels: assign to next syllable (ha·ppy → hæ / pi)
+- Double consonant (bb/pp/tt): split — one stays, one goes to next syllable (rab·bit → ræ / bɪt)
+- Cluster (sh/th/ch/tch/ng/ck/wh/ph): **inseparable — treat as one consonant and assign the whole cluster to the next syllable**
+
+**高频错误 — cluster 跨音节示例：**
+
+| 单词 | 错误 ❌ | 正确 ✅ | 原因 |
+|---|---|---|---|
+| mother | `moth` + `er` | `mo` + `ther` | th 是 cluster，整体归入第二音节 |
+| brother | `broth` + `er` | `bro` + `ther` | 同上 |
+| feather | `feath` + `er` | `fea` + `ther` | 同上 |
+| weather | `weath` + `er` | `wea` + `ther` | 同上 |
+| teacher | `teach` + `er` | `tea` + `cher` | ch 是 cluster，整体归入第二音节 |
+| another | `an` + `oth` + `er` | `a` + `no` + `ther` | th cluster 整体归入第三音节 |
+| together | `to` + `geth` + `er` | `to` + `ge` + `ther` | 同上 |
+
+注意：词尾无后续音节时 cluster 自然留在当前音节（`bath`、`with`、`month` 均为单音节，th 正常）。
 
 Code format:
 ```ts
@@ -186,6 +205,22 @@ Code format:
 // apple: ap-ple, p goes to second syllable
 { text: 'ap',  phonetic: '/æ/',  color: C[0] },
 { text: 'ple', phonetic: '/pəl/', color: C[1] },
+
+// mother: mo-ther, th cluster goes to second syllable
+{ text: 'mo',   phonetic: '/mʌ/',  color: C[0] },
+{ text: 'ther', phonetic: '/ðər/', color: C[1], marks: [
+  { letters: 'th', type: 'cluster', phonetic: 'ð', note: 'th 组合→/ð/（浊音）' },
+  { letters: 'er', type: 'cluster', phonetic: 'ər', note: 'er r控制元音→/ər/' },
+] },
+
+// teacher: tea-cher, ch cluster goes to second syllable
+{ text: 'tea',  phonetic: '/tiː/', color: C[0], marks: [
+  { letters: 'ea', type: 'cluster', phonetic: 'iː', note: 'ea 组合→/iː/' },
+] },
+{ text: 'cher', phonetic: '/tʃər/', color: C[1], marks: [
+  { letters: 'ch', type: 'cluster', phonetic: 'tʃ', note: 'ch 组合→/tʃ/' },
+  { letters: 'er', type: 'cluster', phonetic: 'ər', note: 'er r控制元音→/ər/' },
+] },
 ```
 
 

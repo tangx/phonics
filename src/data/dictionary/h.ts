@@ -3,7 +3,7 @@ import type { WordEntry } from '../../types'
 const C = ['#d64045', '#1b6ca8', '#2d8a4e', '#7b3fa0']
 
 export const dictH: Record<string, WordEntry> = {
-  hello: { word: 'hello', phonetic: '/həˈloʊ/', syllables: [{ text: 'hel', phonetic: '/həl/', color: C[0] }, { text: 'lo', phonetic: '/loʊ/', color: C[1] }], chinese: '你好', image: 'hello.png' },
+  hello: { word: 'hello', phonetic: '/həˈloʊ/', syllables: [{ text: 'hel', phonetic: '/hə/', color: C[0] }, { text: 'lo', phonetic: '/loʊ/', color: C[1] }], chinese: '你好', image: 'hello.png' },
   have: { word: 'have', phonetic: '/hæv/', syllables: [{ text: 'have', phonetic: '/hæv/', color: C[0], marks: [{ letters: 'e', type: 'silent', note: '末尾 e 不发音，且不改变 a 的发音（不规则）' }] }], chinese: '有；拥有', image: 'have.png'  },
   hair: { word: 'hair', phonetic: '/heər/', syllables: [{ text: 'hair', phonetic: '/heər/', color: C[0], marks: [{ letters: 'ai', type: 'cluster', phonetic: 'eə', note: 'ai 组合→/eə/' }] }], chinese: '头发' },
   head: { word: 'head', phonetic: '/hed/', syllables: [{ text: 'head', phonetic: '/hed/', color: C[0], marks: [{ letters: 'ea', type: 'cluster', phonetic: 'e', note: '不规则：ea→/e/（通常 ea→/iː/）' }] }], chinese: '头' },
