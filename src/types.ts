@@ -50,9 +50,18 @@ export interface SemesterData {
 export interface SightWordEntry {
   word: string
   chinese: string
-  example: string       // 含该词的例句
-  exampleZh: string     // 例句中文
   isContentWord?: boolean // 实词（名词/动词/形容词），用于标记是否可配图
+}
+
+// 句子难度等级：1=Pre-Primer … 5=Grade3
+export type SightSentenceLevel = 1 | 2 | 3 | 4 | 5
+
+export interface SightWordSentence {
+  id: string                    // 唯一 id，如 'ss001'
+  en: string                    // 英文句子
+  zh: string                    // 中文翻译
+  words: string[]               // 句中包含的 sight words（用于匹配查询）
+  level: SightSentenceLevel     // 句子难度（对应 sight word 等级）
 }
 
 export interface SightWordGroup {

@@ -2,7 +2,8 @@
 
 **源文件**：`src/pages/SightWordsPage.tsx`  
 **卡片组件**：`src/components/SightWordCard.tsx`  
-**数据**：`src/data/sightWords.ts`  
+**词数据**：`src/data/sightWords.ts`  
+**句子库**：`src/data/sightWordSentences.ts`  
 **Hook**：`src/hooks/useSightWordsProgress.ts`  
 **S3 同步**：`src/utils/sightWordsSync.ts`  
 **路由**：`/sight-words`
@@ -18,19 +19,33 @@ Dolch 220 高频词练习，按等级分级、每级每 10 词一组，Carousel 
 ## 数据结构
 
 ```
-sightWordLevels: SightWordLevel[]
-├── id, title, color
-└── groups: SightWordGroup[]
-    ├── id
-    └── words: SightWordEntry[]
-        ├── word          英文
-        ├── chinese       中文
-        ├── example       例句（英文）
-        ├── exampleZh     例句（中文）
-        └── isContentWord 实词标记（预留配图用）
+SightWordEntry
+├── word          英文单词
+├── chinese       中文释义
+└── isContentWord 实词标记（预留配图用）
+
+SightWordSentence
+├── id            唯一 id，如 'ss001'
+├── en            英文句子
+├── zh            中文翻译
+├── words         句中包含的 sight words（用于匹配）
+└── level         难度 1~5（对应 Pre-Primer~Grade 3）
 ```
 
 5 个等级：Pre-Primer / Primer / Grade 1 / Grade 2 / Grade 3
+
+---
+
+## 句子库设计
+
+**文件**：`src/data/sightWordSentences.ts`，约 170 句。
+
+- 每句命中多个 sight words，一句贡献多个词的例句
+- `level` 字段标注句子难度（1-5），对应 sight word 等级
+- 查询函数 `getSentencesForSightWord(word, levelIndex)`：
+  - 过滤命中该词的句子
+  - 只返回 `level ≤ levelIndex + 2`（当前等级+扩展一级）
+  - 按 level 升序排列
 
 ---
 
@@ -68,15 +83,17 @@ GroupPractice（Carousel 练习）
 正面
 ├── 超大单词（clamp 56~120px，Nunito 900）
 ├── 橙色圆形发音按钮（点击播放，弹簧动画）
-├── "点击查看释义" 提示文字
+├── "点击查看释义与例句" 提示
+├── 右下角例句数量提示（如 "5 个例句"）
 └── 已掌握角标（右上角绿色 ✓，条件渲染）
 
 背面（CSS 3D rotateY 翻转）
-├── 单词 + 发音按钮（较小）
-├── 中文释义（level color，粗体）
-├── 例句卡片
-│   ├── 英文（目标词 level color 高亮 + 下划线）
-│   └── 中文翻译
+├── 单词 + 发音按钮 + 中文释义（同行）
+├── 例句列表（ScrollArea，可滚动）
+│   └── 每条例句
+│       ├── 左侧难度徽章（L1~L5，各等级颜色）
+│       ├── 英文句子（目标词 level color 高亮+下划线）
+│       └── 中文翻译
 └── 底部操作栏
     ├── "翻回去" 按钮（左）
     └── "已掌握" 按钮（右，点击变绿 ✓，可反复切换）
@@ -89,6 +106,7 @@ GroupPractice（Carousel 练习）
 | 动作 | 结果 |
 |---|---|
 | 点击卡片正面 | CSS 3D 翻转到背面 |
+| 背面例句可滚动 | ScrollArea 展示所有命中+符合等级的句子 |
 | 点击"已掌握" | 标记该词，触发 S3 异步上传，全组掌握则解锁下一组 |
 | 再次点击"已掌握" | 取消掌握标记 |
 | 全组掌握 | 底部出现解锁/完成提示横幅 |

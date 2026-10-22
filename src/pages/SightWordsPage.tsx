@@ -8,6 +8,7 @@ import '@mantine/carousel/styles.css'
 import { IconLock, IconChevronLeft } from '@tabler/icons-react'
 import { notifications } from '@mantine/notifications'
 import { sightWordLevels } from '../data/sightWords'
+import { getSentencesForSightWord } from '../data/sightWordSentences'
 import { useSightWordsProgress } from '../hooks/useSightWordsProgress'
 import { uploadGroupProgress, canSync } from '../utils/sightWordsSync'
 import SightWordCard from '../components/SightWordCard'
@@ -17,11 +18,13 @@ import type { SightWordLevel, SightWordGroup } from '../types'
 
 function GroupPractice({
   level,
+  levelIndex,
   group,
   groupIndex,
   onBack,
 }: {
   level: SightWordLevel
+  levelIndex: number
   group: SightWordGroup
   groupIndex: number
   onBack: () => void
@@ -104,6 +107,7 @@ function GroupPractice({
             <Carousel.Slide key={wordEntry.word}>
               <SightWordCard
                 entry={wordEntry}
+                sentences={getSentencesForSightWord(wordEntry.word, levelIndex)}
                 mastered={isMastered(group.id, wordEntry.word)}
                 onToggleMastered={() => handleToggle(wordEntry.word)}
                 color={level.color}
@@ -157,9 +161,11 @@ function GroupPractice({
 
 function LevelView({
   level,
+  levelIndex,
   onBack,
 }: {
   level: SightWordLevel
+  levelIndex: number
   onBack: () => void
 }) {
   const { isGroupUnlocked, groupProgress } = useSightWordsProgress()
@@ -169,6 +175,7 @@ function LevelView({
     return (
       <GroupPractice
         level={level}
+        levelIndex={levelIndex}
         group={activeGroup.group}
         groupIndex={activeGroup.index}
         onBack={() => setActiveGroup(null)}
@@ -243,13 +250,13 @@ function LevelView({
 // ── 顶层：等级选择 ─────────────────────────────────────────────────────────────
 
 export default function SightWordsPage() {
-  const [activeLevel, setActiveLevel] = useState<SightWordLevel | null>(null)
+  const [activeLevel, setActiveLevel] = useState<{ level: SightWordLevel; index: number } | null>(null)
   const { isGroupUnlocked, groupProgress } = useSightWordsProgress()
 
   if (activeLevel) {
     return (
       <Box style={{ height: '100%' }}>
-        <LevelView level={activeLevel} onBack={() => setActiveLevel(null)} />
+        <LevelView level={activeLevel.level} levelIndex={activeLevel.index} onBack={() => setActiveLevel(null)} />
       </Box>
     )
   }
@@ -286,7 +293,7 @@ export default function SightWordsPage() {
                   border: `2px solid ${level.color}25`,
                   transition: 'box-shadow 0.2s, transform 0.15s',
                 }}
-                onClick={() => !isLocked && setActiveLevel(level)}
+                onClick={() => !isLocked && setActiveLevel({ level, index: levelIdx })}
               >
                 <Stack gap="sm">
                   <Group justify="space-between" align="center">
