@@ -226,21 +226,21 @@ const CHIP_SIZES: Record<SyllableChipSize, {
 }> = {
   lg: {
     wordFontSize: 'clamp(28px, 5vw, 7vh)',
-    phoneticFontSize: 'clamp(11px, 1.6vw, 2.2vh)',
+    phoneticFontSize: 'clamp(14px, 2.5vw, 3.5vh)',
     padding: 'clamp(6px, 1.2vw, 16px) clamp(8px, 1.5vw, 20px)',
     minWidth: 'clamp(40px, 6vw, 80px)',
     borderRadius: '1vw',
   },
   md: {
     wordFontSize: 'clamp(20px, 3.5vw, 42px)',
-    phoneticFontSize: 'clamp(10px, 1.3vw, 16px)',
+    phoneticFontSize: 'clamp(10px, 1.75vw, 21px)',
     padding: 'clamp(4px, 0.8vw, 10px) clamp(6px, 1vw, 14px)',
     minWidth: 'clamp(32px, 4.5vw, 56px)',
     borderRadius: '10px',
   },
   sm: {
     wordFontSize: 'clamp(14px, 2.2vw, 26px)',
-    phoneticFontSize: 'clamp(9px, 1vw, 13px)',
+    phoneticFontSize: 'clamp(7px, 1.1vw, 13px)',
     padding: '4px 8px',
     minWidth: '28px',
     borderRadius: '8px',
