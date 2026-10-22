@@ -5,8 +5,6 @@ import {
 import { IconBooks, IconLetterCase, IconChevronDown, IconChevronRight, IconSettings, IconSearch } from '@tabler/icons-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { semesters } from '../data/units'
-import { useViewMode } from '../hooks/useViewMode'
-import ViewToggle from './ViewToggle'
 
 interface AppNavProps {
   navOpened: boolean
@@ -28,7 +26,6 @@ export default function AppNav({ navOpened, toggleNav, closeNav }: AppNavProps) 
   const isBooks = location.pathname.startsWith('/books')
   const isSightWords = location.pathname.startsWith('/sight-words')
   const isSearch = location.pathname.startsWith('/search')
-  const [viewMode, setViewMode] = useViewMode()
 
   const currentSemesterId = location.pathname.match(/^\/books\/([^/]+)/)?.[1] ?? null
 
@@ -167,9 +164,8 @@ export default function AppNav({ navOpened, toggleNav, closeNav }: AppNavProps) 
 
       </AppShell.Section>
 
-      {/* 底部：视图切换 + Settings 导航 */}
+      {/* 底部：Settings 导航 */}
       <AppShell.Section p="xs" style={{ borderTop: '1px solid #eef0f8' }}>
-        <ViewToggle mode={viewMode} onChange={setViewMode} />
         <NavLink
           label={<Text size="sm" fw={500}>设置</Text>}
           leftSection={<IconSettings size={16} stroke={1.8} />}

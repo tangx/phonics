@@ -51,22 +51,25 @@ SightWordSentence
 
 ## UI 结构（3 层导航）
 
+列表模式，无视图切换控件。
+
 ```
 SightWordsPage（等级列表）
 ├── Title "Sight Words"
-└── SimpleGrid（1-3列）
-    └── LevelCard × 5
-        ├── 等级名、词数、组数
-        ├── 已掌握进度条（mastered/total）
+└── Stack gap="sm"（列表）
+    └── Card × 5（每个等级一行）
+        ├── 左侧色块 (44×44px) + 等级名缩写
+        ├── 等级名 + 已掌握进度 + 词数/组数
+        ├── Progress bar
         └── 点击 → LevelView
 
 LevelView（分组列表）
 ├── ← 返回 + 等级标题
-└── SimpleGrid（2-4列）
-    └── GroupCard × N
+└── Stack gap="sm"（列表）
+    └── Card × N（每组一行）
         ├── 已解锁：组号 + 掌握进度条 + 已掌握计数
-        ├── 已全部掌握：绿色边框 + "✓ 已全部掌握"
-        ├── 未解锁：🔒 图标 + "完成上一组解锁"
+        ├── 已全部掌握：彩色边框 + "✓ 已掌握"
+        ├── 未解锁：🔒 图标 + "完成上一组解锁"（opacity 0.45）
         └── 点击 → GroupPractice
 
 GroupPractice（Carousel 练习）

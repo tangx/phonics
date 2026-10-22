@@ -25,6 +25,15 @@ bun run preview      # 预览构建产物
 - 有疑问时直接查阅 Mantine MCP 工具获取组件文档
 - 文档速查：https://mantine.dev/llms.txt
 
+### 视图模式
+
+**只使用列表模式**，禁止网格模式。
+
+- 所有页面（BooksHomePage、BookUnitsPage、SightWordsPage、LandingPage）统一使用列表布局
+- 不得引入视图切换控件（ViewToggle 已删除）
+- 不得引入 `useViewMode` hook（已删除）
+- 列表项使用 Mantine `Card` + `Group` 横向布局：左侧色块图标（44×44px，borderRadius 12）+ 右侧文字区 + 右箭头
+
 ## 项目概述
 
 面向中国小学生的英语学习静态网站，核心理念：**自然拼读规则 + 国际音标双轨并行**。

@@ -1,7 +1,6 @@
-import { Box, SimpleGrid, Stack, Text, Group, Card } from '@mantine/core'
+import { Box, Stack, Text, Group, Card } from '@mantine/core'
 import { IconBooks, IconLetterCase, IconSearch, IconStarFilled, IconChevronRight } from '@tabler/icons-react'
 import { useNavigate } from 'react-router-dom'
-import { useViewMode } from '../hooks/useViewMode'
 
 const FEATURES = [
   {
@@ -41,7 +40,6 @@ const FEATURES = [
 
 export default function LandingPage() {
   const navigate = useNavigate()
-  const [viewMode] = useViewMode()
 
   return (
     <Box
@@ -80,135 +78,64 @@ export default function LandingPage() {
         </Text>
       </Stack>
 
-      {/* 网格模式 */}
-      {viewMode === 'grid' && (
-        <SimpleGrid
-          cols={{ base: 1, sm: 3 }}
-          spacing="lg"
-          style={{ width: '100%', maxWidth: 760 }}
-        >
-          {FEATURES.map((feat) => {
-            const Icon = feat.icon
-            return (
+      <Stack gap="sm" style={{ width: '100%', maxWidth: 760 }}>
+        {FEATURES.map((feat) => (
+          <Card
+            key={feat.id}
+            radius="lg"
+            shadow="xs"
+            padding="sm"
+            style={{ cursor: 'pointer', transition: 'transform 0.15s, box-shadow 0.15s' }}
+            onClick={() => navigate(feat.path)}
+            onMouseEnter={e => {
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.1)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = ''
+            }}
+          >
+            <Group gap="md" wrap="nowrap">
+              {/* 左侧小色块 */}
               <Box
-                key={feat.id}
-                onClick={() => navigate(feat.path)}
                 style={{
-                  cursor: 'pointer',
-                  borderRadius: 20,
-                  overflow: 'hidden',
-                  boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-                  transition: 'transform 0.18s, box-shadow 0.18s',
-                  background: '#fff',
-                }}
-                onMouseEnter={e => {
-                  const el = e.currentTarget as HTMLDivElement
-                  el.style.transform = 'translateY(-4px)'
-                  el.style.boxShadow = '0 12px 32px rgba(0,0,0,0.14)'
-                }}
-                onMouseLeave={e => {
-                  const el = e.currentTarget as HTMLDivElement
-                  el.style.transform = 'translateY(0)'
-                  el.style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)'
+                  width: 44,
+                  height: 44,
+                  borderRadius: 12,
+                  background: feat.gradient,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 20,
+                  flexShrink: 0,
                 }}
               >
-                <Box
-                  style={{
-                    height: 100,
-                    background: feat.gradient,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 40,
-                  }}
-                >
-                  <span role="img" aria-label={feat.label}>{feat.emoji}</span>
-                </Box>
-                <Box p="md" style={{ background: '#fff' }}>
-                  <Group justify="space-between" align="flex-start">
-                    <Stack gap={2}>
-                      <Group gap={6} align="baseline">
-                        <Text fw={800} size="lg" style={{ color: '#1a1a2e', fontFamily: "'Nunito', sans-serif" }}>
-                          {feat.label}
-                        </Text>
-                        <Text size="xs" c="dimmed" style={{ fontFamily: "'Nunito', sans-serif" }}>
-                          {feat.sublabel}
-                        </Text>
-                      </Group>
-                      <Text size="xs" c="dimmed" mt={2} style={{ lineHeight: 1.5 }}>
-                        {feat.desc}
-                      </Text>
-                    </Stack>
-                    <Icon size={18} color={feat.color} stroke={1.8} style={{ flexShrink: 0, marginTop: 2 }} />
-                  </Group>
-                </Box>
+                <span role="img" aria-label={feat.label}>{feat.emoji}</span>
               </Box>
-            )
-          })}
-        </SimpleGrid>
-      )}
 
-      {/* 列表模式 */}
-      {viewMode === 'list' && (
-        <Stack gap="sm" style={{ width: '100%', maxWidth: 760 }}>
-          {FEATURES.map((feat) => (
-            <Card
-              key={feat.id}
-              radius="lg"
-              shadow="xs"
-              padding="sm"
-              style={{ cursor: 'pointer', transition: 'transform 0.15s, box-shadow 0.15s' }}
-              onClick={() => navigate(feat.path)}
-              onMouseEnter={e => {
-                e.currentTarget.style.transform = 'translateY(-2px)'
-                e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.1)'
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = ''
-              }}
-            >
-              <Group gap="md" wrap="nowrap">
-                {/* 左侧小色块 */}
-                <Box
-                  style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: 12,
-                    background: feat.gradient,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 20,
-                    flexShrink: 0,
-                  }}
-                >
-                  <span role="img" aria-label={feat.label}>{feat.emoji}</span>
-                </Box>
-
-                {/* 右侧文字 */}
-                <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
-                  <Group gap={6} align="baseline">
-                    <Text fw={800} size="md" style={{ color: '#1a1a2e', fontFamily: "'Nunito', sans-serif" }}>
-                      {feat.label}
-                    </Text>
-                    <Text size="xs" c="dimmed">{feat.sublabel}</Text>
-                  </Group>
-                  <Text
-                    size="xs"
-                    c="dimmed"
-                    style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                  >
-                    {feat.desc}
+              {/* 右侧文字 */}
+              <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
+                <Group gap={6} align="baseline">
+                  <Text fw={800} size="md" style={{ color: '#1a1a2e', fontFamily: "'Nunito', sans-serif" }}>
+                    {feat.label}
                   </Text>
-                </Stack>
+                  <Text size="xs" c="dimmed">{feat.sublabel}</Text>
+                </Group>
+                <Text
+                  size="xs"
+                  c="dimmed"
+                  style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                >
+                  {feat.desc}
+                </Text>
+              </Stack>
 
-                <IconChevronRight size={16} color="#9ca3af" stroke={1.5} style={{ flexShrink: 0 }} />
-              </Group>
-            </Card>
-          ))}
-        </Stack>
-      )}
+              <IconChevronRight size={16} color="#9ca3af" stroke={1.5} style={{ flexShrink: 0 }} />
+            </Group>
+          </Card>
+        ))}
+      </Stack>
 
       {/* 底部提示 */}
       <Text size="xs" c="dimmed" mt={40} style={{ opacity: 0.5 }}>
