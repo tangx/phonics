@@ -11,7 +11,7 @@ export const dictC: Record<string, WordEntry> = {
   could: { word: 'could', phonetic: '/kʊd/', syllables: [{ text: 'could', phonetic: '/kʊd/', color: C[0], marks: [{ letters: 'oul', type: 'cluster', phonetic: 'ʊ', note: '-ould 中 oul→/ʊ/' }, { letters: 'd', type: 'silent', note: 'd 不发音（could/would/should）' }] }], chinese: '能；可以（过去式）' },
   call: { word: 'call', phonetic: '/kɔːl/', syllables: [{ text: 'call', phonetic: '/kɔːl/', color: C[0] }], chinese: '叫；打电话' },
   cold: { word: 'cold', phonetic: '/koʊld/', syllables: [{ text: 'cold', phonetic: '/koʊld/', color: C[0] }], chinese: '冷的；感冒' },
-  came: { word: 'came', phonetic: '/keɪm/', syllables: [{ text: 'came', phonetic: '/keɪm/', color: C[0], marks: [{ letters: 'e', type: 'silent-e', note: '魔法e：末尾 e 不发音，a→/eɪ/' }] }], chinese: '来了（come 过去式）' },
+  came: { word: 'came', phonetic: '/keɪm/', syllables: [{ text: 'came', phonetic: '/keɪm/', color: C[0], marks: [{ letters: 'e', type: 'silent-e', note: '魔法e：末尾 e 不发音，a→/eɪ/', affectedVowel: 'a' }] }], chinese: '来了（come 过去式）' },
   carry: { word: 'carry', phonetic: '/ˈkæri/', syllables: [{ text: 'car', phonetic: '/kæ/', color: C[0], marks: [{ letters: 'ar', type: 'cluster', phonetic: 'ær', note: 'ar r控制→/ær/（双写r前短音）' }] }, { text: 'ry', phonetic: '/ri/', color: C[1] }], chinese: '携带；提' },
   clean: { word: 'clean', phonetic: '/kliːn/', syllables: [{ text: 'clean', phonetic: '/kliːn/', color: C[0], marks: [{ letters: 'ea', type: 'cluster', phonetic: 'iː', note: 'ea 组合→/iː/' }] }], chinese: '干净的；清洁'  },
   cut: { word: 'cut', phonetic: '/kʌt/', syllables: [{ text: 'cut', phonetic: '/kʌt/', color: C[0] }], chinese: '切；剪' },

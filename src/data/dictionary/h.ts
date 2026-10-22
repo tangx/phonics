@@ -19,7 +19,7 @@ export const dictH: Record<string, WordEntry> = {
   hold: { word: 'hold', phonetic: '/hoʊld/', syllables: [{ text: 'hold', phonetic: '/hoʊld/', color: C[0] }], chinese: '握住；持有' },
   hot: { word: 'hot', phonetic: '/hɒt/', syllables: [{ text: 'hot', phonetic: '/hɒt/', color: C[0] }], chinese: '热的' },
   hurt: { word: 'hurt', phonetic: '/hɜːrt/', syllables: [{ text: 'hurt', phonetic: '/hɜːrt/', color: C[0], marks: [{ letters: 'ur', type: 'cluster', phonetic: 'ɜːr', note: 'ur r控制元音→/ɜːr/' }] }], chinese: '受伤；疼痛' },
-  home: { word: 'home', phonetic: '/hoʊm/', syllables: [{ text: 'home', phonetic: '/hoʊm/', color: C[0], marks: [{ letters: 'e', type: 'silent-e', note: '魔法e：o→/oʊ/' }] }], chinese: '家；家乡'  },
+  home: { word: 'home', phonetic: '/hoʊm/', syllables: [{ text: 'home', phonetic: '/hoʊm/', color: C[0], marks: [{ letters: 'e', type: 'silent-e', note: '魔法e：o→/oʊ/', affectedVowel: 'o' }] }], chinese: '家；家乡'  },
   house: { word: 'house', phonetic: '/haʊs/', syllables: [{ text: 'house', phonetic: '/haʊs/', color: C[0], marks: [{ letters: 'ou', type: 'cluster', phonetic: 'aʊ', note: 'ou 组合→/aʊ/' }, { letters: 'e', type: 'silent-e', note: '末尾 e 不发音' }] }], chinese: '房子；家' },
   hi: { word: 'hi', phonetic: '/haɪ/', syllables: [{ text: 'hi', phonetic: '/haɪ/', color: C[0] }], chinese: '嗨' },
   hooray: { word: 'hooray', phonetic: '/hʊˈreɪ/', syllables: [{ text: 'hoo', phonetic: '/hʊ/', color: C[0], marks: [{ letters: 'oo', type: 'cluster', phonetic: 'ʊ', note: 'oo→/ʊ/ 短音' }] }, { text: 'ray', phonetic: '/reɪ/', color: C[1], marks: [{ letters: 'ay', type: 'cluster', phonetic: 'eɪ', note: 'ay 词尾→/eɪ/' }] }], chinese: '好哇！万岁！' },

@@ -22,6 +22,23 @@ description: 为中国小学英语教学网站录入新单词时，分析英文�
 
 ## 数据结构
 
+> 类型定义权威来源：`src/types.ts`（`LetterMark`、`Syllable`、`WordEntry`）。以下是关键字段速查，以 `src/types.ts` 为准。
+
+```ts
+// src/types.ts — LetterMark
+export interface LetterMark {
+  letters: string        // 需要标注的字母，如 "e"、"w"、"t"
+  type: LetterMarkType   // 'silent-e' | 'silent' | 'changed' | 'cluster'
+  note: string           // 说明文字，如 "魔法e：让 i 发长音 /aɪ/"
+  phonetic?: string      // cluster 专用：音标片段（不含斜杠），供音节内点分隔显示
+  affectedVowel?: string // 被激活的元音字母（silent-e 或词尾 y→/aɪ/）
+                         //   有元音变化 → 填对应字母，如 'i'、'a'、'o'、'u'、'y'
+                         //   无变化的不规则词（have、dance 等）→ 省略
+}
+```
+
+录入示例：
+
 ```ts
 const C = ['#d64045', '#1b6ca8', '#2d8a4e', '#7b3fa0'] // 音节颜色，多音节按序循环
 
@@ -118,6 +135,18 @@ const C = ['#d64045', '#1b6ca8', '#2d8a4e', '#7b3fa0'] // 音节颜色，多音�
 
 **不规则**（末尾 e 不发音但元音不变长）→ 用 `silent`：`have`、`come`、`some`、`give`、`live`
 
+**`affectedVowel` 字段**（可选）：当魔法e导致前面元音变为长音时，在 mark 对象中加入 `affectedVowel: 'X'`（X 为被激活的元音字母）。渲染时该元音字母显示橙色 + 顶线高亮，直观表达"这个元音被激活了"。
+- 有元音变化（a_e→/eɪ/，i_e→/aɪ/ 等）→ 填写对应元音字母
+- 无元音变化的不规则词（have、come、dance 等）→ 省略此字段
+
+```ts
+// 有元音变化：填 affectedVowel
+{ letters: 'e', type: 'silent-e', note: '魔法e：i→/aɪ/', affectedVowel: 'i' }
+
+// 无元音变化：不填
+{ letters: 'e', type: 'silent-e', note: '末尾 e 不发音' }
+```
+
 ### 3. `silent`（不发音字母）
 
 字母完全不发音，对周围字母无影响：
@@ -134,6 +163,14 @@ const C = ['#d64045', '#1b6ca8', '#2d8a4e', '#7b3fa0'] // 音节颜色，多音�
 - `of` 的 f → /v/（f 通常发 /f/）
 - `stand`/`spin` 中 s 后的清辅音弱化（t→/d/，p→/b/）
 - `beautiful` 的 eau → /ju/（极不规则）
+
+**词尾 `y→/aɪ/`（单音节词）**：`my`、`fly`、`sky`、`try` 等。y 本身是被变化的元音，填入 `affectedVowel: 'y'`。渲染时 y 同时呈现波浪下划线（变音）+ 顶线（被激活的元音）。
+
+```ts
+{ letters: 'y', type: 'changed', note: '词尾 y→/aɪ/', affectedVowel: 'y' }
+```
+
+其他 `changed` 词（辅音变化、不规则元音如 `laugh`、`said`、`of`）不填 `affectedVowel`。
 
 ---
 

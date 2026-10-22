@@ -65,7 +65,8 @@ Stack (align=center, gap=6)
 
 | 函数 | 职责 |
 |------|------|
-| `LetterBadge` | 单个字母标注（cluster/silent/changed），包裹 Tooltip |
+| `LetterBadge` | 单个字母标注（cluster/silent/changed），包裹 Tooltip；当 `affectedVowel === mark.letters` 时叠加顶线 |
+| `renderUnmarkedSegment` | 渲染无 mark 的字符段；逐字符检测 `externallyAffectedVowels`，命中则橙色顶线高亮 |
 | `SyllableLetters` | 将音节文字按 marks 切段，逐段渲染，段间插中点 `·` |
 | `buildPhoneticWithDots` | 对 cluster 类型音标按 phonetic 片段加中点分隔 |
 
@@ -78,3 +79,13 @@ Stack (align=center, gap=6)
 | `cluster` | 纯音节颜色，hover/touch 触发 Tooltip |
 | `silent` / `silent-e` | 灰色删除线 `line-through #9ca3af` + Tooltip |
 | `changed` | 橙色波浪下划线 `underline wavy #c2410c` + Tooltip |
+| `changed` + `affectedVowel: 'y'`（自身即受影响元音） | 橙色顶线 + 波浪下划线叠加（嵌套 span 实现）|
+| 无 mark 的 `affectedVowel` 字母（如 `nice` 的 `i`） | 橙色顶线 `overline #c2410c`，无 Tooltip |
+
+### affectedVowel 渲染逻辑
+
+`LetterMark.affectedVowel` 标记哪个元音被 silent-e 或 `y→/aɪ/` 规则激活，渲染时用橙色顶线高亮。
+
+- **外部受影响元音**（`affectedVowel ≠ mark.letters`，如 `nice` 的 `i`）：`SyllableLetters` 收集到 `externallyAffectedVowels` Set，在无 mark 的字符段内逐字符匹配
+- **自身即受影响元音**（`affectedVowel === mark.letters`，如 `my` 的 `y`）：`LetterBadge` 检测 `isSelfAffected`，嵌套 span 同时应用顶线和波浪下划线
+- **无 `affectedVowel`**（`have`、`house` 等不规则词）：保持原有样式，不加顶线

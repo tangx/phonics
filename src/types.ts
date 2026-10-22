@@ -5,6 +5,7 @@ export interface LetterMark {
   type: LetterMarkType
   note: string           // 说明文字，如 "魔法e：让 i 发长音 /aɪ/"
   phonetic?: string      // cluster 对应的音标片段，用于音节块音标点分隔
+  affectedVowel?: string // 被激活/变化的元音字母，如 'i'、'a'、'y'（silent-e 或词尾 y→/aɪ/）
 }
 
 export interface Syllable {

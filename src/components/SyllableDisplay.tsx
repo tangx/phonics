@@ -28,12 +28,27 @@ function LetterBadge({ text, mark, syllableColor }: {
   const isCluster = mark.type === 'cluster'
   const isChanged = mark.type === 'changed'
   const isSilent  = mark.type === 'silent' || mark.type === 'silent-e'
+  const isSelfAffected = mark.affectedVowel !== undefined && mark.affectedVowel === mark.letters
 
   if (isCluster) {
     return (
       <Tooltip label={mark.note} withArrow multiline maw={220}
         events={{ hover: true, focus: true, touch: true }}>
         <span style={{ color: syllableColor, cursor: 'help' }}>{text}</span>
+      </Tooltip>
+    )
+  }
+
+  // changed + self-affected (e.g. y→/aɪ/): overline AND wavy underline combined
+  if (isChanged && isSelfAffected) {
+    return (
+      <Tooltip label={mark.note} withArrow multiline maw={220}
+        events={{ hover: true, focus: true, touch: true }}>
+        <span style={{ color: '#c2410c', textDecoration: 'overline', textDecorationThickness: '2px', cursor: 'help' }}>
+          <span style={{ textDecoration: 'underline wavy #c2410c', textDecorationThickness: '2px' }}>
+            {text}
+          </span>
+        </span>
       </Tooltip>
     )
   }
@@ -55,10 +70,29 @@ function LetterBadge({ text, mark, syllableColor }: {
 
 // ── SyllableLetters ─────────────────────────────────────────────────────────
 
+function renderUnmarkedSegment(segText: string, sylColor: string, affectedVowels: Set<string>): React.ReactNode {
+  if (!affectedVowels.size) return <span style={{ color: sylColor }}>{segText}</span>
+  return (
+    <>
+      {segText.split('').map((ch, idx) =>
+        affectedVowels.has(ch)
+          ? <span key={idx} style={{ color: '#c2410c', textDecoration: 'overline', textDecorationThickness: '2px' }}>{ch}</span>
+          : <span key={idx} style={{ color: sylColor }}>{ch}</span>
+      )}
+    </>
+  )
+}
+
 function SyllableLetters({ syl }: { syl: Syllable }) {
   if (!syl.marks?.length) {
     return <span style={{ color: syl.color }}>{syl.text}</span>
   }
+
+  const externallyAffectedVowels = new Set(
+    (syl.marks ?? [])
+      .filter(m => m.affectedVowel && m.affectedVowel !== m.letters)
+      .map(m => m.affectedVowel!)
+  )
 
   const sorted = [...syl.marks].sort(
     (a, b) => syl.text.indexOf(a.letters) - syl.text.indexOf(b.letters),
@@ -91,7 +125,7 @@ function SyllableLetters({ syl }: { syl: Syllable }) {
         return (
           <span key={i}>
             {dot}
-            <span style={{ color: syl.color }}>{seg.text}</span>
+            {renderUnmarkedSegment(seg.text, syl.color, externallyAffectedVowels)}
           </span>
         )
       })}

@@ -3,15 +3,15 @@ import type { WordEntry } from '../../types'
 const C = ['#d64045', '#1b6ca8', '#2d8a4e', '#7b3fa0']
 
 export const dictF: Record<string, WordEntry> = {
-  face: { word: 'face', phonetic: '/feɪs/', syllables: [{ text: 'face', phonetic: '/feɪs/', color: C[0], marks: [{ letters: 'e', type: 'silent-e', note: '魔法e：末尾 e 不发音，a→/eɪ/' }] }], chinese: '脸' },
+  face: { word: 'face', phonetic: '/feɪs/', syllables: [{ text: 'face', phonetic: '/feɪs/', color: C[0], marks: [{ letters: 'e', type: 'silent-e', note: '魔法e：末尾 e 不发音，a→/eɪ/', affectedVowel: 'a' }] }], chinese: '脸' },
   fox: { word: 'fox', phonetic: '/fɒks/', syllables: [{ text: 'fox', phonetic: '/fɒks/', color: C[0] }], chinese: '狐狸'  },
-  fly: { word: 'fly', phonetic: '/flaɪ/', syllables: [{ text: 'fly', phonetic: '/flaɪ/', color: C[0], marks: [{ letters: 'y', type: 'changed', note: '词尾 y→/aɪ/' }] }], chinese: '飞；苍蝇' },
+  fly: { word: 'fly', phonetic: '/flaɪ/', syllables: [{ text: 'fly', phonetic: '/flaɪ/', color: C[0], marks: [{ letters: 'y', type: 'changed', note: '词尾 y→/aɪ/', affectedVowel: 'y' }] }], chinese: '飞；苍蝇' },
   food: { word: 'food', phonetic: '/fuːd/', syllables: [{ text: 'food', phonetic: '/fuːd/', color: C[0], marks: [{ letters: 'oo', type: 'cluster', phonetic: 'uː', note: 'oo 组合→/uː/ 长音' }] }], chinese: '食物'  },
   festival: { word: 'festival', phonetic: '/ˈfestɪvəl/', syllables: [{ text: 'fe', phonetic: '/fe/', color: C[0] }, { text: 'sti', phonetic: '/stɪ/', color: C[1] }, { text: 'val', phonetic: '/vəl/', color: C[2] }], chinese: '节日' },
   from: { word: 'from', phonetic: '/frɒm/', syllables: [{ text: 'from', phonetic: '/frɒm/', color: C[0] }], chinese: '从；来自' },
   fast: { word: 'fast', phonetic: '/fæst/', syllables: [{ text: 'fast', phonetic: '/fæst/', color: C[0] }], chinese: '快的；快速地' },
   first: { word: 'first', phonetic: '/fɜːrst/', syllables: [{ text: 'first', phonetic: '/fɜːrst/', color: C[0], marks: [{ letters: 'ir', type: 'cluster', phonetic: 'ɜːr', note: 'ir r控制元音→/ɜːr/' }] }], chinese: '第一；首先'  },
-  five: { word: 'five', phonetic: '/faɪv/', syllables: [{ text: 'five', phonetic: '/faɪv/', color: C[0], marks: [{ letters: 'e', type: 'silent', note: 'v 后必须加 e，i→/aɪ/（魔法e）' }] }], chinese: '五' },
+  five: { word: 'five', phonetic: '/faɪv/', syllables: [{ text: 'five', phonetic: '/faɪv/', color: C[0], marks: [{ letters: 'e', type: 'silent', note: 'v 后必须加 e，i→/aɪ/（魔法e）', affectedVowel: 'i' }] }], chinese: '五' },
   found: { word: 'found', phonetic: '/faʊnd/', syllables: [{ text: 'found', phonetic: '/faʊnd/', color: C[0], marks: [{ letters: 'ou', type: 'cluster', phonetic: 'aʊ', note: 'ou 组合→/aʊ/' }] }], chinese: '找到（过去式）' },
   find: { word: 'find', phonetic: '/faɪnd/', syllables: [{ text: 'find', phonetic: '/faɪnd/', color: C[0] }], chinese: '找到；发现'  },
   for: { word: 'for', phonetic: '/fɔːr/', syllables: [{ text: 'for', phonetic: '/fɔːr/', color: C[0] }], chinese: '为；给'  },
