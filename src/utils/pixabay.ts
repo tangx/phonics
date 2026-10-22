@@ -66,6 +66,7 @@ export async function fetchPixabayImage(
   apiKey: string,
   excludeUrls: string[] = [],
 ): Promise<string | null> {
+  if (!apiKey) return null
   for (const q of [word, chinese]) {
     const url = new URL('https://pixabay.com/api/')
     url.searchParams.set('key', apiKey)
@@ -77,6 +78,7 @@ export async function fetchPixabayImage(
 
     try {
       const res = await fetch(url.toString())
+      if (res.status === 400 || res.status === 403) return null
       if (!res.ok) continue
       const data = await res.json() as { hits: { webformatURL: string }[] }
       const candidates = data.hits.filter(h => !excludeUrls.includes(h.webformatURL))

@@ -79,5 +79,8 @@ Mantine Image
 ## 相关工具函数（`src/utils/pixabay.ts`）
 
 - `fetchPixabayImage(word, chinese, key, exclude)` — 联网搜索，排除已有 URL
+  - `key` 为空时立即返回 `null`，不发起请求
+  - HTTP 400 / 403 视为 key 无效，立即返回 `null`（不继续尝试中文查询词）
+  - 其他非 200 状态（如 429、5xx）继续尝试下一个查询词
 - `getImageCache / addToImageCache / removeFromImageCache` — localStorage CRUD
 - `getBlacklist / addToBlacklist / isBlacklisted` — 黑名单管理
