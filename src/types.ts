@@ -50,7 +50,8 @@ export interface SemesterData {
 export interface SightWordEntry {
   word: string
   chinese: string
-  isContentWord?: boolean // 实词（名词/动词/形容词），用于标记是否可配图
+  phonetic?: string     // fallback 音标（dictionary 里无数据时显示）
+  isContentWord?: boolean
 }
 
 // 句子难度等级：1=Pre-Primer … 5=Grade3

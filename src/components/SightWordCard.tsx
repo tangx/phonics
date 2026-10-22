@@ -1,8 +1,9 @@
 import { useState, useCallback } from 'react'
 import { Box, Text, Group, UnstyledButton, ScrollArea, Badge } from '@mantine/core'
 import { IconVolume, IconCheck, IconRefresh } from '@tabler/icons-react'
-import type { SightWordEntry, SightSentenceLevel, SightWordSentence } from '../types'
+import type { SightWordEntry, SightSentenceLevel, SightWordSentence, WordEntry } from '../types'
 import { playWord } from '../utils/audio'
+import { SyllableRow, PhoneticText } from './SyllableDisplay'
 
 const SPRING = 'cubic-bezier(0.34, 1.56, 0.64, 1)'
 
@@ -17,13 +18,14 @@ const LEVEL_META: Record<SightSentenceLevel, { color: string; label: string }> =
 
 interface Props {
   entry: SightWordEntry
+  dictEntry?: WordEntry       // dictionary 中的完整数据（有则展示音节，无则 fallback）
   sentences: SightWordSentence[]   // 已按 level 过滤+排序的句子列表
   mastered: boolean
   onToggleMastered: () => void
   color: string
 }
 
-export default function SightWordCard({ entry, sentences, mastered, onToggleMastered, color }: Props) {
+export default function SightWordCard({ entry, dictEntry, sentences, mastered, onToggleMastered, color }: Props) {
   const [flipped, setFlipped] = useState(false)
   const [bouncing, setBouncing] = useState(false)
 
@@ -81,11 +83,22 @@ export default function SightWordCard({ entry, sentences, mastered, onToggleMast
             cursor: 'pointer',
           }}
         >
+          {/* 音节块 or 纯音标（dictionary 命中则展示音节，否则 fallback） */}
+          {dictEntry ? (
+            <Box mb="clamp(8px, 1.5vh, 16px)" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+              <SyllableRow syllables={dictEntry.syllables} phonetic={dictEntry.phonetic} size="md" />
+            </Box>
+          ) : entry.phonetic ? (
+            <Box mb="clamp(8px, 1.5vh, 16px)">
+              <PhoneticText phonetic={entry.phonetic} size="md" />
+            </Box>
+          ) : null}
+
           <Text
             style={{
               fontFamily: "'Nunito', sans-serif",
               fontWeight: 900,
-              fontSize: 'clamp(56px, 12vw, 120px)',
+              fontSize: dictEntry ? 'clamp(40px, 8vw, 88px)' : 'clamp(56px, 12vw, 120px)',
               lineHeight: 1,
               color: '#1a1a2e',
               letterSpacing: '-2px',

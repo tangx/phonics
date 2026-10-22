@@ -11,6 +11,7 @@
 | [02b-book-units.md](02b-book-units.md) | `src/pages/BookUnitsPage.tsx` | 单元选择页（单元卡片） |
 | [03-book-page.md](03-book-page.md) | `src/pages/BookPage.tsx` | 单元学习页（单词轮播） |
 | [04-word-card.md](04-word-card.md) | `src/components/WordCard.tsx` | 单词卡片（核心展示组件） |
+| [04b-syllable-display.md](04b-syllable-display.md) | `src/components/SyllableDisplay.tsx` | 音节展示组件（WordCard + SightWordCard 共用） |
 | [05-word-image.md](05-word-image.md) | `src/components/WordImage.tsx` | 单词配图（Pixabay 联网 + 本地缓存） |
 | [06-sight-words.md](06-sight-words.md) | `src/pages/SightWordsPage.tsx`、`src/components/SightWordCard.tsx`、`src/data/sightWords.ts`、`src/data/sightWordSentences.ts`、`src/hooks/useSightWordsProgress.ts`、`src/utils/sightWordsSync.ts` | 高频词页（Dolch 分级解锁 + 翻转词卡 + 句子库 + S3 同步） |
 | [07-settings.md](07-settings.md) | `src/pages/SettingsPage.tsx` | 设置页（Tab 容器） |

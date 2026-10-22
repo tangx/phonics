@@ -81,7 +81,8 @@ GroupPractice（Carousel 练习）
 
 ```
 正面
-├── 超大单词（clamp 56~120px，Nunito 900）
+├── 音节区（dictionary 命中则展示 SyllableRow md，否则 PhoneticText md）
+├── 单词大字（有音节时 clamp 40~88px，纯音标时 clamp 56~120px）
 ├── 橙色圆形发音按钮（点击播放，弹簧动画）
 ├── "点击查看释义与例句" 提示
 ├── 右下角例句数量提示（如 "5 个例句"）
@@ -98,6 +99,8 @@ GroupPractice（Carousel 练习）
     ├── "翻回去" 按钮（左）
     └── "已掌握" 按钮（右，点击变绿 ✓，可反复切换）
 ```
+
+音节展示复用 `SyllableDisplay.tsx`，详见 [04b-syllable-display.md](04b-syllable-display.md)。
 
 ---
 

@@ -55,20 +55,24 @@ Stack (flex=1, height=100%, align=center, justify=center)
 
 ## SyllableChip（音节块）
 
+**已提取到独立组件** `src/components/SyllableDisplay.tsx`，`WordCard` 直接 import。
+
 每个音节渲染为一个带色框块：
 
 ```
 Stack (align=center)
-├── 音节字母 (Nunito fw=800, clamp 28~7vh)
+├── 音节字母 (Nunito fw=800, 按 size prop 响应式)
 │   └── SyllableLetters (处理字母标注)
-└── 音标 (clamp 11~2.2vh)
+└── 音标 (按 size prop 响应式)
     └── buildPhoneticWithDots (cluster 类型加中点分隔)
 ```
+
+支持三档尺寸 `size: 'lg' | 'md' | 'sm'`，默认 `lg`（WordCard 用），SightWordCard 用 `md`。
 
 框样式：
 - 背景：`SYLLABLE_BG[color]`（主色 + 12% 透明度）
 - 边框：`2px solid {color}`
-- 圆角：`1vw`（响应式）
+- 圆角：lg=`1vw`，md=`10px`，sm=`8px`
 
 ---
 

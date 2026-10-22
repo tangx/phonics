@@ -9,6 +9,7 @@ import { IconLock, IconChevronLeft } from '@tabler/icons-react'
 import { notifications } from '@mantine/notifications'
 import { sightWordLevels } from '../data/sightWords'
 import { getSentencesForSightWord } from '../data/sightWordSentences'
+import { dictionary } from '../data/dictionary'
 import { useSightWordsProgress } from '../hooks/useSightWordsProgress'
 import { uploadGroupProgress, canSync } from '../utils/sightWordsSync'
 import SightWordCard from '../components/SightWordCard'
@@ -107,6 +108,7 @@ function GroupPractice({
             <Carousel.Slide key={wordEntry.word}>
               <SightWordCard
                 entry={wordEntry}
+                dictEntry={dictionary[wordEntry.word.toLowerCase()]}
                 sentences={getSentencesForSightWord(wordEntry.word, levelIndex)}
                 mastered={isMastered(group.id, wordEntry.word)}
                 onToggleMastered={() => handleToggle(wordEntry.word)}
