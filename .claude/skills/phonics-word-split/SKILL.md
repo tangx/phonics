@@ -161,8 +161,29 @@ const C = ['#d64045', '#1b6ca8', '#2d8a4e', '#7b3fa0'] // 音节颜色，多音�
 
 字母发音与通常规则明显不符，且不属于已知 cluster：
 - `of` 的 f → /v/（f 通常发 /f/）
-- `stand`/`spin` 中 s 后的清辅音弱化（t→/d/，p→/b/）
+- `stand`/`spin`/`skip` 中 s 后的清辅音弱化（t→接近/d/，p→接近/b/，k→接近/g/）
 - `beautiful` 的 eau → /ju/（极不规则）
+
+**c 的软硬音**（Nessy 未专集讲，但规则明确）：
+
+| 情境 | 发音 | 例词 | 标注 |
+|---|---|---|---|
+| c + a/o/u 或辅音 | /k/（硬音） | cat, cold, clap | 不标（默认） |
+| c + e/i/y | /s/（软音） | city, celebrate, ice | 标 `changed`，note: `c + e/i/y → /s/（软音）` |
+
+```ts
+// city：ci 音节中 c→/s/
+{ letters: 'c', type: 'changed', note: 'c + e/i/y → /s/（软音）' }
+```
+
+**s 后清辅音弱化**（语音学现象，Nessy 未专集讲）：
+
+s 后面的 t/p/k 失去送气，听起来接近浊音 /d/b/g/，但仍写原字母。标注变化的辅音本身，不填 `affectedVowel`：
+
+```ts
+// stand：t 在 s 后弱化
+{ letters: 't', type: 'changed', note: 's 后 t 不送气，听起来接近 /d/' }
+```
 
 **词尾 `y→/aɪ/`（单音节词）**：`my`、`fly`、`sky`、`try` 等。y 本身是被变化的元音，填入 `affectedVowel: 'y'`。渲染时 y 同时呈现波浪下划线（变音）+ 顶线（被激活的元音）。
 

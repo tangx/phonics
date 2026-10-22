@@ -3,7 +3,7 @@ import type { WordEntry } from '../../types'
 const C = ['#d64045', '#1b6ca8', '#2d8a4e', '#7b3fa0']
 
 export const dictS: Record<string, WordEntry> = {
-  stand: { word: 'stand', phonetic: '/stænd/', syllables: [{ text: 'stand', phonetic: '/stænd/', color: C[0], marks: [{ letters: 't', type: 'changed', note: 's 后的 t 听起来像 /d/' }] }], chinese: '站立', image: 'stand.png' },
+  stand: { word: 'stand', phonetic: '/stænd/', syllables: [{ text: 'stand', phonetic: '/stænd/', color: C[0], marks: [{ letters: 't', type: 'changed', note: 's 后 t 不送气，听起来接近 /d/' }] }], chinese: '站立', image: 'stand.png' },
   snowman: { word: 'snowman', phonetic: '/ˈsnoʊmæn/', syllables: [{ text: 'snow', phonetic: '/snoʊ/', color: C[0], marks: [{ letters: 'ow', type: 'cluster', phonetic: 'oʊ', note: 'ow 组合→/oʊ/' }] }, { text: 'man', phonetic: '/mæn/', color: C[1] }], chinese: '雪人' },
   same: { word: 'same', phonetic: '/seɪm/', syllables: [{ text: 'same', phonetic: '/seɪm/', color: C[0], marks: [{ letters: 'e', type: 'silent-e', note: '魔法e：末尾 e 不发音，a→/eɪ/', affectedVowel: 'a' }] }], chinese: '相同的' },
   small: { word: 'small', phonetic: '/smɔːl/', syllables: [{ text: 'small', phonetic: '/smɔːl/', color: C[0] }], chinese: '小的' },
