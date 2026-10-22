@@ -1,141 +1,155 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import {
-  Box, Stack, Group, Text, Title, Button, Progress,
-  SimpleGrid, Paper, Center, ActionIcon,
+  Box, Stack, Group, Text, Title, Progress,
+  SimpleGrid, Paper, ActionIcon,
 } from '@mantine/core'
-import { IconLock, IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
+import { Carousel } from '@mantine/carousel'
+import '@mantine/carousel/styles.css'
+import { IconLock, IconChevronLeft } from '@tabler/icons-react'
+import { notifications } from '@mantine/notifications'
 import { sightWordLevels } from '../data/sightWords'
 import { useSightWordsProgress } from '../hooks/useSightWordsProgress'
+import { uploadGroupProgress, canSync } from '../utils/sightWordsSync'
+import SightWordCard from '../components/SightWordCard'
 import type { SightWordLevel, SightWordGroup } from '../types'
 
-// ── 翻转词卡 ──────────────────────────────────────────────────────────────────
-
-function FlipCard({ word, chinese, example, exampleZh }: {
-  word: string
-  chinese: string
-  example: string
-  exampleZh: string
-}) {
-  const [flipped, setFlipped] = useState(false)
-
-  return (
-    <Box
-      style={{ perspective: '1000px', cursor: 'pointer', height: 160 }}
-      onClick={() => setFlipped(f => !f)}
-    >
-      <Box
-        style={{
-          position: 'relative',
-          width: '100%',
-          height: '100%',
-          transformStyle: 'preserve-3d',
-          transition: 'transform 0.45s cubic-bezier(.4,0,.2,1)',
-          transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
-        }}
-      >
-        {/* 正面 */}
-        <Paper
-          shadow="xs"
-          radius="lg"
-          style={{
-            position: 'absolute', inset: 0,
-            backfaceVisibility: 'hidden',
-            WebkitBackfaceVisibility: 'hidden',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'white',
-            border: '2px solid #e9ecef',
-          }}
-        >
-          <Stack align="center" gap={4}>
-            <Text size="2.2rem" fw={800} style={{ letterSpacing: '-0.02em', color: '#1a1a2e', fontFamily: "'Nunito', sans-serif" }}>
-              {word}
-            </Text>
-            <Text size="xs" c="dimmed">点击翻转</Text>
-          </Stack>
-        </Paper>
-
-        {/* 背面 */}
-        <Paper
-          shadow="xs"
-          radius="lg"
-          style={{
-            position: 'absolute', inset: 0,
-            backfaceVisibility: 'hidden',
-            WebkitBackfaceVisibility: 'hidden',
-            transform: 'rotateY(180deg)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: '#f8f9fa',
-            border: '2px solid #e9ecef',
-            padding: '12px 16px',
-          }}
-        >
-          <Stack align="center" gap={6}>
-            <Text fw={700} size="lg" c="dark.7">{chinese}</Text>
-            <Text size="sm" c="blue.7" ta="center" style={{ lineHeight: 1.5 }}>{example}</Text>
-            <Text size="xs" c="dimmed" ta="center">{exampleZh}</Text>
-          </Stack>
-        </Paper>
-      </Box>
-    </Box>
-  )
-}
-
-// ── 单组练习视图 ───────────────────────────────────────────────────────────────
+// ── 组内练习（Carousel） ───────────────────────────────────────────────────────
 
 function GroupPractice({
+  level,
   group,
-  onComplete,
+  groupIndex,
   onBack,
 }: {
+  level: SightWordLevel
   group: SightWordGroup
-  onComplete: () => void
+  groupIndex: number
   onBack: () => void
 }) {
-  const [seen, setSeen] = useState<Set<number>>(new Set())
+  const { isMastered, toggleMastered, groupProgress, getMasteredForGroup } = useSightWordsProgress()
   const total = group.words.length
-  const progress = (seen.size / total) * 100
+  const progress = groupProgress(group.id, total)
 
-  function handleCardClick(index: number) {
-    setSeen(prev => new Set(prev).add(index))
-  }
+  // 找下一组 id
+  const nextGroup = level.groups[groupIndex + 1] ?? null
+
+  const handleToggle = useCallback((word: string) => {
+    toggleMastered(group.id, word, total, nextGroup?.id)
+
+    // 异步同步到 S3（静默，不阻塞 UI）
+    if (canSync()) {
+      const masteredNow = getMasteredForGroup(group.id)
+      // toggleMastered 是 setState，这里取最新值需要在下一 tick
+      setTimeout(() => {
+        uploadGroupProgress(level.id, group.id, masteredNow)
+          .catch(() => {
+            notifications.show({
+              title: '同步失败',
+              message: '掌握进度保存到云端失败，本地数据已保留',
+              color: 'orange',
+            })
+          })
+      }, 0)
+    }
+  }, [group.id, level.id, total, nextGroup?.id, toggleMastered, getMasteredForGroup])
+
+  const allMastered = progress === 1
 
   return (
-    <Stack gap="lg">
-      <Group>
-        <ActionIcon variant="subtle" onClick={onBack}><IconChevronLeft /></ActionIcon>
-        <Box style={{ flex: 1 }}>
-          <Progress value={progress} size="sm" radius="xl" color="green" />
-        </Box>
-        <Text size="sm" c="dimmed">{seen.size}/{total}</Text>
-      </Group>
-
-      <SimpleGrid cols={{ base: 2, sm: 3, md: 5 }} spacing="md">
-        {group.words.map((w, i) => (
-          <Box key={w.word} onClick={() => handleCardClick(i)}>
-            <FlipCard
-              word={w.word}
-              chinese={w.chinese}
-              example={w.example}
-              exampleZh={w.exampleZh}
-            />
+    <Box style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      {/* 顶栏 */}
+      <Box style={{ flexShrink: 0, padding: '8px 12px 0' }}>
+        <Group align="center" gap={8} mb={6}>
+          <ActionIcon variant="subtle" onClick={onBack} aria-label="返回">
+            <IconChevronLeft size={20} />
+          </ActionIcon>
+          <Box style={{ flex: 1 }}>
+            <Group justify="space-between" mb={4}>
+              <Text size="sm" fw={600} style={{ color: level.color }}>
+                {level.title} · 第 {groupIndex + 1} 组
+              </Text>
+              <Text size="sm" c="dimmed">
+                {Math.round(progress * total)}/{total} 已掌握
+              </Text>
+            </Group>
+            <Progress value={progress * 100} size="sm" radius="xl" color={level.color} />
           </Box>
-        ))}
-      </SimpleGrid>
+        </Group>
+      </Box>
 
-      {seen.size === total && (
-        <Center mt="md">
-          <Button
-            size="md"
-            color="green"
-            radius="xl"
-            rightSection={<IconChevronRight size={18} />}
-            onClick={onComplete}
+      {/* Carousel */}
+      <Box style={{ flex: 1, minHeight: 0, padding: '8px 12px 12px' }}>
+        <Carousel
+          withIndicators
+          withKeyboardEvents
+          slideSize="100%"
+          slideGap="md"
+          height="100%"
+          emblaOptions={{ loop: false, align: 'center' }}
+          controlSize={36}
+          styles={{
+            root: { height: '100%' },
+            viewport: { height: '100%' },
+            container: { height: '100%' },
+            slide: { height: '100%', padding: '4px 0 8px' },
+            control: {
+              background: '#fff',
+              border: '1px solid #eef0f8',
+              boxShadow: '0 2px 8px rgba(26,26,46,0.08)',
+              color: '#1a1a2e',
+            },
+          }}
+        >
+          {group.words.map((wordEntry) => (
+            <Carousel.Slide key={wordEntry.word}>
+              <SightWordCard
+                entry={wordEntry}
+                mastered={isMastered(group.id, wordEntry.word)}
+                onToggleMastered={() => handleToggle(wordEntry.word)}
+                color={level.color}
+              />
+            </Carousel.Slide>
+          ))}
+        </Carousel>
+      </Box>
+
+      {/* 全组完成提示 */}
+      {allMastered && nextGroup && (
+        <Box style={{ flexShrink: 0, padding: '0 16px 16px' }}>
+          <Box
+            style={{
+              background: `${level.color}12`,
+              border: `1.5px solid ${level.color}40`,
+              borderRadius: 16,
+              padding: '12px 16px',
+              textAlign: 'center',
+            }}
           >
-            完成这组，解锁下一组！
-          </Button>
-        </Center>
+            <Text fw={700} style={{ color: level.color, marginBottom: 4 }}>
+              🎉 这组全部掌握了！
+            </Text>
+            <Text size="sm" c="dimmed">第 {groupIndex + 2} 组已解锁，继续加油！</Text>
+          </Box>
+        </Box>
       )}
-    </Stack>
+      {allMastered && !nextGroup && (
+        <Box style={{ flexShrink: 0, padding: '0 16px 16px' }}>
+          <Box
+            style={{
+              background: `${level.color}12`,
+              border: `1.5px solid ${level.color}40`,
+              borderRadius: 16,
+              padding: '12px 16px',
+              textAlign: 'center',
+            }}
+          >
+            <Text fw={700} style={{ color: level.color }}>
+              🏆 {level.title} 全部掌握！太棒了！
+            </Text>
+          </Box>
+        </Box>
+      )}
+    </Box>
   )
 }
 
@@ -148,22 +162,15 @@ function LevelView({
   level: SightWordLevel
   onBack: () => void
 }) {
-  const { isGroupUnlocked, unlockGroup } = useSightWordsProgress()
-  const [activeGroup, setActiveGroup] = useState<SightWordGroup | null>(null)
+  const { isGroupUnlocked, groupProgress } = useSightWordsProgress()
+  const [activeGroup, setActiveGroup] = useState<{ group: SightWordGroup; index: number } | null>(null)
 
   if (activeGroup) {
-    const idx = level.groups.findIndex(g => g.id === activeGroup.id)
-    const nextGroup = level.groups[idx + 1] ?? null
-
-    function handleComplete() {
-      if (nextGroup) unlockGroup(nextGroup.id)
-      setActiveGroup(null)
-    }
-
     return (
       <GroupPractice
-        group={activeGroup}
-        onComplete={handleComplete}
+        level={level}
+        group={activeGroup.group}
+        groupIndex={activeGroup.index}
         onBack={() => setActiveGroup(null)}
       />
     )
@@ -172,55 +179,64 @@ function LevelView({
   const totalWords = level.groups.reduce((s, g) => s + g.words.length, 0)
 
   return (
-    <Stack gap="lg">
-      <Group>
-        <ActionIcon variant="subtle" onClick={onBack}><IconChevronLeft /></ActionIcon>
-        <Box>
-          <Title order={3} style={{ fontFamily: "'Nunito', sans-serif" }}>{level.title}</Title>
-          <Text size="sm" c="dimmed">{totalWords} 个高频词 · {level.groups.length} 组</Text>
-        </Box>
-      </Group>
+    <Box p="md" style={{ maxWidth: 800, margin: '0 auto' }}>
+      <Stack gap="lg">
+        <Group>
+          <ActionIcon variant="subtle" onClick={onBack}><IconChevronLeft /></ActionIcon>
+          <Box>
+            <Title order={3} style={{ fontFamily: "'Nunito', sans-serif", color: level.color }}>
+              {level.title}
+            </Title>
+            <Text size="sm" c="dimmed">{totalWords} 个高频词 · {level.groups.length} 组</Text>
+          </Box>
+        </Group>
 
-      <SimpleGrid cols={{ base: 2, sm: 3, md: 4 }} spacing="md">
-        {level.groups.map((group, idx) => {
-          const unlocked = isGroupUnlocked(level.id, group.id, idx)
-          const groupNum = idx + 1
+        <SimpleGrid cols={{ base: 2, sm: 3, md: 4 }} spacing="md">
+          {level.groups.map((group, idx) => {
+            const unlocked = isGroupUnlocked(level.id, group.id, idx)
+            const prog = groupProgress(group.id, group.words.length)
+            const done = prog === 1
 
-          return (
-            <Paper
-              key={group.id}
-              shadow="xs"
-              radius="lg"
-              p="lg"
-              style={{
-                cursor: unlocked ? 'pointer' : 'default',
-                opacity: unlocked ? 1 : 0.5,
-                border: `2px solid ${unlocked ? level.color + '40' : '#e9ecef'}`,
-                transition: 'box-shadow 0.2s',
-              }}
-              onClick={() => unlocked && setActiveGroup(group)}
-            >
-              <Stack align="center" gap="xs">
-                {unlocked ? (
-                  <>
-                    <Text size="xl" fw={800} style={{ color: level.color }}>
-                      {groupNum}
-                    </Text>
-                    <Text size="xs" c="dimmed">第 {groupNum} 组</Text>
-                    <Text size="xs" c="dimmed">{group.words.length} 词</Text>
-                  </>
-                ) : (
-                  <>
-                    <IconLock size={24} color="#adb5bd" />
-                    <Text size="xs" c="dimmed">完成上一组解锁</Text>
-                  </>
-                )}
-              </Stack>
-            </Paper>
-          )
-        })}
-      </SimpleGrid>
-    </Stack>
+            return (
+              <Paper
+                key={group.id}
+                shadow="xs"
+                radius="xl"
+                p="lg"
+                style={{
+                  cursor: unlocked ? 'pointer' : 'default',
+                  opacity: unlocked ? 1 : 0.45,
+                  border: `2px solid ${done ? level.color : unlocked ? level.color + '30' : '#e9ecef'}`,
+                  background: done ? `${level.color}08` : 'white',
+                  transition: 'box-shadow 0.2s',
+                }}
+                onClick={() => unlocked && setActiveGroup({ group, index: idx })}
+              >
+                <Stack align="center" gap="sm">
+                  {unlocked ? (
+                    <>
+                      <Text size="xl" fw={800} style={{ color: level.color, fontFamily: "'Nunito', sans-serif" }}>
+                        {idx + 1}
+                      </Text>
+                      <Text size="xs" c="dimmed">{group.words.length} 词</Text>
+                      <Progress value={prog * 100} size="xs" radius="xl" color={level.color} w="100%" />
+                      <Text size="xs" c={done ? level.color : 'dimmed'} fw={done ? 700 : 400}>
+                        {done ? '✓ 已全部掌握' : `${Math.round(prog * group.words.length)}/${group.words.length}`}
+                      </Text>
+                    </>
+                  ) : (
+                    <>
+                      <IconLock size={24} color="#adb5bd" />
+                      <Text size="xs" c="dimmed" ta="center">完成上一组解锁</Text>
+                    </>
+                  )}
+                </Stack>
+              </Paper>
+            )
+          })}
+        </SimpleGrid>
+      </Stack>
+    </Box>
   )
 }
 
@@ -228,11 +244,11 @@ function LevelView({
 
 export default function SightWordsPage() {
   const [activeLevel, setActiveLevel] = useState<SightWordLevel | null>(null)
-  const { isGroupUnlocked } = useSightWordsProgress()
+  const { isGroupUnlocked, groupProgress } = useSightWordsProgress()
 
   if (activeLevel) {
     return (
-      <Box p="md" style={{ maxWidth: 800, margin: '0 auto' }}>
+      <Box style={{ height: '100%' }}>
         <LevelView level={activeLevel} onBack={() => setActiveLevel(null)} />
       </Box>
     )
@@ -245,14 +261,18 @@ export default function SightWordsPage() {
           <Title order={2} style={{ fontFamily: "'Nunito', sans-serif", color: '#1a1a2e' }}>
             Sight Words
           </Title>
-          <Text size="sm" c="dimmed" mt={4}>Dolch 高频词 · 分级解锁</Text>
+          <Text size="sm" c="dimmed" mt={4}>Dolch 高频词 · 分级解锁 · 已掌握才算过关</Text>
         </Box>
 
         <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md">
           {sightWordLevels.map((level, levelIdx) => {
             const totalWords = level.groups.reduce((s, g) => s + g.words.length, 0)
+            const totalMastered = level.groups.reduce(
+              (s, g) => s + Math.round(groupProgress(g.id, g.words.length) * g.words.length),
+              0
+            )
             const unlockedGroups = level.groups.filter((g, i) => isGroupUnlocked(level.id, g.id, i)).length
-            const isLevelLocked = levelIdx > 0 && unlockedGroups === 0
+            const isLocked = levelIdx > 0 && unlockedGroups === 0
 
             return (
               <Paper
@@ -261,34 +281,36 @@ export default function SightWordsPage() {
                 radius="xl"
                 p="xl"
                 style={{
-                  cursor: isLevelLocked ? 'default' : 'pointer',
-                  opacity: isLevelLocked ? 0.5 : 1,
-                  border: `2px solid ${level.color}30`,
-                  transition: 'box-shadow 0.2s, transform 0.2s',
+                  cursor: isLocked ? 'default' : 'pointer',
+                  opacity: isLocked ? 0.5 : 1,
+                  border: `2px solid ${level.color}25`,
+                  transition: 'box-shadow 0.2s, transform 0.15s',
                 }}
-                onClick={() => !isLevelLocked && setActiveLevel(level)}
+                onClick={() => !isLocked && setActiveLevel(level)}
               >
                 <Stack gap="sm">
-                  <Group justify="space-between" align="flex-start">
+                  <Group justify="space-between" align="center">
                     <Box
                       style={{
-                        width: 12, height: 12, borderRadius: '50%',
-                        background: level.color, marginTop: 4,
+                        width: 10, height: 10, borderRadius: '50%',
+                        background: level.color,
                       }}
                     />
-                    {isLevelLocked && <IconLock size={16} color="#adb5bd" />}
+                    {isLocked && <IconLock size={16} color="#adb5bd" />}
                   </Group>
                   <Text fw={800} size="lg" style={{ color: level.color, fontFamily: "'Nunito', sans-serif" }}>
                     {level.title}
                   </Text>
                   <Text size="sm" c="dimmed">{totalWords} 个词 · {level.groups.length} 组</Text>
                   <Progress
-                    value={(unlockedGroups / level.groups.length) * 100}
+                    value={(totalMastered / totalWords) * 100}
                     size="xs"
                     radius="xl"
                     color={level.color}
                   />
-                  <Text size="xs" c="dimmed">已解锁 {unlockedGroups}/{level.groups.length} 组</Text>
+                  <Text size="xs" c="dimmed">
+                    已掌握 {totalMastered}/{totalWords}
+                  </Text>
                 </Stack>
               </Paper>
             )

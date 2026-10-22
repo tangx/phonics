@@ -1,48 +1,73 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import type { UnlockMode } from '../types'
 
-const PROGRESS_KEY = 'phonics_sight_words_progress'
-const MODE_KEY = 'phonics_sight_words_unlock_mode'
+const MASTERED_KEY = 'phonics_sw_mastered'   // { [groupId]: string[] }  已掌握单词列表
+const UNLOCKED_KEY = 'phonics_sw_unlocked'   // string[]  已解锁组 id
+const MODE_KEY     = 'phonics_sight_words_unlock_mode'
+
+// ── 持久化 ────────────────────────────────────────────────────────────────────
+
+function loadMastered(): Record<string, string[]> {
+  try { return JSON.parse(localStorage.getItem(MASTERED_KEY) ?? '{}') } catch { return {} }
+}
+function saveMastered(m: Record<string, string[]>) {
+  try { localStorage.setItem(MASTERED_KEY, JSON.stringify(m)) } catch {}
+}
 
 function loadUnlocked(): Set<string> {
-  try {
-    const raw = localStorage.getItem(PROGRESS_KEY)
-    return raw ? new Set(JSON.parse(raw) as string[]) : new Set()
-  } catch {
-    return new Set()
-  }
+  try { return new Set(JSON.parse(localStorage.getItem(UNLOCKED_KEY) ?? '[]') as string[]) } catch { return new Set() }
+}
+function saveUnlocked(s: Set<string>) {
+  try { localStorage.setItem(UNLOCKED_KEY, JSON.stringify([...s])) } catch {}
 }
 
-function saveUnlocked(unlocked: Set<string>) {
-  try {
-    localStorage.setItem(PROGRESS_KEY, JSON.stringify([...unlocked]))
-  } catch {}
-}
+// ── Hook ──────────────────────────────────────────────────────────────────────
 
 export function useSightWordsProgress() {
+  const [mastered, setMastered] = useState<Record<string, string[]>>(loadMastered)
   const [unlocked, setUnlocked] = useState<Set<string>>(loadUnlocked)
   const [unlockMode, setUnlockModeState] = useState<UnlockMode>(() => {
-    try {
-      return (localStorage.getItem(MODE_KEY) as UnlockMode) ?? 'auto'
-    } catch {
-      return 'auto'
-    }
+    try { return (localStorage.getItem(MODE_KEY) as UnlockMode) ?? 'auto' } catch { return 'auto' }
   })
 
-  function isGroupUnlocked(_levelId: string, groupId: string, groupIndex: number): boolean {
-    // 每级第一组始终解锁
+  // 某词是否已掌握
+  const isMastered = useCallback((groupId: string, word: string): boolean => {
+    return mastered[groupId]?.includes(word) ?? false
+  }, [mastered])
+
+  // 标记掌握 / 取消掌握
+  const toggleMastered = useCallback((groupId: string, word: string, totalInGroup: number, nextGroupId?: string) => {
+    setMastered(prev => {
+      const list = prev[groupId] ?? []
+      const already = list.includes(word)
+      const next = already ? list.filter(w => w !== word) : [...list, word]
+      const updated = { ...prev, [groupId]: next }
+      saveMastered(updated)
+
+      // 全组掌握 → 解锁下一组
+      if (!already && next.length === totalInGroup && nextGroupId) {
+        setUnlocked(u => {
+          if (u.has(nextGroupId)) return u
+          const nu = new Set(u)
+          nu.add(nextGroupId)
+          saveUnlocked(nu)
+          return nu
+        })
+      }
+      return updated
+    })
+  }, [])
+
+  // 某组掌握进度 0~1
+  const groupProgress = useCallback((groupId: string, total: number): number => {
+    return total === 0 ? 0 : (mastered[groupId]?.length ?? 0) / total
+  }, [mastered])
+
+  // 组是否已解锁（第一组始终解锁）
+  const isGroupUnlocked = useCallback((_levelId: string, groupId: string, groupIndex: number): boolean => {
     if (groupIndex === 0) return true
     return unlocked.has(groupId)
-  }
-
-  function unlockGroup(groupId: string) {
-    setUnlocked(prev => {
-      const next = new Set(prev)
-      next.add(groupId)
-      saveUnlocked(next)
-      return next
-    })
-  }
+  }, [unlocked])
 
   function setUnlockMode(mode: UnlockMode) {
     setUnlockModeState(mode)
@@ -50,9 +75,45 @@ export function useSightWordsProgress() {
   }
 
   function resetProgress() {
+    setMastered({})
     setUnlocked(new Set())
-    try { localStorage.removeItem(PROGRESS_KEY) } catch {}
+    try {
+      localStorage.removeItem(MASTERED_KEY)
+      localStorage.removeItem(UNLOCKED_KEY)
+    } catch {}
   }
 
-  return { unlocked, unlockMode, isGroupUnlocked, unlockGroup, setUnlockMode, resetProgress }
+  // 返回某组已掌握单词列表（供同步用）
+  function getMasteredForGroup(groupId: string): string[] {
+    return mastered[groupId] ?? []
+  }
+
+  // 从云端合并恢复（同步下载后调用）
+  function applyRemoteMastered(remote: Record<string, string[]>) {
+    setMastered(prev => {
+      // 合并：取并集
+      const merged: Record<string, string[]> = { ...prev }
+      for (const [gid, words] of Object.entries(remote)) {
+        const existing = new Set(merged[gid] ?? [])
+        for (const w of words) existing.add(w)
+        merged[gid] = [...existing]
+      }
+      saveMastered(merged)
+      return merged
+    })
+  }
+
+  return {
+    mastered,
+    unlocked,
+    unlockMode,
+    isMastered,
+    toggleMastered,
+    groupProgress,
+    isGroupUnlocked,
+    setUnlockMode,
+    resetProgress,
+    getMasteredForGroup,
+    applyRemoteMastered,
+  }
 }

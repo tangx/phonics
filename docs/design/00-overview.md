@@ -12,7 +12,7 @@
 | [03-book-page.md](03-book-page.md) | `src/pages/BookPage.tsx` | 单元学习页（单词轮播） |
 | [04-word-card.md](04-word-card.md) | `src/components/WordCard.tsx` | 单词卡片（核心展示组件） |
 | [05-word-image.md](05-word-image.md) | `src/components/WordImage.tsx` | 单词配图（Pixabay 联网 + 本地缓存） |
-| [06-sight-words.md](06-sight-words.md) | `src/pages/SightWordsPage.tsx`、`src/data/sightWords.ts`、`src/hooks/useSightWordsProgress.ts` | 高频词页（Dolch 分级解锁 + 翻转词卡） |
+| [06-sight-words.md](06-sight-words.md) | `src/pages/SightWordsPage.tsx`、`src/components/SightWordCard.tsx`、`src/data/sightWords.ts`、`src/hooks/useSightWordsProgress.ts`、`src/utils/sightWordsSync.ts` | 高频词页（Dolch 分级解锁 + 翻转词卡 + S3 同步） |
 | [07-settings.md](07-settings.md) | `src/pages/SettingsPage.tsx` | 设置页（Tab 容器） |
 | [08-settings-edge-voice.md](08-settings-edge-voice.md) | `src/pages/settings/EdgeVoiceTab.tsx` | Edge Neural 语音设置 |
 | [09-settings-ios-voice.md](09-settings-ios-voice.md) | `src/pages/settings/IosVoiceTab.tsx` | iOS 系统音设置 |
