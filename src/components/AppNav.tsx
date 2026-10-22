@@ -2,7 +2,7 @@ import { useState } from 'react'
 import {
   AppShell, Burger, Collapse, Group, NavLink, ScrollArea, Text, UnstyledButton, rem,
 } from '@mantine/core'
-import { IconBooks, IconLetterCase, IconChevronDown, IconChevronRight, IconSettings } from '@tabler/icons-react'
+import { IconBooks, IconLetterCase, IconChevronDown, IconChevronRight, IconSettings, IconSearch } from '@tabler/icons-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { semesters } from '../data/units'
 
@@ -25,6 +25,7 @@ export default function AppNav({ navOpened, toggleNav, closeNav }: AppNavProps) 
 
   const isBooks = location.pathname.startsWith('/books')
   const isSightWords = location.pathname.startsWith('/sight-words')
+  const isSearch = location.pathname.startsWith('/search')
 
   const currentSemesterId = location.pathname.match(/^\/books\/([^/]+)/)?.[1] ?? null
 
@@ -56,6 +57,14 @@ export default function AppNav({ navOpened, toggleNav, closeNav }: AppNavProps) 
           leftSection={<IconLetterCase size={16} stroke={1.8} />}
           active={isSightWords}
           onClick={() => handleNav('/sight-words')}
+          styles={{ root: { borderRadius: 8 } }}
+        />
+
+        <NavLink
+          label={<Text fw={600} size="sm">搜索单词</Text>}
+          leftSection={<IconSearch size={16} stroke={1.8} />}
+          active={isSearch}
+          onClick={() => handleNav('/search')}
           styles={{ root: { borderRadius: 8 } }}
         />
 

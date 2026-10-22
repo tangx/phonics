@@ -79,3 +79,19 @@ export interface SightWordLevel {
 
 // 解锁模式：auto = 看完自动解锁；quiz = 答对才解锁
 export type UnlockMode = 'auto' | 'quiz'
+
+// ── UnifiedEntry ──────────────────────────────────────────────────────────────
+// 整合词典的统一词条类型，兼容 dictionary（完整）和 sightWords（轻量）两种来源。
+// syllables 可选：有则为完整词条，无则为轻量词条。
+
+export type WordSource = 'dictionary' | 'sight-word' | 'custom'
+
+export interface UnifiedEntry {
+  word: string
+  chinese: string
+  phonetic?: string
+  syllables?: Syllable[]
+  image?: string
+  isContentWord?: boolean
+  source: WordSource
+}

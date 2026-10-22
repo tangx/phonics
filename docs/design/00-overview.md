@@ -21,6 +21,9 @@
 | [11-settings-sync.md](11-settings-sync.md) | `src/pages/settings/SyncTab.tsx` | 云端同步设置 |
 | [12-settings-user.md](12-settings-user.md) | `src/pages/settings/UserTab.tsx` | 用户信息设置 |
 | [13-deployment.md](13-deployment.md) | `.github/workflows/deploy.yml`、`vite.config.ts` | GitHub Actions 自动部署到 gh-pages |
+| [14-search.md](14-search.md) | `src/pages/SearchPage.tsx` | 全局单词搜索页（英文/中文/音标三向匹配，含整合词典） |
+| [15-unified-dictionary.md](15-unified-dictionary.md) | `src/data/unifiedDictionary.ts`、`src/utils/unifiedUtils.ts`、`src/types.ts` | 整合词典（dictionary + sight words 运行时 merge）|
+| [16-word-card-components.md](16-word-card-components.md) | `src/components/WordCardFront.tsx`、`src/components/WordCardBack.tsx` | 公共单词卡片正/背面组件 |
 
 ## 设计语言约定
 
