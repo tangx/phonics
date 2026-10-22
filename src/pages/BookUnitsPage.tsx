@@ -1,11 +1,13 @@
 import { useNavigate, useParams } from 'react-router-dom'
 import { Box, Card, SimpleGrid, Text, Stack, Group, Badge } from '@mantine/core'
-import { IconBook } from '@tabler/icons-react'
+import { IconBook, IconChevronRight } from '@tabler/icons-react'
 import { semesters } from '../data/units'
+import { useViewMode } from '../hooks/useViewMode'
 
 export default function BookUnitsPage() {
   const { semesterId } = useParams<{ semesterId: string }>()
   const navigate = useNavigate()
+  const [viewMode] = useViewMode()
 
   const semester = semesters.find(s => s.id === semesterId) ?? semesters[0]
   const color = semester.color ?? '#1b6ca8'
@@ -23,55 +25,104 @@ export default function BookUnitsPage() {
           <Text size="sm" c="dimmed">选择单元，开始学习</Text>
         </Stack>
 
-        <SimpleGrid cols={{ base: 2, sm: 3, md: 5 }} spacing="md">
-          {semester.units.map((unit) => (
-            <Card
-              key={unit.id}
-              radius="xl"
-              shadow="sm"
-              padding="lg"
-              style={{
-                cursor: 'pointer',
-                border: `2px solid ${color}22`,
-                transition: 'transform 0.15s, box-shadow 0.15s',
-                textAlign: 'center',
-              }}
-              onClick={() => navigate(`/books/${semester.id}/${unit.id}`)}
-              onMouseEnter={e => {
-                e.currentTarget.style.transform = 'translateY(-3px)'
-                e.currentTarget.style.boxShadow = `0 8px 24px ${color}30`
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = ''
-              }}
-            >
-              <Stack gap={8} align="center">
-                <Box
-                  style={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: '50%',
-                    background: `${color}18`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Text fw={800} size="lg" style={{ color, fontFamily: "'Nunito', sans-serif" }}>
-                    {unit.id.replace('u', '')}
+        {/* 网格模式 */}
+        {viewMode === 'grid' && (
+          <SimpleGrid cols={{ base: 2, sm: 3, md: 5 }} spacing="md">
+            {semester.units.map((unit) => (
+              <Card
+                key={unit.id}
+                radius="xl"
+                shadow="sm"
+                padding="lg"
+                style={{
+                  cursor: 'pointer',
+                  border: `2px solid ${color}22`,
+                  transition: 'transform 0.15s, box-shadow 0.15s',
+                  textAlign: 'center',
+                }}
+                onClick={() => navigate(`/books/${semester.id}/${unit.id}`)}
+                onMouseEnter={e => {
+                  e.currentTarget.style.transform = 'translateY(-3px)'
+                  e.currentTarget.style.boxShadow = `0 8px 24px ${color}30`
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = ''
+                }}
+              >
+                <Stack gap={8} align="center">
+                  <Box
+                    style={{
+                      width: 48, height: 48, borderRadius: '50%',
+                      background: `${color}18`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}
+                  >
+                    <Text fw={800} size="lg" style={{ color, fontFamily: "'Nunito', sans-serif" }}>
+                      {unit.id.replace('u', '')}
+                    </Text>
+                  </Box>
+                  <Text fw={700} size="sm" style={{ color: '#1a1a2e', fontFamily: "'Nunito', sans-serif" }}>
+                    {unit.title}
                   </Text>
-                </Box>
-                <Text fw={700} size="sm" style={{ color: '#1a1a2e', fontFamily: "'Nunito', sans-serif" }}>
-                  {unit.title}
-                </Text>
-                <Badge size="xs" variant="light" style={{ background: `${color}15`, color }}>
-                  {unit.wordKeys.length} 词
-                </Badge>
-              </Stack>
-            </Card>
-          ))}
-        </SimpleGrid>
+                  <Badge size="xs" variant="light" style={{ background: `${color}15`, color }}>
+                    {unit.wordKeys.length} 词
+                  </Badge>
+                </Stack>
+              </Card>
+            ))}
+          </SimpleGrid>
+        )}
+
+        {/* 列表模式 */}
+        {viewMode === 'list' && (
+          <Stack gap="sm">
+            {semester.units.map((unit) => (
+              <Card
+                key={unit.id}
+                radius="lg"
+                shadow="xs"
+                padding="sm"
+                style={{
+                  cursor: 'pointer',
+                  border: `1.5px solid ${color}18`,
+                  transition: 'transform 0.15s, box-shadow 0.15s',
+                }}
+                onClick={() => navigate(`/books/${semester.id}/${unit.id}`)}
+                onMouseEnter={e => {
+                  e.currentTarget.style.transform = 'translateY(-2px)'
+                  e.currentTarget.style.boxShadow = `0 6px 20px ${color}20`
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = ''
+                }}
+              >
+                <Group gap="md" wrap="nowrap">
+                  <Box
+                    style={{
+                      width: 44, height: 44, borderRadius: 12,
+                      background: `${color}18`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Text fw={800} size="md" style={{ color, fontFamily: "'Nunito', sans-serif" }}>
+                      {unit.id.replace('u', '')}
+                    </Text>
+                  </Box>
+                  <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
+                    <Text fw={700} size="sm" style={{ color: '#1a1a2e', fontFamily: "'Nunito', sans-serif" }}>
+                      {unit.title}
+                    </Text>
+                    <Text size="xs" c="dimmed">{unit.wordKeys.length} 个单词</Text>
+                  </Stack>
+                  <IconChevronRight size={16} color="#9ca3af" stroke={1.5} style={{ flexShrink: 0 }} />
+                </Group>
+              </Card>
+            ))}
+          </Stack>
+        )}
       </Stack>
     </Box>
   )

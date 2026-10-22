@@ -1,11 +1,11 @@
 import { useState, useCallback } from 'react'
 import {
   Box, Stack, Group, Text, Title, Progress,
-  SimpleGrid, Paper, ActionIcon,
+  SimpleGrid, Paper, ActionIcon, Card,
 } from '@mantine/core'
 import { Carousel } from '@mantine/carousel'
 import '@mantine/carousel/styles.css'
-import { IconLock, IconChevronLeft } from '@tabler/icons-react'
+import { IconLock, IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
 import { notifications } from '@mantine/notifications'
 import { sightWordLevels } from '../data/sightWords'
 import { getSentencesForSightWord } from '../data/sightWordSentences'
@@ -13,6 +13,7 @@ import { dictionary } from '../data/dictionary'
 import { useSightWordsProgress } from '../hooks/useSightWordsProgress'
 import { uploadGroupProgress, canSync } from '../utils/sightWordsSync'
 import SightWordCard from '../components/SightWordCard'
+import { useViewMode } from '../hooks/useViewMode'
 import type { SightWordLevel, SightWordGroup } from '../types'
 
 // ── 组内练习（Carousel） ───────────────────────────────────────────────────────
@@ -172,6 +173,7 @@ function LevelView({
 }) {
   const { isGroupUnlocked, groupProgress } = useSightWordsProgress()
   const [activeGroup, setActiveGroup] = useState<{ group: SightWordGroup; index: number } | null>(null)
+  const [viewMode] = useViewMode()
 
   if (activeGroup) {
     return (
@@ -200,50 +202,125 @@ function LevelView({
           </Box>
         </Group>
 
-        <SimpleGrid cols={{ base: 2, sm: 3, md: 4 }} spacing="md">
-          {level.groups.map((group, idx) => {
-            const unlocked = isGroupUnlocked(level.id, group.id, idx)
-            const prog = groupProgress(group.id, group.words.length)
-            const done = prog === 1
+        {/* 网格模式 */}
+        {viewMode === 'grid' && (
+          <SimpleGrid cols={{ base: 2, sm: 3, md: 4 }} spacing="md">
+            {level.groups.map((group, idx) => {
+              const unlocked = isGroupUnlocked(level.id, group.id, idx)
+              const prog = groupProgress(group.id, group.words.length)
+              const done = prog === 1
 
-            return (
-              <Paper
-                key={group.id}
-                shadow="xs"
-                radius="xl"
-                p="lg"
-                style={{
-                  cursor: unlocked ? 'pointer' : 'default',
-                  opacity: unlocked ? 1 : 0.45,
-                  border: `2px solid ${done ? level.color : unlocked ? level.color + '30' : '#e9ecef'}`,
-                  background: done ? `${level.color}08` : 'white',
-                  transition: 'box-shadow 0.2s',
-                }}
-                onClick={() => unlocked && setActiveGroup({ group, index: idx })}
-              >
-                <Stack align="center" gap="sm">
-                  {unlocked ? (
-                    <>
-                      <Text size="xl" fw={800} style={{ color: level.color, fontFamily: "'Nunito', sans-serif" }}>
-                        {idx + 1}
-                      </Text>
-                      <Text size="xs" c="dimmed">{group.words.length} 词</Text>
-                      <Progress value={prog * 100} size="xs" radius="xl" color={level.color} w="100%" />
-                      <Text size="xs" c={done ? level.color : 'dimmed'} fw={done ? 700 : 400}>
-                        {done ? '✓ 已全部掌握' : `${Math.round(prog * group.words.length)}/${group.words.length}`}
-                      </Text>
-                    </>
-                  ) : (
-                    <>
-                      <IconLock size={24} color="#adb5bd" />
-                      <Text size="xs" c="dimmed" ta="center">完成上一组解锁</Text>
-                    </>
-                  )}
-                </Stack>
-              </Paper>
-            )
-          })}
-        </SimpleGrid>
+              return (
+                <Paper
+                  key={group.id}
+                  shadow="xs"
+                  radius="xl"
+                  p="lg"
+                  style={{
+                    cursor: unlocked ? 'pointer' : 'default',
+                    opacity: unlocked ? 1 : 0.45,
+                    border: `2px solid ${done ? level.color : unlocked ? level.color + '30' : '#e9ecef'}`,
+                    background: done ? `${level.color}08` : 'white',
+                    transition: 'box-shadow 0.2s',
+                  }}
+                  onClick={() => unlocked && setActiveGroup({ group, index: idx })}
+                >
+                  <Stack align="center" gap="sm">
+                    {unlocked ? (
+                      <>
+                        <Text size="xl" fw={800} style={{ color: level.color, fontFamily: "'Nunito', sans-serif" }}>
+                          {idx + 1}
+                        </Text>
+                        <Text size="xs" c="dimmed">{group.words.length} 词</Text>
+                        <Progress value={prog * 100} size="xs" radius="xl" color={level.color} w="100%" />
+                        <Text size="xs" c={done ? level.color : 'dimmed'} fw={done ? 700 : 400}>
+                          {done ? '✓ 已全部掌握' : `${Math.round(prog * group.words.length)}/${group.words.length}`}
+                        </Text>
+                      </>
+                    ) : (
+                      <>
+                        <IconLock size={24} color="#adb5bd" />
+                        <Text size="xs" c="dimmed" ta="center">完成上一组解锁</Text>
+                      </>
+                    )}
+                  </Stack>
+                </Paper>
+              )
+            })}
+          </SimpleGrid>
+        )}
+
+        {/* 列表模式 */}
+        {viewMode === 'list' && (
+          <Stack gap="sm">
+            {level.groups.map((group, idx) => {
+              const unlocked = isGroupUnlocked(level.id, group.id, idx)
+              const prog = groupProgress(group.id, group.words.length)
+              const done = prog === 1
+
+              return (
+                <Card
+                  key={group.id}
+                  radius="lg"
+                  shadow="xs"
+                  padding="sm"
+                  style={{
+                    cursor: unlocked ? 'pointer' : 'default',
+                    opacity: unlocked ? 1 : 0.45,
+                    border: `1.5px solid ${done ? level.color : unlocked ? level.color + '30' : '#e9ecef'}`,
+                    background: done ? `${level.color}08` : 'white',
+                    transition: 'transform 0.15s, box-shadow 0.15s',
+                  }}
+                  onClick={() => unlocked && setActiveGroup({ group, index: idx })}
+                  onMouseEnter={e => {
+                    if (unlocked) {
+                      e.currentTarget.style.transform = 'translateY(-2px)'
+                      e.currentTarget.style.boxShadow = `0 6px 20px ${level.color}20`
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.boxShadow = ''
+                  }}
+                >
+                  <Group gap="md" wrap="nowrap">
+                    <Box
+                      style={{
+                        width: 44, height: 44, borderRadius: 12,
+                        background: unlocked ? `${level.color}18` : '#f1f3f5',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {unlocked
+                        ? <Text fw={800} size="md" style={{ color: level.color, fontFamily: "'Nunito', sans-serif" }}>{idx + 1}</Text>
+                        : <IconLock size={18} color="#adb5bd" />
+                      }
+                    </Box>
+                    <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
+                      <Group justify="space-between" align="baseline">
+                        <Text fw={700} size="sm" style={{ color: unlocked ? '#1a1a2e' : '#adb5bd', fontFamily: "'Nunito', sans-serif" }}>
+                          第 {idx + 1} 组
+                        </Text>
+                        {unlocked && (
+                          <Text size="xs" c={done ? level.color : 'dimmed'} fw={done ? 700 : 400}>
+                            {done ? '✓ 已掌握' : `${Math.round(prog * group.words.length)}/${group.words.length}`}
+                          </Text>
+                        )}
+                      </Group>
+                      {unlocked
+                        ? <Progress value={prog * 100} size="xs" radius="xl" color={level.color} />
+                        : <Text size="xs" c="dimmed">完成上一组解锁</Text>
+                      }
+                      {unlocked && <Text size="xs" c="dimmed">{group.words.length} 个词</Text>}
+                    </Stack>
+                    {unlocked && <IconChevronRight size={16} color="#9ca3af" stroke={1.5} style={{ flexShrink: 0 }} />}
+                  </Group>
+                </Card>
+              )
+            })}
+          </Stack>
+        )}
       </Stack>
     </Box>
   )
@@ -254,6 +331,7 @@ function LevelView({
 export default function SightWordsPage() {
   const [activeLevel, setActiveLevel] = useState<{ level: SightWordLevel; index: number } | null>(null)
   const { isGroupUnlocked, groupProgress } = useSightWordsProgress()
+  const [viewMode] = useViewMode()
 
   if (activeLevel) {
     return (
@@ -273,58 +351,140 @@ export default function SightWordsPage() {
           <Text size="sm" c="dimmed" mt={4}>Dolch 高频词 · 分级解锁 · 已掌握才算过关</Text>
         </Box>
 
-        <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md">
-          {sightWordLevels.map((level, levelIdx) => {
-            const totalWords = level.groups.reduce((s, g) => s + g.words.length, 0)
-            const totalMastered = level.groups.reduce(
-              (s, g) => s + Math.round(groupProgress(g.id, g.words.length) * g.words.length),
-              0
-            )
-            const unlockedGroups = level.groups.filter((g, i) => isGroupUnlocked(level.id, g.id, i)).length
-            const isLocked = levelIdx > 0 && unlockedGroups === 0
+        {/* 网格模式 */}
+        {viewMode === 'grid' && (
+          <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md">
+            {sightWordLevels.map((level, levelIdx) => {
+              const totalWords = level.groups.reduce((s, g) => s + g.words.length, 0)
+              const totalMastered = level.groups.reduce(
+                (s, g) => s + Math.round(groupProgress(g.id, g.words.length) * g.words.length),
+                0
+              )
+              const unlockedGroups = level.groups.filter((g, i) => isGroupUnlocked(level.id, g.id, i)).length
+              const isLocked = levelIdx > 0 && unlockedGroups === 0
 
-            return (
-              <Paper
-                key={level.id}
-                shadow="sm"
-                radius="xl"
-                p="xl"
-                style={{
-                  cursor: isLocked ? 'default' : 'pointer',
-                  opacity: isLocked ? 0.5 : 1,
-                  border: `2px solid ${level.color}25`,
-                  transition: 'box-shadow 0.2s, transform 0.15s',
-                }}
-                onClick={() => !isLocked && setActiveLevel({ level, index: levelIdx })}
-              >
-                <Stack gap="sm">
-                  <Group justify="space-between" align="center">
+              return (
+                <Paper
+                  key={level.id}
+                  shadow="sm"
+                  radius="xl"
+                  p="xl"
+                  style={{
+                    cursor: isLocked ? 'default' : 'pointer',
+                    opacity: isLocked ? 0.5 : 1,
+                    border: `2px solid ${level.color}25`,
+                    transition: 'box-shadow 0.2s, transform 0.15s',
+                  }}
+                  onClick={() => !isLocked && setActiveLevel({ level, index: levelIdx })}
+                >
+                  <Stack gap="sm">
+                    <Group justify="space-between" align="center">
+                      <Box
+                        style={{
+                          width: 10, height: 10, borderRadius: '50%',
+                          background: level.color,
+                        }}
+                      />
+                      {isLocked && <IconLock size={16} color="#adb5bd" />}
+                    </Group>
+                    <Text fw={800} size="lg" style={{ color: level.color, fontFamily: "'Nunito', sans-serif" }}>
+                      {level.title}
+                    </Text>
+                    <Text size="sm" c="dimmed">{totalWords} 个词 · {level.groups.length} 组</Text>
+                    <Progress
+                      value={(totalMastered / totalWords) * 100}
+                      size="xs"
+                      radius="xl"
+                      color={level.color}
+                    />
+                    <Text size="xs" c="dimmed">
+                      已掌握 {totalMastered}/{totalWords}
+                    </Text>
+                  </Stack>
+                </Paper>
+              )
+            })}
+          </SimpleGrid>
+        )}
+
+        {/* 列表模式 */}
+        {viewMode === 'list' && (
+          <Stack gap="sm">
+            {sightWordLevels.map((level, levelIdx) => {
+              const totalWords = level.groups.reduce((s, g) => s + g.words.length, 0)
+              const totalMastered = level.groups.reduce(
+                (s, g) => s + Math.round(groupProgress(g.id, g.words.length) * g.words.length),
+                0
+              )
+              const unlockedGroups = level.groups.filter((g, i) => isGroupUnlocked(level.id, g.id, i)).length
+              const isLocked = levelIdx > 0 && unlockedGroups === 0
+              const pct = totalWords > 0 ? (totalMastered / totalWords) * 100 : 0
+
+              return (
+                <Card
+                  key={level.id}
+                  radius="lg"
+                  shadow="xs"
+                  padding="sm"
+                  style={{
+                    cursor: isLocked ? 'default' : 'pointer',
+                    opacity: isLocked ? 0.5 : 1,
+                    transition: 'transform 0.15s, box-shadow 0.15s',
+                  }}
+                  onClick={() => !isLocked && setActiveLevel({ level, index: levelIdx })}
+                  onMouseEnter={e => {
+                    if (!isLocked) {
+                      e.currentTarget.style.transform = 'translateY(-2px)'
+                      e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.1)'
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.boxShadow = ''
+                  }}
+                >
+                  <Group gap="md" wrap="nowrap">
+                    {/* 左侧色点 */}
                     <Box
                       style={{
-                        width: 10, height: 10, borderRadius: '50%',
-                        background: level.color,
+                        width: 44,
+                        height: 44,
+                        borderRadius: 12,
+                        background: `${level.color}18`,
+                        border: `2px solid ${level.color}40`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
                       }}
-                    />
-                    {isLocked && <IconLock size={16} color="#adb5bd" />}
+                    >
+                      {isLocked
+                        ? <IconLock size={18} color="#adb5bd" />
+                        : <Text fw={800} size="sm" style={{ color: level.color, fontFamily: "'Nunito', sans-serif" }}>
+                            {level.title.slice(0, 2)}
+                          </Text>
+                      }
+                    </Box>
+
+                    {/* 右侧文字 + 进度条 */}
+                    <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
+                      <Group justify="space-between" align="baseline">
+                        <Text fw={700} size="sm" style={{ color: level.color, fontFamily: "'Nunito', sans-serif" }}>
+                          {level.title}
+                        </Text>
+                        <Text size="xs" c="dimmed">{totalMastered}/{totalWords}</Text>
+                      </Group>
+                      <Progress value={pct} size="xs" radius="xl" color={level.color} />
+                      <Text size="xs" c="dimmed">{totalWords} 个词 · {level.groups.length} 组</Text>
+                    </Stack>
+
+                    <IconChevronRight size={16} color="#9ca3af" stroke={1.5} style={{ flexShrink: 0 }} />
                   </Group>
-                  <Text fw={800} size="lg" style={{ color: level.color, fontFamily: "'Nunito', sans-serif" }}>
-                    {level.title}
-                  </Text>
-                  <Text size="sm" c="dimmed">{totalWords} 个词 · {level.groups.length} 组</Text>
-                  <Progress
-                    value={(totalMastered / totalWords) * 100}
-                    size="xs"
-                    radius="xl"
-                    color={level.color}
-                  />
-                  <Text size="xs" c="dimmed">
-                    已掌握 {totalMastered}/{totalWords}
-                  </Text>
-                </Stack>
-              </Paper>
-            )
-          })}
-        </SimpleGrid>
+                </Card>
+              )
+            })}
+          </Stack>
+        )}
       </Stack>
     </Box>
   )

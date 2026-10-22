@@ -1,6 +1,7 @@
 import './index.css'
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { HashRouter, Routes, Route } from 'react-router-dom'
 import AppShellLayout from './pages/HomePage'
+import LandingPage from './pages/LandingPage'
 import BooksHomePage from './pages/BooksHomePage'
 import BookUnitsPage from './pages/BookUnitsPage'
 import BookPage from './pages/BookPage'
@@ -13,7 +14,7 @@ export default function App() {
     <HashRouter>
       <Routes>
         <Route element={<AppShellLayout />}>
-          <Route index element={<Navigate to="/books" replace />} />
+          <Route index element={<LandingPage />} />
           <Route path="books" element={<BooksHomePage />} />
           <Route path="books/:semesterId" element={<BookUnitsPage />} />
           <Route path="books/:semesterId/:unitId" element={<BookPage />} />

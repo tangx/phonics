@@ -5,6 +5,8 @@ import {
 import { IconBooks, IconLetterCase, IconChevronDown, IconChevronRight, IconSettings, IconSearch } from '@tabler/icons-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { semesters } from '../data/units'
+import { useViewMode } from '../hooks/useViewMode'
+import ViewToggle from './ViewToggle'
 
 interface AppNavProps {
   navOpened: boolean
@@ -26,6 +28,7 @@ export default function AppNav({ navOpened, toggleNav, closeNav }: AppNavProps) 
   const isBooks = location.pathname.startsWith('/books')
   const isSightWords = location.pathname.startsWith('/sight-words')
   const isSearch = location.pathname.startsWith('/search')
+  const [viewMode, setViewMode] = useViewMode()
 
   const currentSemesterId = location.pathname.match(/^\/books\/([^/]+)/)?.[1] ?? null
 
@@ -39,7 +42,7 @@ export default function AppNav({ navOpened, toggleNav, closeNav }: AppNavProps) 
       {/* 顶部：品牌 + 手机端 Burger */}
       <AppShell.Section p="md" pb="xs" style={{ borderBottom: '1px solid #eef0f8' }}>
         <Group justify="space-between">
-          <Group gap="sm" style={{ cursor: 'pointer' }} onClick={() => handleNav('/books')}>
+          <Group gap="sm" style={{ cursor: 'pointer' }} onClick={() => handleNav('/')}>
             <IconBooks size={20} color="#1a1a2e" stroke={1.8} />
             <Text fw={800} style={{ fontFamily: "'Nunito', sans-serif", color: '#1a1a2e', fontSize: 17 }}>
               拼读乐园
@@ -164,8 +167,9 @@ export default function AppNav({ navOpened, toggleNav, closeNav }: AppNavProps) 
 
       </AppShell.Section>
 
-      {/* 底部：Settings 导航 */}
+      {/* 底部：视图切换 + Settings 导航 */}
       <AppShell.Section p="xs" style={{ borderTop: '1px solid #eef0f8' }}>
+        <ViewToggle mode={viewMode} onChange={setViewMode} />
         <NavLink
           label={<Text size="sm" fw={500}>设置</Text>}
           leftSection={<IconSettings size={16} stroke={1.8} />}
