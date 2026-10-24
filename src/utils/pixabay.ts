@@ -73,24 +73,32 @@ export async function fetchPixabayImage(
     url.searchParams.set('q', q)
     url.searchParams.set('image_type', 'illustration')
     url.searchParams.set('safesearch', 'true')
-    url.searchParams.set('per_page', '20')
+    url.searchParams.set('per_page', '10')   // 减少传输量，够用即可
     url.searchParams.set('lang', 'en')
+    url.searchParams.set('order', 'popular')  // 热门图质量更好
 
     try {
       const res = await fetch(url.toString())
       if (res.status === 400 || res.status === 403) return null
       if (!res.ok) continue
       const data = await res.json() as { hits: { webformatURL: string }[] }
-      const candidates = data.hits.filter(h => !excludeUrls.includes(h.webformatURL))
+      const candidates = data.hits.filter(h => !excludeUrls.includes(toSmallUrl(h.webformatURL)))
       const pool = candidates.length > 0 ? candidates : data.hits
       if (pool.length > 0) {
-        return pool[Math.floor(Math.random() * pool.length)].webformatURL
+        const hit = pool[Math.floor(Math.random() * pool.length)]
+        // 将 _640 替换为 _340 获取更小尺寸（约减少 70% 体积），加速显示
+        return toSmallUrl(hit.webformatURL)
       }
     } catch {
       continue
     }
   }
   return null
+}
+
+/** 将 Pixabay webformatURL 的 _640 替换为 _340 以获取小尺寸版本 */
+function toSmallUrl(url: string): string {
+  return url.replace(/_640(\.\w+)$/, '_340$1')
 }
 
 // ── 旧 API 兼容（已废弃，仅供迁移期过渡）──────────────────────────────────
