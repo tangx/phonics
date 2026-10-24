@@ -1,13 +1,41 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;700&display=swap');
 @import "tailwindcss";
 
+/* ── Design Tokens: Claymorphism for Kids ── */
 :root {
-  --ink: #1a1a2e;
-  --paper: #fafbff;
-  --card: #ffffff;
-  --accent: #f5a623;
-  --muted: #6b7280;
-  --surface: #f0f4ff;
+  /* Brand palette */
+  --clay-sky:     #4fa3e8;   /* sky blue primary */
+  --clay-sun:     #f9c846;   /* sunshine yellow */
+  --clay-coral:   #f97060;   /* warm coral accent */
+  --clay-mint:    #52c79d;   /* mint green success */
+  --clay-lavender:#9b8fe8;   /* lavender purple */
+  --clay-peach:   #fdbcb4;   /* soft peach */
+
+  /* Surfaces */
+  --bg:           #f0f7ff;   /* sky tinted page bg */
+  --card:         #ffffff;
+  --surface:      #e8f4fd;   /* slightly tinted surface */
+
+  /* Text */
+  --ink:          #1a2744;   /* deep navy */
+  --ink-muted:    #7a8ba8;
+
+  /* Claymorphism shadows */
+  --shadow-clay:  4px 4px 0px rgba(0,0,0,0.12), inset -1px -1px 4px rgba(0,0,0,0.06);
+  --shadow-clay-sm: 3px 3px 0px rgba(0,0,0,0.10), inset -1px -1px 3px rgba(0,0,0,0.05);
+  --shadow-card:  0 6px 24px rgba(26,39,68,0.10), 0 2px 6px rgba(26,39,68,0.06);
+  --shadow-hover: 0 10px 32px rgba(26,39,68,0.14), 0 4px 10px rgba(26,39,68,0.08);
+
+  /* Border radius */
+  --r-card:  20px;
+  --r-chip:  16px;
+  --r-icon:  16px;
+  --r-btn:   50px;
+
+  /* Legacy compat */
+  --paper: var(--bg);
+  --accent: var(--clay-sun);
+  --muted: var(--ink-muted);
 }
 
 * {
@@ -16,9 +44,9 @@
 
 body {
   margin: 0;
-  background: var(--paper);
+  background: var(--bg);
   color: var(--ink);
-  font-family: 'Noto Sans SC', system-ui, sans-serif;
+  font-family: 'Nunito', 'Noto Sans SC', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -26,7 +54,59 @@ body {
   min-height: 100svh;
 }
 
-/* 竖屏：上图下字 */
+/* ── Claymorphism card base ── */
+.clay-card {
+  background: var(--card);
+  border-radius: var(--r-card);
+  border: 3px solid rgba(255,255,255,0.9);
+  box-shadow: var(--shadow-card);
+  transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s ease;
+  cursor: pointer;
+}
+.clay-card:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: var(--shadow-hover);
+}
+.clay-card:active {
+  transform: translateY(1px) scale(0.99);
+  box-shadow: var(--shadow-clay-sm);
+}
+
+/* ── Clay icon block ── */
+.clay-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-icon);
+  border: 3px solid rgba(255,255,255,0.7);
+  box-shadow: var(--shadow-clay-sm);
+  flex-shrink: 0;
+}
+
+/* ── Page background blobs (decorative) ── */
+.bg-blobs::before,
+.bg-blobs::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.18;
+}
+.bg-blobs::before {
+  width: 340px; height: 340px;
+  background: var(--clay-sky);
+  top: -100px; right: -80px;
+  filter: blur(60px);
+}
+.bg-blobs::after {
+  width: 280px; height: 280px;
+  background: var(--clay-sun);
+  bottom: -60px; left: -60px;
+  filter: blur(50px);
+}
+
+/* ── 竖屏：上图下字 ── */
 @media (orientation: portrait) {
   .card-layout {
     grid-template-columns: 1fr !important;
@@ -34,3 +114,14 @@ body {
     grid-template-areas: "image" "word" !important;
   }
 }
+
+/* ── Nav sidebar ── */
+.mantine-AppShell-navbar {
+  background: #fff;
+  border-right: 2px solid rgba(79,163,232,0.12) !important;
+}
+
+/* ── Scrollbar polish ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(79,163,232,0.25); border-radius: 8px; }

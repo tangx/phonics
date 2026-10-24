@@ -72,11 +72,11 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
         <Stack gap={2} style={{ minWidth: 0 }}>
           <Group gap="clamp(4px, 0.8vw, 10px)" align="flex-end" wrap="nowrap">
             <Text style={{
-              fontFamily: 'Nunito, sans-serif',
-              fontWeight: 800,
+              fontFamily: "'Fredoka', 'Nunito', sans-serif",
+              fontWeight: 700,
               fontSize: 'clamp(40px, 8vw, 12vh)',
               lineHeight: 1,
-              color: '#1a1a2e',
+              color: 'var(--ink)',
               letterSpacing: '-1px',
               whiteSpace: 'nowrap',
             }}>
@@ -90,11 +90,13 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
               aria-label={`播放 ${entry.word} 发音`}
               onClick={handleSpeak}
               style={{
-                background: '#f5a623',
+                background: 'linear-gradient(145deg, #f9c846 0%, #f0a800 100%)',
                 color: '#fff',
-                transform: bouncing ? 'scale(1.4)' : 'scale(1)',
+                transform: bouncing ? 'scale(1.35)' : 'scale(1)',
                 transition: `transform 0.22s ${SPRING}`,
                 flexShrink: 0,
+                border: '2px solid rgba(255,255,255,0.7)',
+                boxShadow: '3px 3px 0px rgba(240,168,0,0.45)',
               }}
             >
               <IconVolume size="60%" stroke={1.8} />
@@ -123,7 +125,7 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
         <Tabs.Panel value="marks" pt="xs">
           {allMarks.length > 0 ? (
             <Box px="clamp(8px,1vw,14px)" py="clamp(6px,0.8vw,10px)"
-              style={{ background: '#f0f4ff', borderRadius: 10 }}>
+              style={{ background: 'linear-gradient(135deg, #f0f7ff 0%, #e8f4fd 100%)', borderRadius: 12, border: '1.5px solid rgba(79,163,232,0.15)' }}>
               <Stack gap={4}>
                 {allMarks.map((m, i) => (
                   <Text key={i} style={{ fontSize: 'clamp(11px, 1.5vw, 2vh)' }} c="dark.4">
@@ -146,7 +148,7 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
         {wordSentences.length > 0 && currentSentence && (
           <Tabs.Panel value="sentences" pt="xs">
             <Box px="clamp(8px,1vw,14px)" py="clamp(6px,0.8vw,10px)"
-              style={{ background: '#f0f4ff', borderRadius: 10 }}>
+              style={{ background: 'linear-gradient(135deg, #f0f7ff 0%, #e8f4fd 100%)', borderRadius: 12, border: '1.5px solid rgba(79,163,232,0.15)' }}>
 
               {/* 句子文本 */}
               <Text style={{ fontSize: 'clamp(12px, 1.8vw, 2.2vh)', fontFamily: 'Nunito, sans-serif', fontWeight: 600, color: '#1a1a2e', marginBottom: 4 }}>
@@ -244,10 +246,18 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
   return (
     <Card
       ref={cardRef}
-      radius="xl"
-      shadow="lg"
+      radius={20}
       p={0}
-      style={{ overflow: 'hidden', willChange: 'transform', height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}
+      style={{
+        overflow: 'hidden',
+        willChange: 'transform',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative',
+        border: '3px solid rgba(255,255,255,0.9)',
+        boxShadow: '0 8px 32px rgba(26,39,68,0.12), 0 2px 8px rgba(26,39,68,0.06)',
+      }}
     >
       {/* ? 音节图例 Popover，左上角 */}
       <Box style={{ position: 'absolute', top: 8, left: 8, zIndex: 10 }}>
@@ -300,7 +310,7 @@ export default function WordCard({ entry, pixabayKey }: { entry: WordEntry; pixa
         </Box>
         <Box style={{
           gridArea: 'image',
-          background: '#f0f4ff',
+          background: 'linear-gradient(135deg, #e8f4fd 0%, #ddeeff 100%)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',

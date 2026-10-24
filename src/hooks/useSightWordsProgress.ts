@@ -69,27 +69,25 @@ export function useSightWordsProgress() {
     return unlocked.has(groupId)
   }, [unlocked])
 
-  function setUnlockMode(mode: UnlockMode) {
+  const setUnlockMode = useCallback((mode: UnlockMode) => {
     setUnlockModeState(mode)
     try { localStorage.setItem(MODE_KEY, mode) } catch {}
-  }
+  }, [])
 
-  function resetProgress() {
+  const resetProgress = useCallback(() => {
     setMastered({})
     setUnlocked(new Set())
     try {
       localStorage.removeItem(MASTERED_KEY)
       localStorage.removeItem(UNLOCKED_KEY)
     } catch {}
-  }
+  }, [])
 
-  // 返回某组已掌握单词列表（供同步用）
-  function getMasteredForGroup(groupId: string): string[] {
+  const getMasteredForGroup = useCallback((groupId: string): string[] => {
     return mastered[groupId] ?? []
-  }
+  }, [mastered])
 
-  // 从云端合并恢复（同步下载后调用）
-  function applyRemoteMastered(remote: Record<string, string[]>) {
+  const applyRemoteMastered = useCallback((remote: Record<string, string[]>) => {
     setMastered(prev => {
       // 合并：取并集
       const merged: Record<string, string[]> = { ...prev }
@@ -101,7 +99,7 @@ export function useSightWordsProgress() {
       saveMastered(merged)
       return merged
     })
-  }
+  }, [])
 
   return {
     mastered,

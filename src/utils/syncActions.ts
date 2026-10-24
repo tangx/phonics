@@ -1,7 +1,7 @@
 import { notifications } from '@mantine/notifications'
 import { loadSyncConfig, resolveEndpoint, saveSyncConfig, deriveRegion } from '../pages/settings/sync'
 import { loadUserProfile } from '../pages/settings/user'
-import { applySnapshot, collectSnapshot, downloadSnapshot, uploadSnapshot } from './s3sync'
+import { applySnapshot, collectSnapshot, downloadSnapshot, uploadSnapshot, type S3ClientConfig } from './s3sync'
 
 export type SyncStatus = 'idle' | 'uploading' | 'downloading' | 'error'
 
@@ -10,7 +10,7 @@ export interface SyncActionCallbacks {
   onError: (msg: string) => void
 }
 
-function buildCfg() {
+function buildCfg(): S3ClientConfig {
   const config = loadSyncConfig()
   const { username } = loadUserProfile()
   const endpoint = resolveEndpoint(config)

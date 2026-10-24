@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import {
-  Box, Stack, Group, Text, Title, Progress,
+  Box, Stack, Group, Text, Progress,
   ActionIcon, Card,
 } from '@mantine/core'
 import { Carousel } from '@mantine/carousel'
@@ -188,83 +188,114 @@ function LevelView({
   const totalWords = level.groups.reduce((s, g) => s + g.words.length, 0)
 
   return (
-    <Box p="md" style={{ maxWidth: 800, margin: '0 auto' }}>
+    <Box p="md" style={{ maxWidth: 680, margin: '0 auto' }}>
       <Stack gap="lg">
         <Group>
-          <ActionIcon variant="subtle" onClick={onBack}><IconChevronLeft /></ActionIcon>
+          <ActionIcon
+            variant="light"
+            radius={12}
+            size={40}
+            onClick={onBack}
+            style={{ background: `${level.color}18`, color: level.color, border: `1.5px solid ${level.color}30` }}
+          >
+            <IconChevronLeft size={18} />
+          </ActionIcon>
           <Box>
-            <Title order={3} style={{ fontFamily: "'Nunito', sans-serif", color: level.color }}>
+            <Text fw={800} style={{
+              fontFamily: "'Fredoka', 'Nunito', sans-serif",
+              fontSize: 20,
+              color: level.color,
+              lineHeight: 1.2,
+            }}>
               {level.title}
-            </Title>
-            <Text size="sm" c="dimmed">{totalWords} 个高频词 · {level.groups.length} 组</Text>
+            </Text>
+            <Text size="sm" style={{ color: 'var(--ink-muted)' }}>{totalWords} 个高频词 · {level.groups.length} 组</Text>
           </Box>
         </Group>
 
-        <Stack gap="sm">
+        <Stack gap={10}>
           {level.groups.map((group, idx) => {
             const unlocked = isGroupUnlocked(level.id, group.id, idx)
             const prog = groupProgress(group.id, group.words.length)
             const done = prog === 1
 
             return (
-              <Card
+              <Box
                 key={group.id}
-                radius="lg"
-                shadow="xs"
-                padding="sm"
                 style={{
+                  padding: '14px 18px',
+                  borderRadius: 18,
+                  border: `3px solid ${done ? level.color + '60' : unlocked ? level.color + '35' : '#e9ecef'}`,
+                  background: done ? `${level.color}08` : '#fff',
                   cursor: unlocked ? 'pointer' : 'default',
                   opacity: unlocked ? 1 : 0.45,
-                  border: `1.5px solid ${done ? level.color : unlocked ? level.color + '30' : '#e9ecef'}`,
-                  background: done ? `${level.color}08` : 'white',
-                  transition: 'transform 0.15s, box-shadow 0.15s',
+                  boxShadow: unlocked ? '0 4px 16px rgba(26,39,68,0.08)' : 'none',
+                  transition: 'transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s ease',
                 }}
                 onClick={() => unlocked && setActiveGroup({ group, index: idx })}
                 onMouseEnter={e => {
                   if (unlocked) {
-                    e.currentTarget.style.transform = 'translateY(-2px)'
-                    e.currentTarget.style.boxShadow = `0 6px 20px ${level.color}20`
+                    (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px) scale(1.01)'
+                    ;(e.currentTarget as HTMLElement).style.boxShadow = `0 8px 24px ${level.color}25`
                   }
                 }}
                 onMouseLeave={e => {
-                  e.currentTarget.style.transform = 'translateY(0)'
-                  e.currentTarget.style.boxShadow = ''
+                  ;(e.currentTarget as HTMLElement).style.transform = 'translateY(0) scale(1)'
+                  ;(e.currentTarget as HTMLElement).style.boxShadow = unlocked ? '0 4px 16px rgba(26,39,68,0.08)' : 'none'
                 }}
               >
-                <Group gap="md" wrap="nowrap">
-                  <Box
-                    style={{
-                      width: 44, height: 44, borderRadius: 12,
-                      background: unlocked ? `${level.color}18` : '#f1f3f5',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      flexShrink: 0,
-                    }}
-                  >
+                <Group gap={14} wrap="nowrap">
+                  <Box style={{
+                    width: 48, height: 48, borderRadius: 14,
+                    background: unlocked
+                      ? done
+                        ? `linear-gradient(145deg, ${level.color} 0%, ${level.color}cc 100%)`
+                        : `${level.color}18`
+                      : '#f1f3f5',
+                    border: `2px solid ${unlocked ? (done ? 'rgba(255,255,255,0.7)' : level.color + '35') : '#e9ecef'}`,
+                    boxShadow: unlocked && done ? `3px 3px 0px ${level.color}50` : 'none',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    flexShrink: 0,
+                  }}>
                     {unlocked
-                      ? <Text fw={800} size="md" style={{ color: level.color, fontFamily: "'Nunito', sans-serif" }}>{idx + 1}</Text>
+                      ? <Text fw={800} style={{ color: done ? '#fff' : level.color, fontFamily: "'Fredoka', sans-serif", fontSize: 20, lineHeight: 1 }}>{idx + 1}</Text>
                       : <IconLock size={18} color="#adb5bd" />
                     }
                   </Box>
                   <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
                     <Group justify="space-between" align="baseline">
-                      <Text fw={700} size="sm" style={{ color: unlocked ? '#1a1a2e' : '#adb5bd', fontFamily: "'Nunito', sans-serif" }}>
+                      <Text fw={700} style={{
+                        color: unlocked ? 'var(--ink)' : '#adb5bd',
+                        fontFamily: "'Fredoka', 'Nunito', sans-serif",
+                        fontSize: 16,
+                        lineHeight: 1.2,
+                      }}>
                         第 {idx + 1} 组
                       </Text>
                       {unlocked && (
-                        <Text size="xs" c={done ? level.color : 'dimmed'} fw={done ? 700 : 400}>
+                        <Text size="xs" fw={done ? 700 : 400} style={{ color: done ? level.color : 'var(--ink-muted)' }}>
                           {done ? '✓ 已掌握' : `${Math.round(prog * group.words.length)}/${group.words.length}`}
                         </Text>
                       )}
                     </Group>
                     {unlocked
-                      ? <Progress value={prog * 100} size="xs" radius="xl" color={level.color} />
-                      : <Text size="xs" c="dimmed">完成上一组解锁</Text>
+                      ? <Progress value={prog * 100} size="sm" radius="xl" color={level.color} />
+                      : <Text size="xs" style={{ color: 'var(--ink-muted)' }}>完成上一组解锁</Text>
                     }
-                    {unlocked && <Text size="xs" c="dimmed">{group.words.length} 个词</Text>}
+                    {unlocked && <Text size="xs" style={{ color: 'var(--ink-muted)' }}>{group.words.length} 个词</Text>}
                   </Stack>
-                  {unlocked && <IconChevronRight size={16} color="#9ca3af" stroke={1.5} style={{ flexShrink: 0 }} />}
+                  {unlocked && (
+                    <Box style={{
+                      width: 28, height: 28, borderRadius: 9,
+                      background: `${level.color}15`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      flexShrink: 0,
+                    }}>
+                      <IconChevronRight size={14} color={level.color} stroke={2.5} />
+                    </Box>
+                  )}
                 </Group>
-              </Card>
+              </Box>
             )
           })}
         </Stack>
@@ -291,10 +322,20 @@ export default function SightWordsPage() {
     <Box p="md" style={{ maxWidth: 800, margin: '0 auto' }}>
       <Stack gap="xl">
         <Box>
-          <Title order={2} style={{ fontFamily: "'Nunito', sans-serif", color: '#1a1a2e' }}>
-            Sight Words
-          </Title>
-          <Text size="sm" c="dimmed" mt={4}>Dolch 高频词 · 分级解锁 · 已掌握才算过关</Text>
+          <Group gap={10} align="center" mb={6}>
+            <Box style={{ fontSize: 28, lineHeight: 1 }}>🃏</Box>
+            <Text fw={800} style={{
+              fontFamily: "'Fredoka', 'Nunito', sans-serif",
+              fontSize: 26,
+              color: 'var(--ink)',
+              letterSpacing: '-0.3px',
+            }}>
+              Sight Words
+            </Text>
+          </Group>
+          <Text size="sm" style={{ color: 'var(--ink-muted)', marginLeft: 38 }}>
+            Dolch 高频词 · 分级解锁 · 已掌握才算过关
+          </Text>
         </Box>
 
         <Stack gap="sm">
@@ -311,35 +352,39 @@ export default function SightWordsPage() {
             return (
               <Card
                 key={level.id}
-                radius="lg"
-                shadow="xs"
-                padding="sm"
+                radius={20}
+                p={0}
                 style={{
                   cursor: isLocked ? 'default' : 'pointer',
                   opacity: isLocked ? 0.5 : 1,
-                  transition: 'transform 0.15s, box-shadow 0.15s',
+                  padding: '16px 20px',
+                  border: `3px solid ${isLocked ? '#e9ecef' : level.color + '40'}`,
+                  boxShadow: isLocked ? 'none' : '0 6px 24px rgba(26,39,68,0.10), 0 2px 6px rgba(26,39,68,0.06)',
+                  background: '#fff',
+                  transition: 'transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s ease',
                 }}
                 onClick={() => !isLocked && setActiveLevel({ level, index: levelIdx })}
                 onMouseEnter={e => {
                   if (!isLocked) {
-                    e.currentTarget.style.transform = 'translateY(-2px)'
-                    e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.1)'
+                    e.currentTarget.style.transform = 'translateY(-3px) scale(1.01)'
+                    e.currentTarget.style.boxShadow = '0 10px 32px rgba(26,39,68,0.14)'
                   }
                 }}
                 onMouseLeave={e => {
-                  e.currentTarget.style.transform = 'translateY(0)'
-                  e.currentTarget.style.boxShadow = ''
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)'
+                  e.currentTarget.style.boxShadow = isLocked ? 'none' : '0 6px 24px rgba(26,39,68,0.10)'
                 }}
               >
                 <Group gap="md" wrap="nowrap">
-                  {/* 左侧色点 */}
+                  {/* 左侧色块 */}
                   <Box
                     style={{
-                      width: 44,
-                      height: 44,
-                      borderRadius: 12,
-                      background: `${level.color}18`,
-                      border: `2px solid ${level.color}40`,
+                      width: 52,
+                      height: 52,
+                      borderRadius: 16,
+                      background: isLocked ? '#f1f3f5' : `linear-gradient(145deg, ${level.color} 0%, ${level.color}cc 100%)`,
+                      border: `2.5px solid ${isLocked ? '#e9ecef' : 'rgba(255,255,255,0.8)'}`,
+                      boxShadow: isLocked ? 'none' : `3px 3px 0px ${level.color}50`,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -347,26 +392,42 @@ export default function SightWordsPage() {
                     }}
                   >
                     {isLocked
-                      ? <IconLock size={18} color="#adb5bd" />
-                      : <Text fw={800} size="sm" style={{ color: level.color, fontFamily: "'Nunito', sans-serif" }}>
+                      ? <IconLock size={20} color="#adb5bd" />
+                      : <Text fw={800} style={{ color: '#fff', fontFamily: "'Fredoka', sans-serif", fontSize: 18, lineHeight: 1 }}>
                           {level.title.slice(0, 2)}
                         </Text>
                     }
                   </Box>
 
                   {/* 右侧文字 + 进度条 */}
-                  <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
+                  <Stack gap={5} style={{ flex: 1, minWidth: 0 }}>
                     <Group justify="space-between" align="baseline">
-                      <Text fw={700} size="sm" style={{ color: level.color, fontFamily: "'Nunito', sans-serif" }}>
+                      <Text fw={700} style={{
+                        color: isLocked ? '#adb5bd' : 'var(--ink)',
+                        fontFamily: "'Fredoka', 'Nunito', sans-serif",
+                        fontSize: 17,
+                        lineHeight: 1.2,
+                      }}>
                         {level.title}
                       </Text>
-                      <Text size="xs" c="dimmed">{totalMastered}/{totalWords}</Text>
+                      <Text size="xs" style={{ color: 'var(--ink-muted)' }}>{totalMastered}/{totalWords}</Text>
                     </Group>
-                    <Progress value={pct} size="xs" radius="xl" color={level.color} />
-                    <Text size="xs" c="dimmed">{totalWords} 个词 · {level.groups.length} 组</Text>
+                    <Progress value={pct} size="sm" radius="xl" color={level.color} />
+                    <Text size="xs" style={{ color: 'var(--ink-muted)' }}>{totalWords} 个词 · {level.groups.length} 组</Text>
                   </Stack>
 
-                  <IconChevronRight size={16} color="#9ca3af" stroke={1.5} style={{ flexShrink: 0 }} />
+                  <Box style={{
+                    width: 30,
+                    height: 30,
+                    borderRadius: 9,
+                    background: isLocked ? '#f1f3f5' : `${level.color}15`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}>
+                    <IconChevronRight size={14} color={isLocked ? '#adb5bd' : level.color} stroke={2.5} />
+                  </Box>
                 </Group>
               </Card>
             )

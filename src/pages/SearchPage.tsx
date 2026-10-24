@@ -37,14 +37,10 @@ function getSentences(entry: UnifiedEntry): (Sentence | SightWordSentence)[] {
 function SearchResultCard({ entry, onClick }: { entry: UnifiedEntry; onClick: () => void }) {
   return (
     <Box
+      className="clay-card"
       onClick={onClick}
       style={{
-        background: '#fff',
-        border: '1.5px solid #e9ecef',
-        borderRadius: 14,
         padding: '12px 16px',
-        cursor: 'pointer',
-        transition: 'box-shadow 0.15s, border-color 0.15s',
       }}
       onMouseEnter={e => {
         const el = e.currentTarget as HTMLDivElement

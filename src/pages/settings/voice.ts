@@ -9,6 +9,13 @@ import { isIOS } from '../../utils/platform'
 
 export type VoiceSlot = 'man' | 'woman' | 'boy' | 'girl'
 
+export interface SlotMeta {
+  label: string
+  avatar: string
+  color: string
+  defaultVoice: string
+}
+
 export interface VoiceConfig {
   slot: VoiceSlot
   voiceName: string   // SpeechSynthesisVoice.name，空则系统默认英语
@@ -17,7 +24,7 @@ export interface VoiceConfig {
   active: boolean     // 是否激活（用于例句阅读）
 }
 
-export const SLOT_META: Record<VoiceSlot, { label: string; avatar: string; color: string; defaultVoice: string }> = {
+export const SLOT_META: Record<VoiceSlot, SlotMeta> = {
   woman: { label: 'Woman', avatar: womanSvg, color: '#7b3fa0', defaultVoice: 'Microsoft Ava Online (Natural) - English (United States)' },
   man:   { label: 'Man',   avatar: manSvg,   color: '#1b6ca8', defaultVoice: 'Microsoft Eric Online (Natural) - English (United States)' },
   girl:  { label: 'Girl',  avatar: girlSvg,  color: '#d64045', defaultVoice: '' },

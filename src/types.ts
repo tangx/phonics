@@ -46,6 +46,10 @@ export interface SemesterData {
   description?: string  // 简介
 }
 
+// ── SyllableChip ──────────────────────────────────────────────────────────────
+
+export type SyllableChipSize = 'lg' | 'md' | 'sm'
+
 // ── Sight Words ───────────────────────────────────────────────────────────────
 
 export interface SightWordEntry {

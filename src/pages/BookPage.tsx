@@ -58,7 +58,7 @@ export default function BookPage() {
     <Box style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
       {/* 单词折叠栏 */}
-      <Box style={{ flexShrink: 0, borderBottom: '1px solid #eef0f8' }}>
+      <Box style={{ flexShrink: 0, borderBottom: '2px solid rgba(79,163,232,0.10)' }}>
         <Group
           px="md"
           py={6}
@@ -125,9 +125,10 @@ export default function BookPage() {
             slide: { height: '100%' },
             control: {
               background: '#fff',
-              border: '1px solid #eef0f8',
-              boxShadow: '0 2px 8px rgba(26,26,46,0.08)',
-              color: '#1a1a2e',
+              border: '2px solid rgba(79,163,232,0.20)',
+              boxShadow: '3px 3px 0px rgba(79,163,232,0.20)',
+              color: 'var(--clay-sky)',
+              borderRadius: 12,
             },
           }}
         >

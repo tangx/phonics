@@ -1,18 +1,18 @@
-import { Box, Stack, Text, Group, Card } from '@mantine/core'
-import { IconBooks, IconLetterCase, IconSearch, IconStarFilled, IconChevronRight } from '@tabler/icons-react'
+import { Box, Stack, Text, Group } from '@mantine/core'
+import { IconBooks, IconLetterCase, IconSearch } from '@tabler/icons-react'
 import { useNavigate } from 'react-router-dom'
 
 const FEATURES = [
   {
-    id: 'search',
-    path: '/search',
-    icon: IconSearch,
-    label: '搜索单词',
-    sublabel: 'Word Search',
-    desc: '输入任意单词，即时查询音节、音标与例句',
-    color: '#7c3aed',
-    gradient: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)',
-    emoji: '🔍',
+    id: 'books',
+    path: '/books',
+    icon: IconBooks,
+    label: 'Books',
+    sublabel: '课本单元',
+    desc: '按教材单元学习，自然拼读规则 + 国际音标双轨',
+    bg: 'linear-gradient(145deg, #4fa3e8 0%, #2d8bdc 100%)',
+    border: 'rgba(79,163,232,0.5)',
+    shadow: '4px 4px 0px rgba(45,139,220,0.35)',
   },
   {
     id: 'sight-words',
@@ -21,20 +21,20 @@ const FEATURES = [
     label: 'Sight Words',
     sublabel: '高频词卡片',
     desc: '翻转卡片练习高频词，分级解锁，扎实记忆',
-    color: '#0369a1',
-    gradient: 'linear-gradient(135deg, #0369a1 0%, #38bdf8 100%)',
-    emoji: '🃏',
+    bg: 'linear-gradient(145deg, #9b8fe8 0%, #7c6fd4 100%)',
+    border: 'rgba(155,143,232,0.5)',
+    shadow: '4px 4px 0px rgba(124,111,212,0.35)',
   },
   {
-    id: 'books',
-    path: '/books',
-    icon: IconBooks,
-    label: 'Books',
-    sublabel: '课本单元',
-    desc: '按教材单元学习，自然拼读规则 + 国际音标双轨',
-    color: '#0f766e',
-    gradient: 'linear-gradient(135deg, #0f766e 0%, #2dd4bf 100%)',
-    emoji: '📚',
+    id: 'search',
+    path: '/search',
+    icon: IconSearch,
+    label: '搜索单词',
+    sublabel: 'Word Search',
+    desc: '输入任意单词，即时查询音节、音标与例句',
+    bg: 'linear-gradient(145deg, #52c79d 0%, #38b085 100%)',
+    border: 'rgba(82,199,157,0.5)',
+    shadow: '4px 4px 0px rgba(56,176,133,0.35)',
   },
 ]
 
@@ -43,103 +43,144 @@ export default function LandingPage() {
 
   return (
     <Box
+      className="bg-blobs"
       style={{
         minHeight: '100%',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '40px 24px',
+        padding: '40px 20px',
+        position: 'relative',
+        zIndex: 1,
       }}
     >
-      {/* 品牌区 */}
-      <Stack align="center" gap={8} mb={48} style={{ width: '100%', maxWidth: 760 }}>
-        <Group gap={10} align="center">
-          <IconStarFilled size={22} color="#f59e0b" />
+      {/* Hero */}
+      <Stack align="center" gap={6} mb={40} style={{ width: '100%', maxWidth: 680 }}>
+        {/* Big bouncy emoji mascot */}
+        <Box style={{
+          fontSize: 72,
+          lineHeight: 1,
+          filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.15))',
+          marginBottom: 8,
+          animation: 'none',
+        }}>
+          🐣
+        </Box>
+
+        <Text
+          fw={900}
+          style={{
+            fontFamily: "'Fredoka', 'Nunito', sans-serif",
+            fontSize: 'clamp(32px, 7vw, 52px)',
+            color: 'var(--ink)',
+            letterSpacing: '-0.5px',
+            lineHeight: 1.1,
+            textAlign: 'center',
+          }}
+        >
+          拼读乐园
+        </Text>
+
+        <Box style={{
+          background: 'linear-gradient(135deg, #4fa3e8, #9b8fe8)',
+          borderRadius: 50,
+          padding: '6px 20px',
+          display: 'inline-flex',
+        }}>
           <Text
-            fw={900}
             style={{
-              fontFamily: "'Nunito', sans-serif",
-              fontSize: 'clamp(26px, 6vw, 36px)',
-              color: '#1a1a2e',
-              letterSpacing: '-0.5px',
+              fontFamily: "'Fredoka', sans-serif",
+              fontSize: 15,
+              color: '#fff',
+              fontWeight: 600,
+              letterSpacing: '0.5px',
             }}
           >
-            拼读乐园
+            Phonics · 自然拼读 · 国际音标
           </Text>
-          <IconStarFilled size={22} color="#f59e0b" />
-        </Group>
-        <Text
-          size="sm"
-          c="dimmed"
-          style={{ fontFamily: "'Nunito', sans-serif", letterSpacing: '0.02em' }}
-        >
-          Phonics · 自然拼读 · 国际音标
-        </Text>
+        </Box>
       </Stack>
 
-      <Stack gap="sm" style={{ width: '100%', maxWidth: 760 }}>
-        {FEATURES.map((feat) => (
-          <Card
-            key={feat.id}
-            radius="lg"
-            shadow="xs"
-            padding="sm"
-            style={{ cursor: 'pointer', transition: 'transform 0.15s, box-shadow 0.15s' }}
-            onClick={() => navigate(feat.path)}
-            onMouseEnter={e => {
-              e.currentTarget.style.transform = 'translateY(-2px)'
-              e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.1)'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = ''
-            }}
-          >
-            <Group gap="md" wrap="nowrap">
-              {/* 左侧小色块 */}
-              <Box
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 12,
-                  background: feat.gradient,
+      {/* Feature cards */}
+      <Stack gap={14} style={{ width: '100%', maxWidth: 560 }}>
+        {FEATURES.map((feat) => {
+          const Icon = feat.icon
+          return (
+            <Box
+              key={feat.id}
+              className="clay-card"
+              onClick={() => navigate(feat.path)}
+              style={{
+                padding: '16px 20px',
+                borderColor: feat.border,
+              }}
+            >
+              <Group gap={16} wrap="nowrap" align="center">
+                {/* Clay icon */}
+                <Box
+                  className="clay-icon"
+                  style={{
+                    width: 60,
+                    height: 60,
+                    background: feat.bg,
+                    boxShadow: feat.shadow,
+                    borderColor: 'rgba(255,255,255,0.8)',
+                  }}
+                >
+                  <Icon size={28} color="white" stroke={1.8} />
+                </Box>
+
+                {/* Text */}
+                <Stack gap={3} style={{ flex: 1, minWidth: 0 }}>
+                  <Group gap={8} align="baseline" wrap="nowrap">
+                    <Text fw={800} style={{
+                      fontFamily: "'Fredoka', 'Nunito', sans-serif",
+                      fontSize: 20,
+                      color: 'var(--ink)',
+                      lineHeight: 1.2,
+                    }}>
+                      {feat.label}
+                    </Text>
+                    <Text size="sm" style={{ color: 'var(--ink-muted)', fontWeight: 500 }}>
+                      {feat.sublabel}
+                    </Text>
+                  </Group>
+                  <Text size="sm" style={{
+                    color: 'var(--ink-muted)',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}>
+                    {feat.desc}
+                  </Text>
+                </Stack>
+
+                {/* Arrow */}
+                <Box style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 10,
+                  background: 'var(--surface)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: 20,
                   flexShrink: 0,
-                }}
-              >
-                <span role="img" aria-label={feat.label}>{feat.emoji}</span>
-              </Box>
-
-              {/* 右侧文字 */}
-              <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
-                <Group gap={6} align="baseline">
-                  <Text fw={800} size="md" style={{ color: '#1a1a2e', fontFamily: "'Nunito', sans-serif" }}>
-                    {feat.label}
-                  </Text>
-                  <Text size="xs" c="dimmed">{feat.sublabel}</Text>
-                </Group>
-                <Text
-                  size="xs"
-                  c="dimmed"
-                  style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                >
-                  {feat.desc}
-                </Text>
-              </Stack>
-
-              <IconChevronRight size={16} color="#9ca3af" stroke={1.5} style={{ flexShrink: 0 }} />
-            </Group>
-          </Card>
-        ))}
+                  fontSize: 16,
+                }}>
+                  →
+                </Box>
+              </Group>
+            </Box>
+          )
+        })}
       </Stack>
 
-      {/* 底部提示 */}
-      <Text size="xs" c="dimmed" mt={40} style={{ opacity: 0.5 }}>
-        点击卡片开始学习 →
+      <Text
+        size="xs"
+        style={{ color: 'var(--ink-muted)', marginTop: 32, opacity: 0.6 }}
+      >
+        选一个，开始学习吧！
       </Text>
     </Box>
   )

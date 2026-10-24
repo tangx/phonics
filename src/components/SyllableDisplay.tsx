@@ -6,8 +6,9 @@
  *   SyllableRow    — 横排所有音节，含整词完整音标行
  *   PhoneticText   — 纯音标文本（fallback，无音节数据时用）
  */
+import React from 'react'
 import { Group, Stack, Text, Tooltip } from '@mantine/core'
-import type { LetterMark, Syllable } from '../types'
+import type { LetterMark, Syllable, SyllableChipSize } from '../types'
 
 // ── 常量 ────────────────────────────────────────────────────────────────────
 
@@ -66,10 +67,9 @@ function renderColoredPhonetic(text: string): React.ReactNode {
 
 // ── LetterBadge ─────────────────────────────────────────────────────────────
 
-function LetterBadge({ text, mark, syllableColor }: {
+function LetterBadge({ text, mark }: {
   text: string
   mark: LetterMark
-  syllableColor: string
 }) {
   const isCluster = mark.type === 'cluster'
   const isChanged = mark.type === 'changed'
@@ -99,8 +99,6 @@ function LetterBadge({ text, mark, syllableColor }: {
       </Tooltip>
     )
   }
-
-  void syllableColor  // kept for Tooltip key identification if needed
 
   return (
     <Tooltip label={mark.note} withArrow multiline maw={220}
@@ -161,7 +159,9 @@ function SyllableLetters({ syl }: { syl: Syllable }) {
   const sorted = [...syl.marks].sort(
     (a, b) => syl.text.indexOf(a.letters) - syl.text.indexOf(b.letters),
   )
-  const segments: { text: string; mark?: LetterMark; startOffset: number }[] = []
+
+  type Segment = { text: string; mark?: LetterMark; startOffset: number }
+  const segments: Segment[] = []
   let remaining = syl.text
   let charOffset = 0
 
@@ -191,7 +191,6 @@ function SyllableLetters({ syl }: { syl: Syllable }) {
               <LetterBadge
                 text={seg.text}
                 mark={seg.mark}
-                syllableColor={syl.color}
               />
             </span>
           )
@@ -215,7 +214,7 @@ function buildPhoneticWithDots(syl: Syllable): React.ReactNode {
 
 // ── SyllableChip ────────────────────────────────────────────────────────────
 
-export type SyllableChipSize = 'lg' | 'md' | 'sm'
+export type { SyllableChipSize }
 
 const CHIP_SIZES: Record<SyllableChipSize, {
   wordFontSize: string
@@ -260,8 +259,8 @@ export function SyllableChip({ syl, size = 'lg' }: { syl: Syllable; size?: Sylla
       minWidth: s.minWidth,
     }}>
       <span style={{
-        fontFamily: 'Nunito, sans-serif',
-        fontWeight: 800,
+        fontFamily: "'Fredoka', 'Nunito', sans-serif",
+        fontWeight: 700,
         fontSize: s.wordFontSize,
         lineHeight: 1.1,
         display: 'block',

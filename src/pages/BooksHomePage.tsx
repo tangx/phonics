@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Card, Group, Stack, Text, Box, Badge } from '@mantine/core'
+import { Box, Group, Stack, Text, Badge } from '@mantine/core'
 import { IconBooks, IconChevronRight } from '@tabler/icons-react'
 import { semesters } from '../data/units'
 
@@ -7,77 +7,108 @@ export default function BooksHomePage() {
   const navigate = useNavigate()
 
   return (
-    <Box p="xl" style={{ maxWidth: 900, margin: '0 auto' }}>
+    <Box p="xl" style={{ maxWidth: 680, margin: '0 auto' }}>
       <Stack gap="xl">
         {/* 页头 */}
-        <Stack gap={4}>
-          <Group gap="sm">
-            <IconBooks size={28} color="#1a1a2e" stroke={1.8} />
-            <Text fw={800} size="xl" style={{ fontFamily: "'Nunito', sans-serif", color: '#1a1a2e' }}>
-              Books
+        <Stack gap={6}>
+          <Group gap={10} align="center">
+            <Box style={{ fontSize: 32, lineHeight: 1 }}>📚</Box>
+            <Text fw={800} style={{
+              fontFamily: "'Fredoka', 'Nunito', sans-serif",
+              fontSize: 28,
+              color: 'var(--ink)',
+              letterSpacing: '-0.3px',
+            }}>
+              课本单元
             </Text>
           </Group>
-          <Text size="sm" c="dimmed">选择课本，开始学习单词拼读</Text>
+          <Text size="sm" style={{ color: 'var(--ink-muted)', marginLeft: 42 }}>
+            选择课本，开始学习单词拼读
+          </Text>
         </Stack>
 
-        <Stack gap="sm">
+        <Stack gap={12}>
           {semesters.map((semester) => {
             const totalWords = new Set(semester.units.flatMap(u => u.wordKeys)).size
-            const color = semester.color ?? '#1b6ca8'
-            const bgLight = `${color}15`
+            const color = semester.color ?? '#4fa3e8'
 
             return (
-              <Card
+              <Box
                 key={semester.id}
-                radius="lg"
-                shadow="xs"
-                padding="sm"
-                style={{ cursor: 'pointer', transition: 'transform 0.15s, box-shadow 0.15s' }}
+                className="clay-card"
                 onClick={() => navigate(`/books/${semester.id}`)}
-                onMouseEnter={e => {
-                  e.currentTarget.style.transform = 'translateY(-2px)'
-                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.1)'
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.transform = 'translateY(0)'
-                  e.currentTarget.style.boxShadow = ''
+                style={{
+                  padding: '16px 20px',
+                  borderColor: `${color}40`,
                 }}
               >
-                <Group gap="md" wrap="nowrap">
+                <Group gap={16} wrap="nowrap" align="center">
                   {/* 左侧色块图标 */}
                   <Box
+                    className="clay-icon"
                     style={{
-                      width: 44,
-                      height: 44,
-                      borderRadius: 12,
-                      background: `linear-gradient(135deg, ${color} 0%, ${color}cc 100%)`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
+                      width: 56,
+                      height: 56,
+                      background: `linear-gradient(145deg, ${color} 0%, ${color}cc 100%)`,
+                      boxShadow: `3px 3px 0px ${color}50`,
+                      borderColor: 'rgba(255,255,255,0.8)',
                     }}
                   >
-                    <IconBooks size={22} color="white" stroke={1.5} />
+                    <IconBooks size={26} color="white" stroke={1.8} />
                   </Box>
 
                   {/* 右侧文字 */}
-                  <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
-                    <Text fw={700} size="sm" style={{ color: '#1a1a2e', fontFamily: "'Nunito', sans-serif" }}>
+                  <Stack gap={5} style={{ flex: 1, minWidth: 0 }}>
+                    <Text fw={700} style={{
+                      fontFamily: "'Fredoka', 'Nunito', sans-serif",
+                      fontSize: 18,
+                      color: 'var(--ink)',
+                      lineHeight: 1.2,
+                    }}>
                       {semester.title}
                     </Text>
                     <Group gap={6}>
-                      <Badge size="xs" variant="light" style={{ background: bgLight, color }}>
+                      <Badge
+                        size="sm"
+                        radius="xl"
+                        style={{
+                          background: `${color}18`,
+                          color,
+                          fontWeight: 700,
+                          border: `1.5px solid ${color}30`,
+                        }}
+                      >
                         {semester.units.length} 单元
                       </Badge>
-                      <Badge size="xs" variant="light" style={{ background: bgLight, color }}>
+                      <Badge
+                        size="sm"
+                        radius="xl"
+                        style={{
+                          background: `${color}18`,
+                          color,
+                          fontWeight: 700,
+                          border: `1.5px solid ${color}30`,
+                        }}
+                      >
                         {totalWords} 单词
                       </Badge>
                     </Group>
                   </Stack>
 
-                  <IconChevronRight size={16} color="#9ca3af" stroke={1.5} style={{ flexShrink: 0 }} />
+                  <Box style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 10,
+                    background: `${color}15`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}>
+                    <IconChevronRight size={16} color={color} stroke={2.5} />
+                  </Box>
                 </Group>
-              </Card>
+              </Box>
             )
           })}
         </Stack>
