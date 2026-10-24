@@ -81,24 +81,18 @@ export async function fetchPixabayImage(
       const res = await fetch(url.toString())
       if (res.status === 400 || res.status === 403) return null
       if (!res.ok) continue
-      const data = await res.json() as { hits: { webformatURL: string }[] }
-      const candidates = data.hits.filter(h => !excludeUrls.includes(toSmallUrl(h.webformatURL)))
+      const data = await res.json() as { hits: { previewURL: string }[] }
+      const candidates = data.hits.filter(h => !excludeUrls.includes(h.previewURL))
       const pool = candidates.length > 0 ? candidates : data.hits
       if (pool.length > 0) {
         const hit = pool[Math.floor(Math.random() * pool.length)]
-        // 将 _640 替换为 _340 获取更小尺寸（约减少 70% 体积），加速显示
-        return toSmallUrl(hit.webformatURL)
+        return hit.previewURL
       }
     } catch {
       continue
     }
   }
   return null
-}
-
-/** 将 Pixabay webformatURL 的 _640 替换为 _340 以获取小尺寸版本 */
-function toSmallUrl(url: string): string {
-  return url.replace(/_640(\.\w+)$/, '_340$1')
 }
 
 // ── 旧 API 兼容（已废弃，仅供迁移期过渡）──────────────────────────────────
